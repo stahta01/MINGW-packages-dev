@@ -6,7 +6,7 @@
 # Contributor: Tim Stahlhut <stahta01@gmail.com>
 
 _enable_fortran=no
-_enable_ada=no
+_enable_ada=yes
 _enable_objc=no
 _basename=gcc
 _realname=${_basename}-mcf
@@ -19,9 +19,9 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          $([[ "$_enable_ada" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git")
          $([[ "$_enable_objc" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
         )
-pkgver=10.1.1.d20200605.c11.gae7aed03f20
+pkgver=10.1.1.d20200606.c14.g03da8723569
 pkgrel=1
-pkgdesc="GCC for the MinGW-w64"
+pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64 with MCF thread model"
 arch=('any')
 url="https://gcc.gnu.org"
 license=('GPL' 'LGPL' 'FDL' 'custom')
@@ -37,7 +37,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-${_basename}"
              "${MINGW_PACKAGE_PREFIX}-mpc"
              "${MINGW_PACKAGE_PREFIX}-mpfr"
              "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
-             "${MINGW_PACKAGE_PREFIX}-winpthreads"
+             "${MINGW_PACKAGE_PREFIX}-mcfgthread"
              "${MINGW_PACKAGE_PREFIX}-zlib")
 #checkdepends=('dejagnu')
 optdepends=()
@@ -59,7 +59,10 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0010-Fix-using-large-PCH.patch"
         "0011-Enable-shared-gnat-implib.patch"
         "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
-        "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch")
+        "0015-makedeps-properly-handle-win-paths.patch"
+        "0021-Ensure-lmsvcrt-precede-lkernel32.patch"
+        "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
+        "9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch")
 sha256sums=('SKIP'
             'dcc6ec24d7946643b35fce57c50d9900bcdbeb8723981ee5e7ff2ae935137598'
             '6033acda690786397059536787a6577e1a9f2b39f8a66276821917066094f43c'
@@ -71,9 +74,12 @@ sha256sums=('SKIP'
             '7a201413020cc9d7357e51921f49b22092fec2b644c36f4420c65966a67ec68c'
             '8faff8e503a617f283270f411399a8bcacda3ab62b4072dedf117e108af4844a'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
-            '2331365b6d42250d83eba36a1ef1a02e56b81a7c2595df6a43cb1a6abbcb99f0')
+            'e6b8a610142836ae9c5eba3c5ecbb3766078ac530483590c587b3c6341508af0'
+            'f96348a858722d6de87445e264a7b021f684b5fb11fcd8f7fbfbc9a8fb2d45e1'
+            '2331365b6d42250d83eba36a1ef1a02e56b81a7c2595df6a43cb1a6abbcb99f0'
+            'f22282601f9d55b11354153dcfc1b3465a10949e0104a50145a7cb2d131f2ae5')
 
-_threads="posix"
+_threads="mcf"
 _git_base_commit=
 _gcc_version=
 _gcc_date=
@@ -99,7 +105,11 @@ prepare() {
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
+  ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+  ${GIT_AM} ${srcdir}/0021-Ensure-lmsvcrt-precede-lkernel32.patch
+
+  ${GIT_AM} ${srcdir}/9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch
 
   # do not expect $prefix/mingw symlink - this should be superceded by
   # 0004-Windows-Don-t-ignore-native-system-header-dir.patch .. but isn't!
@@ -173,7 +183,7 @@ build() {
     --with-libiconv \
     --with-system-zlib \
     --with-{gmp,mpfr,mpc,isl}=${MINGW_PREFIX} \
-    --with-pkgversion="Rev${pkgrel}, Built by MSYS2 project" \
+    --with-pkgversion="Rev${pkgrel} with MCF thread model, Built by MSYS2 project" \
     --with-bugurl="https://sourceforge.net/projects/msys2" \
     --with-gnu-as --with-gnu-ld \
     --enable-plugin  \
@@ -201,11 +211,11 @@ build() {
 }
 
 package_mingw-w64-gcc-libs-git() {
-  pkgdesc="GNU Compiler Collection (libraries) for MinGW-w64"
+  pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64 with MCF thread model (libs)"
   depends=("${MINGW_PACKAGE_PREFIX}-gmp"
            "${MINGW_PACKAGE_PREFIX}-mpc"
            "${MINGW_PACKAGE_PREFIX}-mpfr"
-           "${MINGW_PACKAGE_PREFIX}-libwinpthread")
+           "${MINGW_PACKAGE_PREFIX}-mcfgthread-libs")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}-libs")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_basename}-libs")
 
@@ -237,7 +247,7 @@ ENDFILE
 }
 
 package_mingw-w64-gcc-git() {
-  pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64"
+  #pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64"
   depends=("${MINGW_PACKAGE_PREFIX}-binutils"
            "${MINGW_PACKAGE_PREFIX}-crt"
            "${MINGW_PACKAGE_PREFIX}-headers"
@@ -246,7 +256,7 @@ package_mingw-w64-gcc-git() {
            "${MINGW_PACKAGE_PREFIX}-mpc"
            "${MINGW_PACKAGE_PREFIX}-${_realname}-libs-git=${pkgver}-${pkgrel}"
            "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
-           "${MINGW_PACKAGE_PREFIX}-winpthreads"
+           "${MINGW_PACKAGE_PREFIX}-mcfgthread-libs"
            "${MINGW_PACKAGE_PREFIX}-zlib")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_basename}")
@@ -324,7 +334,7 @@ package_mingw-w64-gcc-git() {
 }
 
 package_mingw-w64-gcc-libgfortran-git() {
-  pkgdesc="GNU Compiler Collection (libgfortran) for MinGW-w64"
+  pkgdesc="GNU Compiler Collection (libgfortran) for MinGW-w64 with MCF thread model"
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-libs-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}-libgfortran")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_basename}-libgfortran")
@@ -335,7 +345,7 @@ package_mingw-w64-gcc-libgfortran-git() {
 }
 
 package_mingw-w64-gcc-fortran-git() {
-  pkgdesc="GNU Compiler Collection (Fortran) for MinGW-w64"
+  pkgdesc="GNU Compiler Collection (Fortran) for MinGW-w64 with MCF thread model"
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}"
            "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}-fortran")
@@ -359,7 +369,7 @@ package_mingw-w64-gcc-fortran-git() {
 }
 
 package_mingw-w64-gcc-ada-git() {
-  pkgdesc="GNU Compiler Collection (Ada) for MinGW-w64"
+  pkgdesc="GNU Compiler Collection (Ada) for MinGW-w64 with MCF thread model"
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}-ada")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_basename}-ada")
@@ -383,7 +393,7 @@ package_mingw-w64-gcc-ada-git() {
 }
 
 package_mingw-w64-gcc-objc-git() {
-  pkgdesc="GNU Compiler Collection (ObjC,Obj-C++) for MinGW-w64"
+  pkgdesc="GNU Compiler Collection (ObjC,Obj-C++) for MinGW-w64 with MCF thread model"
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_basename}-objc")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_basename}-objc")
