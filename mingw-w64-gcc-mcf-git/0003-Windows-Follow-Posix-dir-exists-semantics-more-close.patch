@@ -102,24 +102,24 @@ index ea2cc23..ac17272 100644
 +      while ( (dirsep = strchr (dirsep, '\\')) != NULL)
 +        *dirsep = '/';
 +      if (strstr(file->path, "/../"))
-+	{
-+	  dirsep = &filepath[0];
-+	  char dirsepc;
-+	  /* Check each directory in the chain. */
-+	  while ( (dirsep = strpbrk (dirsep, "\\/")) != NULL)
-+	    {
-+	      dirsepc = *(++dirsep);
-+	      *dirsep = '\0';
-+	      if (stat_st_mode_symlink (filepath, &file->st) == -1)
-+	        {
-+	          *dirsep = dirsepc;
-+	          close (file->fd);
-+	          file->fd = -1;
-+	          return false;
-+	        }
-+	      *dirsep++ = dirsepc;
-+	    }
-+	}
++      {
++        dirsep = &filepath[0];
++        char dirsepc;
++        /* Check each directory in the chain. */
++        while ( (dirsep = strpbrk (dirsep, "\\/")) != NULL)
++        {
++          dirsepc = *(++dirsep);
++          *dirsep = '\0';
++          if (stat_st_mode_symlink (filepath, &file->st) == -1)
++          {
++            *dirsep = dirsepc;
++            close (file->fd);
++            file->fd = -1;
++            return false;
++          }
++          *dirsep++ = dirsepc;
++        }
++      }
 +    }
 +#endif
  
