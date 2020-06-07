@@ -19,7 +19,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          $([[ "$_enable_ada" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git")
          $([[ "$_enable_objc" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
         )
-pkgver=10.1.1.d20200606.c14.g03da8723569
+pkgver=10.1.1.d20200507.c16.g6032350c350
 pkgrel=1
 pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64 with MCF thread model"
 arch=('any')
@@ -42,6 +42,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-${_basename}"
 #checkdepends=('dejagnu')
 optdepends=()
 options=('staticlibs' '!emptydirs' '!strip' 'debug')
+#options=('staticlibs' '!emptydirs') # '!strip' 'debug')
 
 #_branch=releases/gcc-7
 _branch=releases/gcc-10
@@ -56,12 +57,15 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0006-Windows-New-feature-to-allow-overriding.patch"
         "0007-Build-EXTRA_GNATTOOLS-for-Ada.patch"
         "0008-Prettify-linking-no-undefined.patch"
+        "0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch"
         "0010-Fix-using-large-PCH.patch"
         "0011-Enable-shared-gnat-implib.patch"
+        "0012-Handle-spaces-in-path-for-default-manifest.patch"
         "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "0015-makedeps-properly-handle-win-paths.patch"
-        "0021-Ensure-lmsvcrt-precede-lkernel32.patch"
         "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
+        "0021-Ensure-lmsvcrt-precede-lkernel32.patch"
+        "0130-libstdc++-in-out.patch"
         "9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch")
 sha256sums=('SKIP'
             'dcc6ec24d7946643b35fce57c50d9900bcdbeb8723981ee5e7ff2ae935137598'
@@ -71,12 +75,15 @@ sha256sums=('SKIP'
             'd1e10cd2ef5594c34acead334bb93af500e00699ba673edc8916da22a572677d'
             '3629446c0039d9061cfedcb6d7a7589279588bb4601c7ce233546d357bd4be34'
             'ec6800816632234afc35ce40542a6aab3ee76e8514a7d0cb4171fd874353ecd7'
-            '7a201413020cc9d7357e51921f49b22092fec2b644c36f4420c65966a67ec68c'
+            '513a824ee500d063f09ec920a9ad317a3a117e5468bf201aaf3f70dd0000e769'
+            '81527bf4db940b08a380d6357eb4b407df6f03cd102624159f416798e4a3c4ae'
             '8faff8e503a617f283270f411399a8bcacda3ab62b4072dedf117e108af4844a'
+            '5df2be491b7e73c3f5150b59826534d8190f52e31737ff96f5a89957cf526717'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
             'e6b8a610142836ae9c5eba3c5ecbb3766078ac530483590c587b3c6341508af0'
-            'f96348a858722d6de87445e264a7b021f684b5fb11fcd8f7fbfbc9a8fb2d45e1'
             '2331365b6d42250d83eba36a1ef1a02e56b81a7c2595df6a43cb1a6abbcb99f0'
+            'f96348a858722d6de87445e264a7b021f684b5fb11fcd8f7fbfbc9a8fb2d45e1'
+            '4506e5e3c8fabb6e4d775df6394d193ba5db901bdfc52c2df187558907e348c5'
             'f22282601f9d55b11354153dcfc1b3465a10949e0104a50145a7cb2d131f2ae5')
 
 _threads="mcf"
@@ -95,6 +102,8 @@ prepare() {
   cd ${srcdir}/${_sourcedir}
   _git_base_commit=$(git rev-parse HEAD)
   GIT_AM="git am --committer-date-is-author-date"
+  git config --local user.name  "nobody"
+  git config --local user.email "nobody@example.com"
   ${GIT_AM} ${srcdir}/0002-Relocate-libintl.patch
   ${GIT_AM} ${srcdir}/0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
   ${GIT_AM} ${srcdir}/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
@@ -102,12 +111,15 @@ prepare() {
   ${GIT_AM} ${srcdir}/0006-Windows-New-feature-to-allow-overriding.patch
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
+  ${GIT_AM} ${srcdir}/0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib.patch
+  ${GIT_AM} ${srcdir}/0012-Handle-spaces-in-path-for-default-manifest.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
   ${GIT_AM} ${srcdir}/0021-Ensure-lmsvcrt-precede-lkernel32.patch
+  ${GIT_AM} ${srcdir}/0130-libstdc++-in-out.patch
 
   ${GIT_AM} ${srcdir}/9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch
 
@@ -125,6 +137,14 @@ build() {
   [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
   mkdir -p ${srcdir}/build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
 
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("--disable-libstdcxx-debug")
+  else
+    _extra_config+=("--disable-libstdcxx-debug")
+    #_extra_config+=("--enable-libstdcxx-debug")
+  fi
+
   case "${CARCH}" in
     i686)
       local _conf="--disable-sjlj-exceptions --with-dwarf2"
@@ -141,6 +161,9 @@ build() {
   local _languages="c,lto,c++"
   if [ "$_enable_fortran" == "yes" ]; then
     _languages+=",fortran"
+    _extra_config+=("--disable-plugin")
+  else
+    _extra_config+=("--enable-plugin")  
   fi
   if [ "$_enable_ada" == "yes" ]; then
     _languages+=",ada"
@@ -166,10 +189,10 @@ build() {
     --enable-threads=${_threads} \
     --enable-graphite \
     --enable-fully-dynamic-string \
+    --enable-libstdcxx-filesystem-ts=yes \
     --enable-libstdcxx-time=yes \
     --disable-libstdcxx-pch \
-    --disable-libstdcxx-debug \
-    --enable-libstdcxx-filesystem-ts=yes \
+    "${_extra_config[@]}" \
     --disable-isl-version-check \
     --enable-lto \
     --enable-libgomp \
@@ -186,7 +209,6 @@ build() {
     --with-pkgversion="Rev${pkgrel} with MCF thread model, Built by MSYS2 project" \
     --with-bugurl="https://sourceforge.net/projects/msys2" \
     --with-gnu-as --with-gnu-ld \
-    --enable-plugin  \
     ${_conf}
     #--enable-libitm
     #--enable-objc-gc
@@ -288,7 +310,11 @@ package_mingw-w64-gcc-git() {
   cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/ssp     ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
   cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include-fixed   ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
   cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/install-tools   ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/plugin          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+
+  if [ "$_enable_ada" == "no" ]; then
+    cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/plugin          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  fi
+
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1.exe            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/collect2.exe       ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/crt*.o             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
