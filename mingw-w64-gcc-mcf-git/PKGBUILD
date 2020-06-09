@@ -19,7 +19,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          $([[ "$_enable_ada" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git")
          $([[ "$_enable_objc" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
         )
-pkgver=10.1.1.d20200507.c16.g6032350c350
+pkgver=10.1.1.d20200609.c17.g7783ab7bceb
 pkgrel=1
 pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64 with MCF thread model"
 arch=('any')
@@ -159,15 +159,15 @@ build() {
   esac
 
   local _languages="c,lto,c++"
-  if [ "$_enable_fortran" == "yes" ]; then
-    _languages+=",fortran"
+  if [ "$_enable_ada" == "yes" ]; then
+    _languages+=",ada"
     _extra_config+=("--disable-plugin")
     # avoids linker error: export ordinal too large while building Ada
   else
     _extra_config+=("--enable-plugin")  
   fi
-  if [ "$_enable_ada" == "yes" ]; then
-    _languages+=",ada"
+  if [ "$_enable_fortran" == "yes" ]; then
+    _languages+=",fortran"
   fi
   if [ "$_enable_objc" == "yes" ]; then
     _languages+=",objc,obj-c++"
