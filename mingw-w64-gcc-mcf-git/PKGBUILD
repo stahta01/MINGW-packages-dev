@@ -210,7 +210,6 @@ build() {
     --with-bugurl="https://sourceforge.net/projects/msys2" \
     --with-gnu-as --with-gnu-ld \
     ${_conf}
-    #--enable-plugin
     #--enable-libitm
     #--enable-objc-gc
     #--with-gxx-include-dir=${MINGW_PREFIX}/include/c++/${_realpkgver} \
