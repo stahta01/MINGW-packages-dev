@@ -57,7 +57,6 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0006-Windows-New-feature-to-allow-overriding.patch"
         "0007-Build-EXTRA_GNATTOOLS-for-Ada.patch"
         "0008-Prettify-linking-no-undefined.patch"
-        "0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch"
         "0010-Fix-using-large-PCH.patch"
         "0011-Enable-shared-gnat-implib.patch"
         "0012-Handle-spaces-in-path-for-default-manifest.patch"
@@ -75,7 +74,6 @@ sha256sums=('SKIP'
             'd1e10cd2ef5594c34acead334bb93af500e00699ba673edc8916da22a572677d'
             '3629446c0039d9061cfedcb6d7a7589279588bb4601c7ce233546d357bd4be34'
             'ec6800816632234afc35ce40542a6aab3ee76e8514a7d0cb4171fd874353ecd7'
-            '513a824ee500d063f09ec920a9ad317a3a117e5468bf201aaf3f70dd0000e769'
             '81527bf4db940b08a380d6357eb4b407df6f03cd102624159f416798e4a3c4ae'
             '8faff8e503a617f283270f411399a8bcacda3ab62b4072dedf117e108af4844a'
             '5df2be491b7e73c3f5150b59826534d8190f52e31737ff96f5a89957cf526717'
@@ -111,7 +109,6 @@ prepare() {
   ${GIT_AM} ${srcdir}/0006-Windows-New-feature-to-allow-overriding.patch
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
-  ${GIT_AM} ${srcdir}/0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib.patch
   ${GIT_AM} ${srcdir}/0012-Handle-spaces-in-path-for-default-manifest.patch
