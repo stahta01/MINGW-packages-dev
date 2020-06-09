@@ -162,6 +162,7 @@ build() {
   if [ "$_enable_fortran" == "yes" ]; then
     _languages+=",fortran"
     _extra_config+=("--disable-plugin")
+    # avoids linker error: export ordinal too large while building Ada
   else
     _extra_config+=("--enable-plugin")  
   fi
