@@ -9,19 +9,18 @@ allow to link against shared runtime
 Original commit:
 https://github.com/Alexpux/MINGW-packages/commit/51b4eb3b702fdb38df0460180c2f8209a686aaec
 ---
- gcc/ada/gcc-interface/Makefile.in | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ gcc/ada/gcc-interface/Makefile.in | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/gcc/ada/gcc-interface/Makefile.in b/gcc/ada/gcc-interface/Makefile.in
 index 3342e33b4b1..9bbc4776790 100644
 --- a/gcc/ada/gcc-interface/Makefile.in
 +++ b/gcc/ada/gcc-interface/Makefile.in
-@@ -753,13 +753,17 @@ gnatlib-shared-win32:
+@@ -753,13 +753,16 @@ gnatlib-shared-win32:
  		$(PICFLAG_FOR_TARGET) \
  		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
  		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 -		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
-+		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
 +		libgnat$(hyphen)$(LIBRARY_VERSION).def \
 +		-Wl,-out-implib,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a \
 +		$(MISCLIB)
