@@ -1,7 +1,7 @@
 From 8010fde8214f3b83bc7b2e6ff050afbbac081256 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?J=C3=BCrgen=20Pfeifer?= <juergen@familiepfeifer.de>
 Date: Wed, 5 Aug 2015 23:36:27 +0100
-Subject: Enable shared gnat implib
+Subject: Enable shared gnat implib and make def
 
 Provide GNAT runtime import libraries to
 allow to link against shared runtime
@@ -16,13 +16,13 @@ diff --git a/gcc/ada/gcc-interface/Makefile.in b/gcc/ada/gcc-interface/Makefile.
 index e1ca515..133807e 100644
 --- a/gcc/ada/gcc-interface/Makefile.in
 +++ b/gcc/ada/gcc-interface/Makefile.in
-@@ -2804,13 +2804,18 @@ gnatlib-shared-win32:
+@@ -2804,13 +2804,17 @@ gnatlib-shared-win32:
  		$(PICFLAG_FOR_TARGET) \
  		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
  		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 -		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
 +		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
-+		--output-def=libgnat$(hyphen)$(LIBRARY_VERSION) \
++		-Wl,-output-def,libgnat$(hyphen)$(LIBRARY_VERSION).def \
 +		-Wl,-out-implib,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a \
 +		$(MISCLIB)
  	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
@@ -31,7 +31,6 @@ index e1ca515..133807e 100644
  		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
  		$(GNATRTL_TASKING_OBJS) \
  		$(SO_OPTS)libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
-+		--output-def=libgnat$(hyphen)$(LIBRARY_VERSION) \
 +		-Wl,-out-implib,libgnarl$(hyphen)$(LIBRARY_VERSION).dll.a \
  		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION)$(soext)
  
