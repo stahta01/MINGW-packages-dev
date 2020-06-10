@@ -7,8 +7,8 @@
 
 _use_ada_def_file=no      # set to no to create def file
 _enable_ada=yes
-_enable_fortran=yes
-_enable_objc=yes
+_enable_fortran=no
+_enable_objc=no
 _basename=gcc
 _realname=${_basename}-mcf
 _sourcedir=${_basename}-git
