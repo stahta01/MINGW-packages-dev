@@ -1,7 +1,7 @@
-From f19f89a461ef411497a5131c1d40e62ca4633b6f Mon Sep 17 00:00:00 2001
+From 62f3b1fed362e13e8aa92ff9131c4cb988765681 Mon Sep 17 00:00:00 2001
 From: Erwin Waterlander <waterlan@xs4all.nl>
 Date: Wed, 5 Aug 2015 23:36:03 +0100
-Subject: [PATCH] Relocate libintl
+Subject: Relocate libintl
 
 The relocatex-libintl patch adds builtin relocation for executables to the
 libintl dll. With this patch the programs are automatically relocatable. There
@@ -92,7 +92,7 @@ index 356c8ab9b65..8fc6e9a7d04 100644
  explodename.o l10nflist.o: loadinfo.h
  dcigettext.o loadmsgcat.o plural.o plural-exp.o: plural-exp.h plural-config.h
 diff --git a/intl/bindtextdom.c b/intl/bindtextdom.c
-index 6faac5756a3..b7a62d58f55 100644
+index 6faac5756a3..9ed42348fdd 100644
 --- a/intl/bindtextdom.c
 +++ b/intl/bindtextdom.c
 @@ -23,6 +23,7 @@
@@ -134,9 +134,9 @@ index 6faac5756a3..b7a62d58f55 100644
 +	  locale_dirname = relocatex (installdir, dirname);
 +	  set_binding_values (domainname, (const char **) &locale_dirname, NULL);
 +	  if (installdir)
-+	  	free (installdir);
++		free (installdir);
 +	  return (char *) locale_dirname;
-+  }	  
++  }
  }
  
  /* Specify the character encoding in which the messages from the
@@ -515,7 +515,7 @@ index 00000000000..ea707bf1bdf
 +#endif /* __CANONICALIZE_H__ */
 diff --git a/intl/relocatex.c b/intl/relocatex.c
 new file mode 100644
-index 00000000000..a2b7438fb43
+index 00000000000..41fa3fda5d9
 --- /dev/null
 +++ b/intl/relocatex.c
 @@ -0,0 +1,284 @@
@@ -608,7 +608,7 @@ index 00000000000..a2b7438fb43
 +//	  printf ("memory: %s\n", memory);
 +//	  memory = (char *) malloc (orig_prefix_len + 1);
 +      if (!memory) {
-+	  	set_werrno;
++		set_werrno;
 +		orig_prefix = NULL;
 +		orig_prefix_len = 0;
 +		return NULL;
@@ -619,8 +619,8 @@ index 00000000000..a2b7438fb43
 +	  orig_prefix_len = strlen (orig_prefix);
 +//	  printf ("orig_prefix: %s\n", orig_prefix);
 +	  if (ISDIRSEP (orig_prefix[orig_prefix_len-1])) {
-+	  	orig_prefix[orig_prefix_len-1] = '\0';
-+	  	orig_prefix_len--;
++		orig_prefix[orig_prefix_len-1] = '\0';
++		orig_prefix_len--;
 +	  }
 +//	  printf ("orig_prefix: %s\n", orig_prefix);
 +//	  printf ("orig_prefix_len: %d\n", orig_prefix_len);
@@ -643,7 +643,7 @@ index 00000000000..a2b7438fb43
 +		curr_prefix = NULL;
 +		curr_prefix_len = 0;
 +		return NULL;
-+	}		
++	}
 +	if (ModuleName) {
 +//		printf ("ModuleName:  %s\n", ModuleName);
 +		len = SearchPath (NULL, ModuleName, ".DLL", MAX_PATH, curr_prefix_arg, &lpFilePart);
@@ -674,7 +674,7 @@ index 00000000000..a2b7438fb43
 +			nDIRSEP++;
 +		}
 +	}
-+	curr_prefix_len = q - curr_prefix_arg; 
++	curr_prefix_len = q - curr_prefix_arg;
 +//	printf ("curr_prefix: %s\n", curr_prefix);
 +//	printf ("curr_prefix_len: %d\n", curr_prefix_len);
 +	return curr_prefix;
@@ -684,7 +684,7 @@ index 00000000000..a2b7438fb43
 +{
 +	char *shortpath = NULL;
 +	DWORD len, res;
-+	
++
 +//	printf ("longpath: %s\n", longpath);
 +	len = GetShortPathName(longpath, shortpath, 0);
 +//	printf ("len: %ld\n", len);
@@ -715,7 +715,7 @@ index 00000000000..a2b7438fb43
 +{
 +	char *relative_path, *relocated_path, *relocated_short_path;
 +	int relative_path_len;
-+	
++
 +	if (!curr_prefix)
 +		set_current_prefix (ModuleName);
 +//	printf ("path:                 %s\n", path);
@@ -805,11 +805,11 @@ index 00000000000..a2b7438fb43
 +}
 diff --git a/intl/relocatex.h b/intl/relocatex.h
 new file mode 100644
-index 00000000000..5cc7c5174a9
+index 00000000000..bbe8a40f571
 --- /dev/null
 +++ b/intl/relocatex.h
 @@ -0,0 +1,41 @@
-+/* 
++/*
 +   Copyright (C) 2006 Free Software Foundation, Inc.
 +   This file is part of the GnuWin C Library.
 +
@@ -851,5 +851,3 @@ index 00000000000..5cc7c5174a9
 +
 +#endif /* __RELOCATE_H__ */
 -- 
-2.26.2
-
