@@ -20,7 +20,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          $([[ "$_enable_ada" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git")
          $([[ "$_enable_objc" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
         )
-pkgver=10.1.1.d20200609.c16.g7783ab7bceb
+pkgver=10.1.1.d20200609.c15.g7783ab7bceb
 pkgrel=1
 pkgdesc="GNU Compiler Collection (C,C++,OpenMP) for MinGW-w64 with MCF thread model"
 arch=('any')
@@ -68,14 +68,14 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0130-libstdc++-in-out.patch"
         "9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch")
 sha256sums=('SKIP'
-            'dcc6ec24d7946643b35fce57c50d9900bcdbeb8723981ee5e7ff2ae935137598'
-            '8a85d120236803014050acb36f034544a493a4584101a38c5618677eb2cf2fcc'
+            '20d6c381f20693ad9ac002d32e3814b089a3c693395f83ec455ce4b82e551367'
+            '2a2f834f99061d8bfd4996bc7d46333d1b1bc2827fe1d452939e6764db6bb6a0'
             '388f423a67e4be6f547ca7e340ff8ee4c78b1ed83f3fd698daa409e309911807'
             '6e407a782d3fb636d800a4278fbe1da876732ea17cba6aa82c261b6ec6ec2073'
             'd1e10cd2ef5594c34acead334bb93af500e00699ba673edc8916da22a572677d'
             '3629446c0039d9061cfedcb6d7a7589279588bb4601c7ce233546d357bd4be34'
             'ec6800816632234afc35ce40542a6aab3ee76e8514a7d0cb4171fd874353ecd7'
-            '81527bf4db940b08a380d6357eb4b407df6f03cd102624159f416798e4a3c4ae'
+            '6ebf5c00926f50f17fae7dd3fc56ce9e86e9d7258e69e718d113ff01856acd7c'
             'bf299c3822dacbd71ae591e4542877b1566755e8f3b7e6902013159540536566'
             '5df2be491b7e73c3f5150b59826534d8190f52e31737ff96f5a89957cf526717'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
@@ -111,17 +111,17 @@ prepare() {
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
-  if [ "$_use_ada_def_file" == "no" ]; then
+  #if [ "$_use_ada_def_file" == "no" ]; then
     ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-make-def.patch
-  else
-    ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-use-def.patch
-  fi
+  #else
+    #${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-use-def.patch
+  #fi
   ${GIT_AM} ${srcdir}/0012-Handle-spaces-in-path-for-default-manifest.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
   ${GIT_AM} ${srcdir}/0021-Ensure-lmsvcrt-precede-lkernel32.patch
-  ${GIT_AM} ${srcdir}/0130-libstdc++-in-out.patch
+  #${GIT_AM} ${srcdir}/0130-libstdc++-in-out.patch
 
   ${GIT_AM} ${srcdir}/9000-gcc-10-branch-Added-mcf-thread-model-support-from-mcfgthread.patch
 
@@ -156,9 +156,6 @@ build() {
   local _languages="c,lto,c++"
   if [ "$_enable_ada" == "yes" ]; then
     _languages+=",ada"
-    if [ "$_use_ada_def_file" == "no" ]; then
-      _disable_plugin="yes"
-    fi 
   fi
   if [ "$_enable_fortran" == "yes" ]; then
     _languages+=",fortran"
