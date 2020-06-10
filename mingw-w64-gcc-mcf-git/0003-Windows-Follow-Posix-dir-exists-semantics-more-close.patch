@@ -1,7 +1,7 @@
-From 9f49390e2cd9085ca1cc03906a146861dbe8135f Mon Sep 17 00:00:00 2001
+From 3674e1001e70aef619298c590128cb89b73df2b9 Mon Sep 17 00:00:00 2001
 From: Ray Donnelly <mingw.android@gmail.com>
 Date: Wed, 5 Aug 2015 23:36:07 +0100
-Subject: [PATCH 03/15] Windows: Follow Posix dir-exists semantics more closely
+Subject: Windows: Follow Posix dir-exists semantics more closely
 
 Make Windows behave the same as Posix in the consideration
 of whether folder "/doesnt-exist/.." is a valid
@@ -10,11 +10,11 @@ path. In Posix, it isn't.
 A concrete instance of when this matters is when cross
 compiling GNU/Linux glibc on Windows.
 ---
- libcpp/files.c | 87 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ libcpp/files.c | 87 ++++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 87 insertions(+)
 
 diff --git a/libcpp/files.c b/libcpp/files.c
-index ea2cc23..ac17272 100644
+index 260e787c329..b50d090f8ce 100644
 --- a/libcpp/files.c
 +++ b/libcpp/files.c
 @@ -30,6 +30,13 @@ along with this program; see the file COPYING3.  If not see
@@ -31,7 +31,7 @@ index ea2cc23..ac17272 100644
  /* Variable length record files on VMS will have a stat size that includes
     record control characters that won't be included in the read size.  */
  #ifdef VMS
-@@ -198,6 +205,49 @@ static int pchf_save_compare (const void *e1, const void *e2);
+@@ -200,6 +207,49 @@ static int pchf_save_compare (const void *e1, const void *e2);
  static int pchf_compare (const void *d_p, const void *e_p);
  static bool check_file_against_entries (cpp_reader *, _cpp_file *, bool);
  
@@ -47,25 +47,25 @@ index ea2cc23..ac17272 100644
 +      WIN32_FIND_DATAA finddata;
 +      HANDLE h = FindFirstFileA (path, &finddata);
 +      if (h != INVALID_HANDLE_VALUE)
-+        {
-+          FindClose (h);
-+          if ((finddata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
-+              (finddata.dwReserved0 == IO_REPARSE_TAG_SYMLINK))
-+              buf->st_mode = S_IFLNK;
-+          else if (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-+              buf->st_mode = S_IFDIR;
-+          else if (finddata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-+              buf->st_mode = S_IFDIR;
-+          else
-+              buf->st_mode = S_IFREG;
-+          buf->st_mode |= S_IREAD;
-+          if (!(finddata.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
-+              buf->st_mode |= S_IWRITE;
-+        }
++	{
++	  FindClose (h);
++	  if ((finddata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
++	      (finddata.dwReserved0 == IO_REPARSE_TAG_SYMLINK))
++	      buf->st_mode = S_IFLNK;
++	  else if (finddata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
++	      buf->st_mode = S_IFDIR;
++	  else if (finddata.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
++	      buf->st_mode = S_IFDIR;
++	  else
++	      buf->st_mode = S_IFREG;
++	  buf->st_mode |= S_IREAD;
++	  if (!(finddata.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
++	      buf->st_mode |= S_IWRITE;
++	}
 +      else
-+        {
-+          buf->st_mode = S_IFDIR;
-+        }
++	{
++	  buf->st_mode = S_IFDIR;
++	}
 +      return 0;
 +    }
 +  return -1;
@@ -81,7 +81,7 @@ index ea2cc23..ac17272 100644
  /* Given a filename in FILE->PATH, with the empty string interpreted
     as <stdin>, open it.
  
-@@ -227,6 +277,43 @@ open_file (_cpp_file *file)
+@@ -229,6 +279,43 @@ open_file (_cpp_file *file)
      }
    else
      file->fd = open (file->path, O_RDONLY | O_NOCTTY | O_BINARY, 0666);
@@ -100,25 +100,25 @@ index ea2cc23..ac17272 100644
 +      strncpy (filepath, file->path, sizeof(filepath) - 1);
 +      char* dirsep = &filepath[0];
 +      while ( (dirsep = strchr (dirsep, '\\')) != NULL)
-+        *dirsep = '/';
++	*dirsep = '/';
 +      if (strstr(file->path, "/../"))
 +      {
-+        dirsep = &filepath[0];
-+        char dirsepc;
-+        /* Check each directory in the chain. */
-+        while ( (dirsep = strpbrk (dirsep, "\\/")) != NULL)
-+        {
-+          dirsepc = *(++dirsep);
-+          *dirsep = '\0';
-+          if (stat_st_mode_symlink (filepath, &file->st) == -1)
-+          {
-+            *dirsep = dirsepc;
-+            close (file->fd);
-+            file->fd = -1;
-+            return false;
-+          }
-+          *dirsep++ = dirsepc;
-+        }
++	dirsep = &filepath[0];
++	char dirsepc;
++	/* Check each directory in the chain. */
++	while ( (dirsep = strpbrk (dirsep, "\\/")) != NULL)
++	{
++	  dirsepc = *(++dirsep);
++	  *dirsep = '\0';
++	  if (stat_st_mode_symlink (filepath, &file->st) == -1)
++	  {
++	    *dirsep = dirsepc;
++	    close (file->fd);
++	    file->fd = -1;
++	    return false;
++	  }
++	  *dirsep++ = dirsepc;
++	}
 +      }
 +    }
 +#endif
@@ -126,5 +126,3 @@ index ea2cc23..ac17272 100644
    if (file->fd != -1)
      {
 -- 
-2.8.1
-
