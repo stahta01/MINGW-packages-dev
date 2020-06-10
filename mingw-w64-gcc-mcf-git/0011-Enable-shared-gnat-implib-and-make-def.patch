@@ -22,7 +22,7 @@ index 3342e33b4b1..052e14435d7 100644
  		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 -		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
 +		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
-+		-Wl,-output-def,libgnat$(hyphen)$(LIBRARY_VERSION).def \
++		-Wl,-output-def,libgnat$(hyphen)$(LIBRARY_VERSION)-output.def \
 +		-Wl,-out-implib,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a \
 +		$(MISCLIB)
  	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
