@@ -60,6 +60,7 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0008-Prettify-linking-no-undefined.patch"
         "0010-Fix-using-large-PCH.patch"
         "0011-Enable-shared-gnat-implib-and-make-def.patch"
+        "0011-Enable-shared-gnat-implib-and-use-def.patch"
         "0012-Handle-spaces-in-path-for-default-manifest.patch"
         "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "0015-makedeps-properly-handle-win-paths.patch"
@@ -111,11 +112,11 @@ prepare() {
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
-  #if [ "$_use_ada_def_file" == "no" ]; then
+  if [ "$_use_ada_def_file" == "no" ]; then
     ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-make-def.patch
-  #else
-    #${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-use-def.patch
-  #fi
+  else
+    ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-use-def.patch
+  fi
   ${GIT_AM} ${srcdir}/0012-Handle-spaces-in-path-for-default-manifest.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
