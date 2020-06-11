@@ -36,4 +36,17 @@ index 3342e33b4b1..052e14435d7 100644
 +		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a
  
  gnatlib-shared-darwin:
+diff --git a/gcc/ada/gcc-interface/Make-lang.in b/gcc/ada/gcc-interface/Make-lang.in
+index acbe2b877ca..d94a86ebf7e 100644
+--- a/gcc/ada/gcc-interface/Make-lang.in
++++ b/gcc/ada/gcc-interface/Make-lang.in
+@@ -670,7 +670,7 @@ ada/libgnat/s-excmac.adb: $(srcdir)/ada/libgnat/s-excmac__$(EH_MECHANISM).adb
+ #  stamp target in the parent directory whenever gnat1 is rebuilt
+ gnat1$(exeext): $(TARGET_ADA_SRCS) $(GNAT1_OBJS) $(ADA_BACKEND) libcommon-target.a $(LIBDEPS)
+ 	+$(GCC_LLINK) -o $@ $(GNAT1_OBJS) $(ADA_BACKEND) \
+-	  libcommon-target.a $(LIBS) $(SYSLIBS) $(BACKENDLIBS) $(CFLAGS)
++	  libcommon-target.a $(LIBS) $(SYSLIBS) $(ISLLIBS) $(GMPLIBS) -Wl,--export-all-symbols -Wl,--output-def=[$]@-output.def -Wl,--out-implib=[$]@.a $(HOST_LIBS) $(ZLIB) $(ZSTD_LIB) $(CFLAGS)
+ 	$(RM) stamp-gnatlib2-rts stamp-tools
+ 
+ gnatbind$(exeext): ada/b_gnatb.o $(CONFIG_H) $(GNATBIND_OBJS) ggc-none.o libcommon-target.a $(LIBDEPS)
 -- 
