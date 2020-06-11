@@ -22,7 +22,7 @@ index 3342e33b4b1..9bbc4776790 100644
  		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
 -		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
 +		libgnat$(hyphen)$(LIBRARY_VERSION).def \
-+		-Wl,-out-implib,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a \
++		-Wl,--out-implib,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a \
 +		$(MISCLIB)
  	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
                  | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -shared-libgcc \
@@ -30,8 +30,9 @@ index 3342e33b4b1..9bbc4776790 100644
  		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
  		$(GNATRTL_TASKING_OBJS) \
  		$(SO_OPTS)libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
-+		-Wl,-out-implib,libgnarl$(hyphen)$(LIBRARY_VERSION).dll.a \
- 		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION)$(soext)
++		-Wl,--out-implib,libgnarl$(hyphen)$(LIBRARY_VERSION).dll.a \
+-		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION)$(soext)
++		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION).dll.a
  
  gnatlib-shared-darwin:
 -- 
