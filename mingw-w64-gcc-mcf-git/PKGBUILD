@@ -59,8 +59,8 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0007-Build-EXTRA_GNATTOOLS-for-Ada.patch"
         "0008-Prettify-linking-no-undefined.patch"
         "0010-Fix-using-large-PCH.patch"
-        "0011-Enable-shared-gnat-implib-and-make-def.patch"
-        "0011-Enable-shared-gnat-implib-and-use-def.patch"
+        "0011-gcc-plugin-gnat-implib-and-make-def.patch"
+        "0011-gcc-plugin-gnat-implib-and-use-def.patch"
         "0012-Handle-spaces-in-path-for-default-manifest.patch"
         "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "0015-makedeps-properly-handle-win-paths.patch"
@@ -77,7 +77,8 @@ sha256sums=('SKIP'
             '3629446c0039d9061cfedcb6d7a7589279588bb4601c7ce233546d357bd4be34'
             'ec6800816632234afc35ce40542a6aab3ee76e8514a7d0cb4171fd874353ecd7'
             '6ebf5c00926f50f17fae7dd3fc56ce9e86e9d7258e69e718d113ff01856acd7c'
-            'dea850cd1c2fdf06fe2d5b5d9199008d01201bcbdc4f5ad260a0fe35b9bd0f7a'
+            '90726723f84f0ebb4a8967baa026fe03d2c34cf87f6d05a20f10fbc5b321b453'
+            '4db5d0330322a2f0214a3c30aeccb60d64c74d73e9b8efcb8f3b9b589f7bfcb6'
             '5df2be491b7e73c3f5150b59826534d8190f52e31737ff96f5a89957cf526717'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
             'e6b8a610142836ae9c5eba3c5ecbb3766078ac530483590c587b3c6341508af0'
@@ -113,9 +114,9 @@ prepare() {
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   if [ "$_use_ada_def_file" == "no" ]; then
-    ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-make-def.patch
+    ${GIT_AM} ${srcdir}/0011-gcc-plugin-gnat-implib-and-make-def.patch
   else
-    ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib-and-use-def.patch
+    ${GIT_AM} ${srcdir}/0011-gcc-plugin-gnat-implib-and-use-def.patch
   fi
   ${GIT_AM} ${srcdir}/0012-Handle-spaces-in-path-for-default-manifest.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
@@ -228,7 +229,7 @@ build() {
     sed -i 's,^STRIP_FOR_TARGET=.*$,STRIP_FOR_TARGET=true,g' Makefile
   fi
 
-  make all -j1
+  make -j1 all
 
   rm -rf ${srcdir}${MINGW_PREFIX}
 
