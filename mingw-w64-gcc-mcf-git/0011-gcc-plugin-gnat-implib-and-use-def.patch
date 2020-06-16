@@ -44,7 +44,7 @@ index acbe2b877ca..411168c48e6 100644
  gnat1$(exeext): $(TARGET_ADA_SRCS) $(GNAT1_OBJS) $(ADA_BACKEND) libcommon-target.a $(LIBDEPS)
  	+$(GCC_LLINK) -o $@ $(GNAT1_OBJS) $(ADA_BACKEND) \
 -	  libcommon-target.a $(LIBS) $(SYSLIBS) $(BACKENDLIBS) $(CFLAGS)
-+	  libcommon-target.a $(LIBS) $(SYSLIBS) $(ISLLIBS) $(GMPLIBS) [$]@-output.def -Wl,--out-implib=[$]@.a $(HOST_LIBS) $(ZLIB) $(ZSTD_LIB) $(CFLAGS)
++	  libcommon-target.a $(LIBS) $(SYSLIBS) $(ISLLIBS) $(GMPLIBS) [$]@.def -Wl,--out-implib=[$]@.a $(HOST_LIBS) $(ZLIB) $(ZSTD_LIB) $(CFLAGS)
  	$(RM) stamp-gnatlib2-rts stamp-tools
  
  gnatbind$(exeext): ada/b_gnatb.o $(CONFIG_H) $(GNATBIND_OBJS) ggc-none.o libcommon-target.a $(LIBDEPS)
