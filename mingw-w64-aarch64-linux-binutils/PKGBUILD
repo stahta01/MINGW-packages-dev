@@ -1,0 +1,60 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+# Fork of: https://www.archlinux.org/packages/community/x86_64/aarch64-linux-gnu-binutils/
+
+_realname=binutils
+_base_target=aarch64-linux
+_target=${_base_target}-gnu
+
+pkgbase=mingw-w64-${_base_target}-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_base_target}-${_realname}
+pkgver=2.34
+pkgrel=1
+pkgdesc='A set of programs to assemble and manipulate binary and object files for the ARM64 target (mingw-w64)'
+groups=("${MINGW_PACKAGE_PREFIX}-${_base_target}-toolchain" "${MINGW_PACKAGE_PREFIX}-${_target}-toolchain")
+arch=('any')
+url='https://www.gnu.org/software/binutils/'
+license=(GPL)
+makedepends=('diffutils' 'make' 'texinfo')
+depends=("${MINGW_PACKAGE_PREFIX}-libiconv" "${MINGW_PACKAGE_PREFIX}-zlib")
+source=(https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.bz2 )
+sha1sums=('361566c9ab5e90bd847d06f46fb9f18ec6c3ecf0')
+
+_pkgsourcedir=binutils-${pkgver}
+
+prepare() {
+  cd "${srcdir}"/${_pkgsourcedir}
+}
+
+build() {
+  [[ -d "${srcdir}"/build-binutils-${CARCH} ]] && rm -rf "${srcdir}"/build-binutils-${CARCH}
+  mkdir -p "${srcdir}"/build-binutils-${CARCH} && cd "${srcdir}"/build-binutils-${CARCH}
+
+  ../${_pkgsourcedir}/configure \
+          --build=${MINGW_CHOST} \
+          --host=${MINGW_CHOST} \
+          --target=$_target \
+          --with-sysroot=${MINGW_PREFIX}/$_target \
+          --prefix=${MINGW_PREFIX} \
+          --with-libiconv-prefix=${MINGW_PREFIX} \
+          --with-system-zlib \
+          --disable-multilib \
+          --enable-nls \
+          --disable-werror
+
+  make -j1
+}
+
+#check() {
+#  cd "${srcdir}"/build-binutils-${CARCH}
+#
+#  LDFLAGS="" make -j1 -k check || true
+#}
+
+package() {
+  cd "${srcdir}"/build-binutils-${CARCH}
+
+  make -j1 DESTDIR="$pkgdir" install
+
+  rm -r "$pkgdir${MINGW_PREFIX}"/share/info
+  rm -r "$pkgdir${MINGW_PREFIX}"/share/locale
+}
