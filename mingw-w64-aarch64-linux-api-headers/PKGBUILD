@@ -1,0 +1,50 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+# Fork of ArchLinux package: https://www.archlinux.org/packages/community/any/aarch64-linux-gnu-linux-api-headers/
+
+_realname=api-headers
+_base_target=aarch64-linux
+_target=${_base_target}-gnu
+_target_arch=arm64
+
+pkgbase=mingw-w64-${_base_target}-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_base_target}-${_realname}
+pkgver=5.5
+pkgrel=1
+pkgdesc="Kernel headers sanitized for use in userspace [$_target] (mingw-w64)"
+groups=("${MINGW_PACKAGE_PREFIX}-${_base_target}-toolchain" "${MINGW_PACKAGE_PREFIX}-${_target}-toolchain")
+arch=(any)
+url='https://www.kernel.org'
+license=(GPL2)
+makedepends=(rsync gcc tar make)
+_pkgsourcedir=linux-${pkgver}
+source=(https://www.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz )
+sha256sums=('a6fbd4ee903c128367892c2393ee0d9657b6ed3ea90016d4dc6f1f6da20b2330')
+noextract=(${_pkgsourcedir}.tar.xz)
+
+extract() {
+    local tarfile="$1"
+    local extracted="$(echo "$tarfile" | sed 's/\.tar.*$//')"
+    if [ ! -d  "$extracted" ]; then
+        echo "Extracting ${tarfile}"
+        tar -xf $tarfile --checkpoint=1000
+    fi
+}
+
+prepare() {
+  extract ${_pkgsourcedir}.tar.xz || true
+}
+
+build() {
+  cd ${_pkgsourcedir}
+}
+
+package() {
+  cd ${_pkgsourcedir}
+
+  # Needs to use the msys2 gcc as the mingw one just errors out
+  PATH=/usr/bin:$PATH \
+  make ARCH=${_target_arch} INSTALL_HDR_PATH="$pkgdir/${MINGW_PREFIX}/$_target/" headers_install
+
+  # clean-up unnecessary files generated during install
+  find "$pkgdir" \( -name .install -or -name ..install.cmd \) -delete
+}
