@@ -1,0 +1,80 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+# Fork of: https://www.archlinux.org/packages/community/x86_64/sdcc/
+
+_realname=sdcc
+pkgbase=mingw-w64-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
+pkgver=4.0.0
+pkgrel=1
+pkgdesc="Retargettable ANSI C compiler [Intel 8051, Maxim 80DS390, Zilog Z80 and the Motorola 68HC08] (mingw-w64)"
+arch=('any')
+license=('GPL' 'custom') # pic14 and pic16 has non free headers and likely other files
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-svn")
+depends=('bash' 'gcc-libs') # 'boost-libs'
+# Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
+makedepends=('flex' 'bison' 'diffutils' 'make' 'patch' 'perl' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
+#optdepends=('python')
+url="http://sdcc.sourceforge.net/"
+options=(!strip  staticlibs)
+source=(https://downloads.sourceforge.net/sourceforge/sdcc/${_realname}-src-${pkgver//_/-}.tar.bz2
+    '001-comment-out-vsnprintf-prototype.patch')
+sha256sums=('489180806fc20a3911ba4cf5ccaf1875b68910d7aed3f401bbd0695b0bef4e10'
+            'e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp2 -i "${srcdir}/$_patch"
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# ======================================= #
+
+prepare() {
+  cd "$srcdir/${_realname}-$pkgver"
+
+  apply_patch_with_msg \
+    001-comment-out-vsnprintf-prototype.patch
+
+  sed -i 's|CC -E|CC -O2 -E|g' support/sdbinutils/libiberty/configure
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  ../${_realname}-$pkgver/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --includedir=${MINGW_PREFIX}/include/sdcc \
+    --libdir=${MINGW_PREFIX}/lib/sdcc \
+    --disable-pic14-port \
+    --disable-pic16-port \
+    --disable-werror
+
+  PATH="${srcdir}"/build-${CARCH}/bin:$PATH \
+  make --jobs=1
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make install DESTDIR="$pkgdir"
+
+  if [ -d "$pkgdir${MINGW_PREFIX}/lib/lib" ]; then
+    mv "$pkgdir${MINGW_PREFIX}/lib/lib/"* "$pkgdir/${MINGW_PREFIX}/lib/sdcc/"
+    rm -rf "$pkgdir${MINGW_PREFIX}/lib/lib"
+  fi
+
+  sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python3|' "$pkgdir${MINGW_PREFIX}/bin/as2gbmap"
+}
