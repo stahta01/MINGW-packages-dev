@@ -1,0 +1,4967 @@
+From a1bc232951963861a3f4da847195afe363b7d021 Mon Sep 17 00:00:00 2001
+From: drdani <drdani@4a8a32a2-be11-0410-ad9d-d568d2c75423>
+Date: Fri, 27 Mar 2020 20:18:53 +0000
+Subject: implement --help as requed in [features:#671]
+
+git-svn-id: https://svn.code.sf.net/p/sdcc/code/trunk@11560 4a8a32a2-be11-0410-ad9d-d568d2c75423
+---
+ sdcc/sim/ucsim/.version                       |  2 +-
+ sdcc/sim/ucsim/app.cc                         | 41 +++++++-
+ sdcc/sim/ucsim/appcl.h                        |  3 +
+ sdcc/sim/ucsim/avr.src/Makefile.in            |  5 +-
+ sdcc/sim/ucsim/avr.src/avr.cc                 |  9 +-
+ sdcc/sim/ucsim/avr.src/clean.mk               |  3 +-
+ sdcc/sim/ucsim/avr.src/inst.cc                |  4 +-
+ sdcc/sim/ucsim/avr.src/logic_inst.cc          |  2 +-
+ sdcc/sim/ucsim/avr.src/port.cc                |  2 +-
+ sdcc/sim/ucsim/avr.src/savr.cc                |  4 +-
+ sdcc/sim/ucsim/avr.src/simavr.cc              |  2 +-
+ sdcc/sim/ucsim/clean.mk                       |  3 +-
+ sdcc/sim/ucsim/cmd.src/cmd_bp.cc              | 10 +-
+ sdcc/sim/ucsim/cmd.src/cmd_conf.cc            | 27 +++++-
+ sdcc/sim/ucsim/cmd.src/cmd_confcl.h           |  3 +
+ sdcc/sim/ucsim/cmd.src/cmd_exec.cc            | 15 +--
+ sdcc/sim/ucsim/cmd.src/cmd_get.cc             | 16 ++--
+ sdcc/sim/ucsim/cmd.src/cmd_gui.cc             |  6 +-
+ sdcc/sim/ucsim/cmd.src/cmd_info.cc            |  4 +-
+ sdcc/sim/ucsim/cmd.src/cmd_mem.cc             |  4 +-
+ sdcc/sim/ucsim/cmd.src/cmd_set.cc             | 31 +++++--
+ sdcc/sim/ucsim/cmd.src/cmd_show.cc            | 11 ++-
+ sdcc/sim/ucsim/cmd.src/cmd_stat.cc            |  4 +-
+ sdcc/sim/ucsim/cmd.src/cmd_timer.cc           |  7 +-
+ sdcc/sim/ucsim/cmd.src/cmd_uc.cc              |  3 +-
+ sdcc/sim/ucsim/cmd.src/cmdlex.l               |  1 +
+ sdcc/sim/ucsim/cmd.src/cmdpars.y              |  8 +-
+ sdcc/sim/ucsim/cmd.src/cmdutil.cc             | 17 ++--
+ sdcc/sim/ucsim/cmd.src/command.cc             | 16 ++--
+ sdcc/sim/ucsim/cmd.src/newcmd.cc              | 27 ++++--
+ sdcc/sim/ucsim/cmd.src/newcmdposix.cc         | 21 +++--
+ sdcc/sim/ucsim/doc/cmd.html                   | 10 +-
+ sdcc/sim/ucsim/doc/cmd_general.html           | 70 +++++++-------
+ sdcc/sim/ucsim/error.cc                       |  2 +-
+ sdcc/sim/ucsim/fio.cc                         |  5 +-
+ sdcc/sim/ucsim/fuio.cc                        |  2 +
+ sdcc/sim/ucsim/globals.cc                     |  2 +-
+ sdcc/sim/ucsim/gui.src/serio.src/clean.mk     |  2 +-
+ sdcc/sim/ucsim/gui.src/serio.src/fileio.cc    |  2 +-
+ sdcc/sim/ucsim/gui.src/serio.src/frontend.cc  | 18 ++--
+ sdcc/sim/ucsim/gui.src/serio.src/main.cc      | 12 ++-
+ .../ucsim/gui.src/serio.src/posix_signal.cc   |  6 +-
+ sdcc/sim/ucsim/hc08.src/clean.mk              |  2 +-
+ sdcc/sim/ucsim/hc08.src/hc08.cc               | 91 ++++++++++++++++--
+ sdcc/sim/ucsim/hc08.src/hc08cl.h              | 20 ++++
+ sdcc/sim/ucsim/hc08.src/hc08mac.h             | 20 +++-
+ sdcc/sim/ucsim/hc08.src/inst.cc               |  9 +-
+ sdcc/sim/ucsim/hc08.src/shc08.cc              |  2 +-
+ sdcc/sim/ucsim/hc08.src/simhc08.cc            |  3 +
+ sdcc/sim/ucsim/pdk.src/clean.mk               |  2 +-
+ sdcc/sim/ucsim/pdk.src/inst.cc                |  4 +-
+ sdcc/sim/ucsim/pdk.src/pdk.cc                 | 29 +++---
+ sdcc/sim/ucsim/pdk.src/simpdk.cc              |  3 +
+ sdcc/sim/ucsim/pdk.src/spdk.cc                |  2 +-
+ sdcc/sim/ucsim/pobj.cc                        |  6 +-
+ sdcc/sim/ucsim/relay.cc                       |  3 +-
+ sdcc/sim/ucsim/s51.src/arith.cc               |  4 +-
+ sdcc/sim/ucsim/s51.src/bit.cc                 |  6 +-
+ sdcc/sim/ucsim/s51.src/clean.mk               |  2 +-
+ sdcc/sim/ucsim/s51.src/inc.cc                 |  4 +-
+ sdcc/sim/ucsim/s51.src/interrupt.cc           |  3 +-
+ sdcc/sim/ucsim/s51.src/jmp.cc                 | 10 +-
+ sdcc/sim/ucsim/s51.src/logic.cc               |  6 +-
+ sdcc/sim/ucsim/s51.src/mdu.cc                 |  6 +-
+ sdcc/sim/ucsim/s51.src/mov.cc                 |  6 +-
+ sdcc/sim/ucsim/s51.src/pca.cc                 |  3 +-
+ sdcc/sim/ucsim/s51.src/port.cc                |  1 +
+ sdcc/sim/ucsim/s51.src/s51.cc                 |  4 +-
+ sdcc/sim/ucsim/s51.src/serial.cc              | 22 +++--
+ sdcc/sim/ucsim/s51.src/sim51.cc               | 29 +++---
+ sdcc/sim/ucsim/s51.src/test/Makefile          |  2 +-
+ sdcc/sim/ucsim/s51.src/test/stck_ovf.c        |  4 +
+ sdcc/sim/ucsim/s51.src/test/stck_ovf.mk       |  7 ++
+ sdcc/sim/ucsim/s51.src/test/tim_ser.c         |  2 +
+ sdcc/sim/ucsim/s51.src/timer0.cc              |  4 +-
+ sdcc/sim/ucsim/s51.src/uc251.cc               |  4 +-
+ sdcc/sim/ucsim/s51.src/uc320.cc               | 12 +--
+ sdcc/sim/ucsim/s51.src/uc380.cc               |  2 +
+ sdcc/sim/ucsim/s51.src/uc390.cc               | 10 +-
+ sdcc/sim/ucsim/s51.src/uc390hw.cc             |  8 +-
+ sdcc/sim/ucsim/s51.src/uc51.cc                | 90 ++++++++++++------
+ sdcc/sim/ucsim/s51.src/uc51cl.h               |  2 +
+ sdcc/sim/ucsim/s51.src/uc51r.cc               |  6 +-
+ sdcc/sim/ucsim/s51.src/uc52.cc                |  8 +-
+ sdcc/sim/ucsim/s51.src/uc89c51r.cc            |  6 +-
+ sdcc/sim/ucsim/s51.src/wdt.cc                 |  3 +-
+ sdcc/sim/ucsim/sim.src/arg.cc                 |  9 +-
+ sdcc/sim/ucsim/sim.src/brk.cc                 |  4 +-
+ sdcc/sim/ucsim/sim.src/hw.cc                  |  8 +-
+ sdcc/sim/ucsim/sim.src/itsrc.cc               | 12 +--
+ sdcc/sim/ucsim/sim.src/mem.cc                 | 15 +--
+ sdcc/sim/ucsim/sim.src/port_hw.cc             |  3 +-
+ sdcc/sim/ucsim/sim.src/serial_hw.cc           |  2 +-
+ sdcc/sim/ucsim/sim.src/sim.cc                 | 27 +++---
+ sdcc/sim/ucsim/sim.src/simif.cc               |  5 +-
+ sdcc/sim/ucsim/sim.src/stack.cc               | 70 +++++++++-----
+ sdcc/sim/ucsim/sim.src/stackcl.h              | 16 +++-
+ sdcc/sim/ucsim/sim.src/uc.cc                  | 22 +++--
+ sdcc/sim/ucsim/sim.src/uccl.h                 |  3 +-
+ sdcc/sim/ucsim/sim.src/var.cc                 |  2 +
+ sdcc/sim/ucsim/sim.src/vcd.cc                 |  2 +
+ sdcc/sim/ucsim/st7.src/clean.mk               |  2 +-
+ sdcc/sim/ucsim/st7.src/inst.cc                |  9 +-
+ sdcc/sim/ucsim/st7.src/sst7.cc                |  2 +-
+ sdcc/sim/ucsim/st7.src/st7.cc                 | 88 ++++++++++++++++--
+ sdcc/sim/ucsim/st7.src/st7cl.h                | 20 ++++
+ sdcc/sim/ucsim/st7.src/st7mac.h               | 20 +++-
+ sdcc/sim/ucsim/stm8.src/bl_head.cc            |  2 +-
+ sdcc/sim/ucsim/stm8.src/clean.mk              |  2 +-
+ sdcc/sim/ucsim/stm8.src/flash.cc              |  1 +
+ sdcc/sim/ucsim/stm8.src/inst.cc               |  9 +-
+ sdcc/sim/ucsim/stm8.src/itc.cc                |  2 +-
+ sdcc/sim/ucsim/stm8.src/serial.cc             | 20 ++--
+ sdcc/sim/ucsim/stm8.src/simstm8.cc            |  3 +
+ sdcc/sim/ucsim/stm8.src/sstm8.cc              |  2 +-
+ sdcc/sim/ucsim/stm8.src/stm8.cc               | 78 +++++++++++++---
+ sdcc/sim/ucsim/stm8.src/stm8cl.h              |  9 ++
+ sdcc/sim/ucsim/stm8.src/stm8mac.h             | 20 +++-
+ sdcc/sim/ucsim/stm8.src/test/Makefile         |  2 +-
+ sdcc/sim/ucsim/stm8.src/test/flash.h          |  2 -
+ sdcc/sim/ucsim/stm8.src/test/s2.c             |  2 +-
+ sdcc/sim/ucsim/stm8.src/test/s3.c             |  2 +-
+ sdcc/sim/ucsim/stm8.src/test/serial.c         |  2 +-
+ sdcc/sim/ucsim/stm8.src/test/stck_ovf.c       |  9 ++
+ sdcc/sim/ucsim/stm8.src/test/stck_ovf.mk      |  1 +
+ sdcc/sim/ucsim/stm8.src/timer.cc              |  2 +
+ sdcc/sim/ucsim/test/Makefile                  | 15 +++
+ sdcc/sim/ucsim/test/dummy.h                   |  0
+ sdcc/sim/ucsim/test/sdcc.mk                   | 67 +++++++++++++
+ sdcc/sim/ucsim/test/stck_ovf.c                | 12 +++
+ sdcc/sim/ucsim/test/stck_ovf.mk               |  1 +
+ sdcc/sim/ucsim/test/t1.c                      |  5 +
+ sdcc/sim/ucsim/test/t1.mk                     |  5 +
+ sdcc/sim/ucsim/tlcs.src/clean.mk              |  2 +-
+ sdcc/sim/ucsim/tlcs.src/simtlcs.cc            |  2 +-
+ sdcc/sim/ucsim/tlcs.src/stlcs.cc              |  4 +-
+ sdcc/sim/ucsim/tlcs.src/tlcs.cc               | 93 +++++++++++++++++--
+ sdcc/sim/ucsim/tlcs.src/tlcscl.h              | 20 ++++
+ sdcc/sim/ucsim/utils.cc                       |  8 +-
+ sdcc/sim/ucsim/xa.src/clean.mk                |  2 +-
+ sdcc/sim/ucsim/xa.src/glob.cc                 |  2 +-
+ sdcc/sim/ucsim/xa.src/inst.cc                 |  5 +-
+ sdcc/sim/ucsim/xa.src/sxa.cc                  |  2 +-
+ sdcc/sim/ucsim/xa.src/xa.cc                   | 10 +-
+ sdcc/sim/ucsim/z80.src/clean.mk               |  2 +-
+ sdcc/sim/ucsim/z80.src/ez80.cc                |  2 +-
+ sdcc/sim/ucsim/z80.src/inst.cc                |  6 +-
+ sdcc/sim/ucsim/z80.src/inst_cb.cc             |  4 +-
+ sdcc/sim/ucsim/z80.src/inst_dd.cc             |  2 +-
+ sdcc/sim/ucsim/z80.src/inst_ddcb.cc           |  4 +-
+ sdcc/sim/ucsim/z80.src/inst_ed.cc             |  4 +-
+ sdcc/sim/ucsim/z80.src/inst_ed_r2k.cc         |  2 +-
+ sdcc/sim/ucsim/z80.src/inst_fd.cc             |  4 +-
+ sdcc/sim/ucsim/z80.src/inst_fdcb.cc           |  4 +-
+ sdcc/sim/ucsim/z80.src/inst_lr35902.cc        |  3 +-
+ sdcc/sim/ucsim/z80.src/inst_r2k.cc            |  4 +-
+ sdcc/sim/ucsim/z80.src/lr35902.cc             | 10 +-
+ sdcc/sim/ucsim/z80.src/r2k.cc                 | 25 +++--
+ sdcc/sim/ucsim/z80.src/simz80.cc              |  5 +-
+ sdcc/sim/ucsim/z80.src/sz80.cc                |  2 +-
+ sdcc/sim/ucsim/z80.src/test/Makefile          |  2 +-
+ sdcc/sim/ucsim/z80.src/test/conf.cmd          |  2 +-
+ sdcc/sim/ucsim/z80.src/test/run.sh            |  2 +-
+ sdcc/sim/ucsim/z80.src/test/stck_ovf.c        |  9 ++
+ sdcc/sim/ucsim/z80.src/test/stck_ovf.mk       |  7 ++
+ sdcc/sim/ucsim/z80.src/test/t1.c              |  2 +-
+ sdcc/sim/ucsim/z80.src/test/t2.c              |  2 +-
+ sdcc/sim/ucsim/z80.src/z80.cc                 | 92 ++++++++++++++++--
+ sdcc/sim/ucsim/z80.src/z80cl.h                | 26 +++++-
+ sdcc/sim/ucsim/z80.src/z80mac.h               | 20 +++-
+ 170 files changed, 1419 insertions(+), 508 deletions(-)
+ create mode 100644 sdcc/sim/ucsim/s51.src/test/stck_ovf.c
+ create mode 100644 sdcc/sim/ucsim/s51.src/test/stck_ovf.mk
+ create mode 100644 sdcc/sim/ucsim/stm8.src/test/stck_ovf.c
+ create mode 100644 sdcc/sim/ucsim/stm8.src/test/stck_ovf.mk
+ create mode 100644 sdcc/sim/ucsim/test/Makefile
+ create mode 100644 sdcc/sim/ucsim/test/dummy.h
+ create mode 100644 sdcc/sim/ucsim/test/sdcc.mk
+ create mode 100644 sdcc/sim/ucsim/test/stck_ovf.c
+ create mode 100644 sdcc/sim/ucsim/test/stck_ovf.mk
+ create mode 100644 sdcc/sim/ucsim/test/t1.c
+ create mode 100644 sdcc/sim/ucsim/test/t1.mk
+ create mode 100644 sdcc/sim/ucsim/z80.src/test/stck_ovf.c
+ create mode 100644 sdcc/sim/ucsim/z80.src/test/stck_ovf.mk
+
+diff --git a/sdcc/sim/ucsim/.version b/sdcc/sim/ucsim/.version
+index f08ca7e27..b8d58209c 100644
+--- a/sdcc/sim/ucsim/.version
++++ b/sdcc/sim/ucsim/.version
+@@ -1 +1 @@
+-0.6-pre56
++0.6-pre61
+diff --git a/sdcc/sim/ucsim/app.cc b/sdcc/sim/ucsim/app.cc
+index 84dd714f2..38e0be549 100644
+--- a/sdcc/sim/ucsim/app.cc
++++ b/sdcc/sim/ucsim/app.cc
+@@ -297,7 +297,7 @@ cl_app::proc_arguments(int argc, char *argv[])
+   bool /*s_done= DD_FALSE,*/ k_done= false;
+   //bool S_i_done= false, S_o_done= false;
+ 
+-  strcpy(opts, "c:C:e:p:PX:vVt:s:S:I:a:whHgGJo:b_");
++  strcpy(opts, "c:C:e:p:PX:vVt:s:S:I:a:whHgGJo:bl_");
+ #ifdef SOCKET_AVAIL
+   strcat(opts, "Z:r:k:");
+ #endif
+@@ -309,6 +309,12 @@ cl_app::proc_arguments(int argc, char *argv[])
+ 	  (strcmp(argv[i], "-args") == 0) ||
+ 	  (strcmp(argv[i], "-nx") == 0))
+ 	strcpy(argv[i], "-_");
++      if ((strcmp(argv[i], "-help")==0) ||
++	  (strcmp(argv[i], "--help")==0))
++	{
++	  print_help(cchars("s51"));
++	  exit(0);
++	}
+     }
+   
+   while((c= getopt(argc, argv, opts)) != -1)
+@@ -669,6 +675,25 @@ cl_app::proc_arguments(int argc, char *argv[])
+ 	    }
+ 	  break;
+ 	}
++      case 'l':
++	set_option_s("color_prompt", "green:bwhite");
++	set_option_s("color_prompt_console", "blue:bwhite");
++	set_option_s("color_command", "blue:bwhite");
++	set_option_s("color_answer", "black:bwhite");
++	set_option_s("color_result", "bblue:bwhite");
++	set_option_s("color_dump_address", "blue:bwhite");
++	set_option_s("color_dump_number", "bblack:bwhite");
++	set_option_s("color_dump_char", "black:bwhite");
++	set_option_s("color_error", "red:bwhite");
++	set_option_s("color_ui_mkey", "green:bwhite");
++	set_option_s("color_ui_mitem", "bblack:bwhite");
++	set_option_s("color_ui_label", "black:bwhite");
++	set_option_s("color_ui_time", "blue:bwhite");
++	set_option_s("color_ui_title", "magenta:bwhite");
++	set_option_s("color_ui_run", "black:green");
++	set_option_s("color_ui_stop", "white:red");
++	set_option_s("color_debug", "magenta:bwhite");
++	break;
+       case 'h':
+ 	print_help(cchars("s51"));
+ 	exit(0);
+@@ -815,6 +840,10 @@ cl_app::build_cmdset(class cl_cmdset *cmdset)
+   cmdset->add(cmd= new cl_super_cmd("conf", 0, cset));
+   cmd->init();
+   set_conf_help(cmd);
++
++  cmd= new cl_ver_cmd("version", 0);
++  cmdset->add(cmd);
++  cmd->init();
+   
+   cmd= new cl_help_cmd("help", 0);
+   cmdset->add(cmd);
+@@ -1131,4 +1160,14 @@ cl_app::debug(const char *format, ...)
+ }
+ 
+ 
++void
++cl_app::set_option_s(chars opt_name, chars new_value)
++{
++  class cl_option *o= options->get_option((char*)opt_name);
++  if (o)
++    {
++      o->set_value((char*)new_value);
++    }
++}
++
+ /* End of app.cc */
+diff --git a/sdcc/sim/ucsim/appcl.h b/sdcc/sim/ucsim/appcl.h
+index 49087a58d..334d3b19a 100644
+--- a/sdcc/sim/ucsim/appcl.h
++++ b/sdcc/sim/ucsim/appcl.h
+@@ -128,6 +128,9 @@ public: // output functions
+   virtual int dd_printf(const char *format, ...);
+   virtual int dd_cprintf(const char *color_name, const char *format, ...);
+   virtual int debug(const char *format, ...);
++
++public:
++  virtual void set_option_s(chars opt_name, chars new_value);
+ };
+ 
+ 
+diff --git a/sdcc/sim/ucsim/avr.src/Makefile.in b/sdcc/sim/ucsim/avr.src/Makefile.in
+index f5b97602c..ef5352aad 100644
+--- a/sdcc/sim/ucsim/avr.src/Makefile.in
++++ b/sdcc/sim/ucsim/avr.src/Makefile.in
+@@ -115,11 +115,14 @@ include $(srcdir)/clean.mk
+ # --------
+ .SUFFIXES: .asm .hex
+ 
+-avr.src: savr$(EXEEXT) shared_lib
++avr.src: savr$(EXEEXT) ucsim_avr$(EXEEXT) shared_lib
+ 
+ savr$(EXEEXT): $(OBJECTS) $(top_builddir)/libcmd.a $(top_builddir)/libguiucsim.a $(top_builddir)/libsim.a $(top_builddir)/libucsimutil.a
+ 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+ 
++ucsim_avr$(EXEEXT): savr$(EXEEXT)
++	cp $< $@
++
+ ifeq ($(dlso_ok),yes)
+ shared_lib: $(top_builddir)/savr.so
+ else
+diff --git a/sdcc/sim/ucsim/avr.src/avr.cc b/sdcc/sim/ucsim/avr.src/avr.cc
+index 44912a7a4..45619216c 100644
+--- a/sdcc/sim/ucsim/avr.src/avr.cc
++++ b/sdcc/sim/ucsim/avr.src/avr.cc
+@@ -25,19 +25,20 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+ #include "simcl.h"
+-#include "memcl.h"
++//#include "memcl.h"
+ 
+ // local
+ #include "portcl.h"
+diff --git a/sdcc/sim/ucsim/avr.src/clean.mk b/sdcc/sim/ucsim/avr.src/clean.mk
+index e81b3cc7c..45e825179 100644
+--- a/sdcc/sim/ucsim/avr.src/clean.mk
++++ b/sdcc/sim/ucsim/avr.src/clean.mk
+@@ -5,7 +5,8 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa] *.map
+ 	rm -f .[a-z]*~
+-	rm -f savr$(EXEEXT)
++	rm -f savr$(EXEEXT) savr.exe
++	rm -f ucsim_avr$(EXEEXT) ucsim_avr.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/avr.src/inst.cc b/sdcc/sim/ucsim/avr.src/inst.cc
+index 5818294f6..28bb831cf 100644
+--- a/sdcc/sim/ucsim/avr.src/inst.cc
++++ b/sdcc/sim/ucsim/avr.src/inst.cc
+@@ -25,11 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "avrcl.h"
+-#include "regsavr.h"
++//#include "regsavr.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/avr.src/logic_inst.cc b/sdcc/sim/ucsim/avr.src/logic_inst.cc
+index 3a2c935b5..e172140b8 100644
+--- a/sdcc/sim/ucsim/avr.src/logic_inst.cc
++++ b/sdcc/sim/ucsim/avr.src/logic_inst.cc
+@@ -26,7 +26,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ #include "avrcl.h"
+-#include "regsavr.h"
++//#include "regsavr.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/avr.src/port.cc b/sdcc/sim/ucsim/avr.src/port.cc
+index 0cb2638f6..7ba3a724f 100644
+--- a/sdcc/sim/ucsim/avr.src/port.cc
++++ b/sdcc/sim/ucsim/avr.src/port.cc
+@@ -26,7 +26,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ #include "portcl.h"
+ 
+diff --git a/sdcc/sim/ucsim/avr.src/savr.cc b/sdcc/sim/ucsim/avr.src/savr.cc
+index b756eaea3..fceb9fe2f 100644
+--- a/sdcc/sim/ucsim/avr.src/savr.cc
++++ b/sdcc/sim/ucsim/avr.src/savr.cc
+@@ -25,13 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+   // prj
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simavrcl.h"
+diff --git a/sdcc/sim/ucsim/avr.src/simavr.cc b/sdcc/sim/ucsim/avr.src/simavr.cc
+index 58b8d8de9..d1302c765 100644
+--- a/sdcc/sim/ucsim/avr.src/simavr.cc
++++ b/sdcc/sim/ucsim/avr.src/simavr.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ //#include <ctype.h>
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simavrcl.h"
+diff --git a/sdcc/sim/ucsim/clean.mk b/sdcc/sim/ucsim/clean.mk
+index 09e14c1cd..fda28f3f4 100644
+--- a/sdcc/sim/ucsim/clean.mk
++++ b/sdcc/sim/ucsim/clean.mk
+@@ -1,7 +1,8 @@
+ # Deleting all files created by building the program
+ # --------------------------------------------------
+ clean:
+-	rm -f *core *[%~] *.[oa] *.so ucsim$(EXEEXT) ucsim.map relay$(EXEEXT)
++	rm -f *core *[%~] *.[oa] *.so ucsim.map
++	rm -f  ucsim$(EXEEXT) relay$(EXEEXT) ucsim.exe relay.exe
+ 	rm -f .[a-z]*~ ptt
+ 
+ 
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_bp.cc b/sdcc/sim/ucsim/cmd.src/cmd_bp.cc
+index f9106d5e4..1da848358 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_bp.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_bp.cc
+@@ -26,14 +26,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ #include <ctype.h>
++#include <string.h>
++#include <stdlib.h>
+ 
+-#include "ddconfig.h"
+-
+-#include "stdlib.h"
++//#include "ddconfig.h"
+ 
+ // sim
+-#include "brkcl.h"
+-#include "argcl.h"
++//#include "brkcl.h"
++//#include "argcl.h"
+ #include "simcl.h"
+ 
+ // cmd
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_conf.cc b/sdcc/sim/ucsim/cmd.src/cmd_conf.cc
+index 4662dd62f..d5ad84344 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_conf.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_conf.cc
+@@ -27,10 +27,10 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ // prj
+ #include "globals.h"
+-#include "utils.h"
++//#include "utils.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "cmd_confcl.h"
+@@ -127,6 +127,29 @@ CMDHELP(cl_conf_objects_cmd,
+ 	"Show object tree",
+ 	"long help of conf objects")
+ 
++
++/*
++ * Command: ver
++ *----------------------------------------------------------------------------
++ */
++
++COMMAND_DO_WORK_APP(cl_ver_cmd)
++{
++  con->dd_printf("%s\n", VERSIONSTR);
++  return false;
++}
++
++CMDHELP(cl_ver_cmd,
++	"version",
++	"Version of the program",
++	"long help of ver command")
++
++
++/*
++ * Command: jaj
++ *----------------------------------------------------------------------------
++ */
++
+ COMMAND_DO_WORK_APP(cl_jaj_cmd)
+ {
+   //class cl_address_space *mem= 0;
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_confcl.h b/sdcc/sim/ucsim/cmd.src/cmd_confcl.h
+index bdf2d25d4..b3eaa5178 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_confcl.h
++++ b/sdcc/sim/ucsim/cmd.src/cmd_confcl.h
+@@ -49,6 +49,9 @@ class cl_conf_cmd: public cl_cmd
+ // CONF OBJECTS
+ COMMAND_ON(app,cl_conf_objects_cmd);
+ 
++// VER
++COMMAND_ON(app,cl_ver_cmd);
++
+ // JAJ
+ COMMAND_ON(app,cl_jaj_cmd);
+ 
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_exec.cc b/sdcc/sim/ucsim/cmd.src/cmd_exec.cc
+index 734e2ebc4..783ba7bdc 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_exec.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_exec.cc
+@@ -24,21 +24,24 @@ along with UCSIM; see the file COPYING.  If not, write to the Free
+ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+-#include <stdarg.h>
+-#include "ddconfig.h"
++
++//#include <stdarg.h>
++#include <string.h>
++
++//#include "ddconfig.h"
+ 
+ // prj
+-#include "i_string.h"
++//#include "i_string.h"
+ #include "utils.h"
+ #include "globals.h"
+ 
+ // sim.src
+-#include "simcl.h"
+-#include "uccl.h"
++//#include "simcl.h"
++//#include "uccl.h"
+ 
+ // local, cmd.src
+ #include "cmd_execcl.h"
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_get.cc b/sdcc/sim/ucsim/cmd.src/cmd_get.cc
+index c538244e0..9dc9c4856 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_get.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_get.cc
+@@ -25,23 +25,25 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <ctype.h>
+-#include "i_string.h"
++//#include <ctype.h>
++#include <string.h>
+ 
+-#include <stdarg.h>
++//#include "i_string.h"
++
++//#include <stdarg.h>
+ // prj
+ #include "utils.h"
+ #include "appcl.h"
+ 
+ // sim
+-#include "simcl.h"
+-#include "optioncl.h"
++//#include "simcl.h"
++//#include "optioncl.h"
+ 
+ // local
+ #include "cmd_getcl.h"
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ 
+ void
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_gui.cc b/sdcc/sim/ucsim/cmd.src/cmd_gui.cc
+index d09d3f297..aef62e6c5 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_gui.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_gui.cc
+@@ -25,13 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // prj
+-#include "globals.h"
++//#include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "cmd_guicl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_info.cc b/sdcc/sim/ucsim/cmd.src/cmd_info.cc
+index 3ead2b3a1..e2ddabb9d 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_info.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_info.cc
+@@ -26,7 +26,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ #include <stdlib.h>
+-#include "i_string.h"
++#include <string.h>
++
++//#include "i_string.h"
+ 
+ // sim.src
+ #include "simcl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_mem.cc b/sdcc/sim/ucsim/cmd.src/cmd_mem.cc
+index 34c6c2b9c..efd9c4378 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_mem.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_mem.cc
+@@ -27,10 +27,10 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ // prj
+ #include "globals.h"
+-#include "utils.h"
++//#include "utils.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "cmd_memcl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_set.cc b/sdcc/sim/ucsim/cmd.src/cmd_set.cc
+index 68b1bc876..b40905d20 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_set.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_set.cc
+@@ -27,22 +27,24 @@
+ */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <ctype.h>
+-#include "i_string.h"
++//#include <ctype.h>
++#include <string.h>
++
++//#include "i_string.h"
+ 
+ // prj
+-#include "errorcl.h"
++//#include "errorcl.h"
+ #include "appcl.h"
+ 
+ // sim
+-#include "simcl.h"
+-#include "optioncl.h"
++//#include "simcl.h"
++//#include "optioncl.h"
+ 
+ // local
+ #include "cmd_setcl.h"
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ 
+ void
+@@ -122,13 +124,24 @@ COMMAND_DO_WORK_UC(cl_set_bit_cmd)
+ 				 cmdline->param(3) };
+   
+   if (cmdline->syntax_match(uc, BIT NUMBER)) {
++    t_mem v;
+     mem= params[0]->value.bit.mem;
+     mem_addr= params[0]->value.bit.mem_address;
+     bit_mask= params[0]->value.bit.mask;
+     if (params[1]->value.number)
+-      mem->set_bit1(mem_addr, bit_mask);
++      {
++	v= mem->read(mem_addr);
++	//mem->/*set*/write_bit1(mem_addr, bit_mask);
++	v|= bit_mask;
++	mem->write(mem_addr, v);
++      }
+     else
+-      mem->set_bit0(mem_addr, bit_mask);
++      {
++	v= mem->read(mem_addr);
++	//mem->/*set*/write_bit0(mem_addr, bit_mask);
++	v&= ~bit_mask;
++	mem->write(mem_addr, v);
++      }
+     mem->dump(mem_addr, mem_addr, 1, con/*->get_fout()*/);
+   }
+   else
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_show.cc b/sdcc/sim/ucsim/cmd.src/cmd_show.cc
+index d899375a9..dfc53b37d 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_show.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_show.cc
+@@ -25,18 +25,19 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdlib.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+ #include "utils.h"
+-#include "errorcl.h"
++//#include "errorcl.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "cmd_showcl.h"
+@@ -211,7 +212,7 @@ CMDHELP(cl_show_error_cmd,
+ 	"Show class of errors",
+ 	"long help of show error")
+ 
+-#include "newcmdposixcl.h"
++//#include "newcmdposixcl.h"
+ 
+ /*
+  * Command: show console
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_stat.cc b/sdcc/sim/ucsim/cmd.src/cmd_stat.cc
+index c77436b10..f439458ca 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_stat.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_stat.cc
+@@ -25,13 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // prj
+ #include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "cmd_statcl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_timer.cc b/sdcc/sim/ucsim/cmd.src/cmd_timer.cc
+index a4563b332..e2bc14cbf 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_timer.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_timer.cc
+@@ -25,10 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include <stdio.h>
+ 
+-#include "stdio.h"
+-#include "i_string.h"
++//#include "ddconfig.h"
++
++//#include "i_string.h"
+ 
+ // sim
+ #include "simcl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmd_uc.cc b/sdcc/sim/ucsim/cmd.src/cmd_uc.cc
+index 030d1d9be..fcc445e0c 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmd_uc.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmd_uc.cc
+@@ -26,13 +26,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ #include <ctype.h>
++#include <string.h>
+ 
+ // prj
+ #include "globals.h"
+ #include "utils.h"
+ 
+ // sim.src
+-#include "uccl.h"
++//#include "uccl.h"
+ 
+ // local, cmd.src
+ #include "cmd_uccl.h"
+diff --git a/sdcc/sim/ucsim/cmd.src/cmdlex.l b/sdcc/sim/ucsim/cmd.src/cmdlex.l
+index 0f4a5585f..8eb534f2c 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmdlex.l
++++ b/sdcc/sim/ucsim/cmd.src/cmdlex.l
+@@ -1,6 +1,7 @@
+ %{
+ #include <stdio.h>
+ //#include <stdint.h>
++#include <unistd.h>
+ #include "cmdlexcl.h"
+ #include "cmdpars.hh"
+ 
+diff --git a/sdcc/sim/ucsim/cmd.src/cmdpars.y b/sdcc/sim/ucsim/cmd.src/cmdpars.y
+index 48f043955..f7aa72b06 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmdpars.y
++++ b/sdcc/sim/ucsim/cmd.src/cmdpars.y
+@@ -1,9 +1,11 @@
+ %{
+-
++#include <stdlib.h>
++#include <unistd.h>
++  
+ #include "cmdlexcl.h"
+-#include "memcl.h"
++  //#include "memcl.h"
+ #include "globals.h"
+-#include "stypes.h"
++  //#include "stypes.h"
+ 
+ static void yyerror (const char *msg);
+ %}
+diff --git a/sdcc/sim/ucsim/cmd.src/cmdutil.cc b/sdcc/sim/ucsim/cmd.src/cmdutil.cc
+index 8c074b688..34ac9db0d 100644
+--- a/sdcc/sim/ucsim/cmd.src/cmdutil.cc
++++ b/sdcc/sim/ucsim/cmd.src/cmdutil.cc
+@@ -25,18 +25,21 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include <assert.h>
+-#include <sys/types.h>
+-#include "i_string.h"
++//#include <assert.h>
++//#include <sys/types.h>
++#include <string.h>
++#include <stdarg.h>
+ 
+-#include "stypes.h"
+-#include "globals.h"
+-#include "uccl.h"
++//#include "i_string.h"
++
++//#include "stypes.h"
++//#include "globals.h"
++//#include "uccl.h"
+ #include "cmdutil.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/cmd.src/command.cc b/sdcc/sim/ucsim/cmd.src/command.cc
+index 99da95e3a..8f05c0531 100644
+--- a/sdcc/sim/ucsim/cmd.src/command.cc
++++ b/sdcc/sim/ucsim/cmd.src/command.cc
+@@ -25,20 +25,24 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+-#include <stdarg.h>
+-#include "i_string.h"
++//#include <stdarg.h>
++#include <string.h>
++#include <unistd.h>
++
++//#include "i_string.h"
+ 
+ // prj
+-#include "fiocl.h"
+-#include "utils.h"
++//#include "fiocl.h"
++//#include "utils.h"
+ #include "appcl.h"
+ 
+ // local, cmd
+ #include "commandcl.h"
+-#include "argcl.h"
++//#include "argcl.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/cmd.src/newcmd.cc b/sdcc/sim/ucsim/cmd.src/newcmd.cc
+index ecc3c75aa..c493906f7 100644
+--- a/sdcc/sim/ucsim/cmd.src/newcmd.cc
++++ b/sdcc/sim/ucsim/cmd.src/newcmd.cc
+@@ -26,30 +26,33 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <errno.h>
++//#include <errno.h>
+ #include <stdarg.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <unistd.h>
++#include <string.h>
++
++//#include "i_string.h"
+ 
+ //#include "cmdlexcl.h"
+ 
+ // prj
+ #include "globals.h"
+ #include "utils.h"
+-#include "fiocl.h"
++//#include "fiocl.h"
+ 
+ // sim
+-#include "simcl.h"
+-#include "argcl.h"
+-#include "appcl.h"
++//#include "simcl.h"
++//#include "argcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "newcmdcl.h"
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ 
+ /*
+@@ -260,7 +263,7 @@ cl_console_base::get_color_ansiseq(const char *color_name, bool add_reset)
+   chars cce= "";
+   class cl_f *fo= get_fout();
+   class cl_option *o= application->options->get_option("black_and_white");
+-  if (o) o->get_value(&cc);
++  if (o) o->get_value(&bw);
+ 
+   if (!fo ||
+       (fo &&
+@@ -921,7 +924,11 @@ cl_commander_base::input_avail_on_frozen(void)
+ class cl_console_base *
+ cl_commander_base::exec_on(class cl_console_base *cons, char *file_name)
+ {
+-  if (!cons || !file_name || !fopen(file_name, "r"))
++  FILE *dummy= fopen(file_name, "r");
++  bool oped= false;
++  if (dummy)
++    oped= true, fclose(dummy);
++  if (!cons || !file_name || !oped)
+     return 0;
+ 
+   class cl_console_base *subcon = cons->clone_for_exec(file_name);
+diff --git a/sdcc/sim/ucsim/cmd.src/newcmdposix.cc b/sdcc/sim/ucsim/cmd.src/newcmdposix.cc
+index ce36d893f..22df42e5b 100644
+--- a/sdcc/sim/ucsim/cmd.src/newcmdposix.cc
++++ b/sdcc/sim/ucsim/cmd.src/newcmdposix.cc
+@@ -26,27 +26,28 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <errno.h>
+-#include <stdarg.h>
++//#include <stdarg.h>
+ #include <stdlib.h>
+-#include <sys/types.h>
+-#include <sys/time.h>
+-#include "i_string.h"
++//#include <sys/types.h>
++//#include <sys/time.h>
++#include <string.h>
++#include <unistd.h>
++
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+-#include "utils.h"
++//#include "utils.h"
+ 
+ // sim
+-#include "simcl.h"
+-#include "argcl.h"
+-#include "appcl.h"
++//#include "simcl.h"
++//#include "argcl.h"
+ 
+ // local
+-#include "newcmdposixcl.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/doc/cmd.html b/sdcc/sim/ucsim/doc/cmd.html
+index f6845a33f..759634759 100644
+--- a/sdcc/sim/ucsim/doc/cmd.html
++++ b/sdcc/sim/ucsim/doc/cmd.html
+@@ -4,7 +4,7 @@
+     <title>Commands of s51</title>
+   </head>
+   <body style="background-color: white;">
+-    <h1>Command reference of <i>&mu;Csim</i></h1>
++    <h1>Command reference of <i>&#956;Csim</i></h1>
+     <!--GENERAL--> <a href="cmd_general.html">General commands and information</a>
+     <ul>
+       <li><a href="cmd_general.html#conf"><b>conf</b> Configuration</a>
+@@ -12,6 +12,8 @@
+           <li><a href="cmd_general.html#conf_objects"><b>conf objects</b></a></li>
+         </ul>
+       </li>
++      <li><a href="cmd_general.html#version"><b>version</b> Print version of the
++          program</a></li>
+       <li><a href="cmd_general.html#h"><b>help,?</b> Help about commands</a></li>
+       <li><a href="cmd_general.html#q"><b>quit</b> Quit</a></li>
+       <li><a href="cmd_general.html#kill"><b>kill</b> Shut down the simulator</a></li>
+@@ -82,9 +84,9 @@
+       <li><a href="cmd_memory.html#fill"><b>fill</b> Fill memory region with
+           data</a></li>
+       <li><a href="cmd_memory.html#where"><b>where,Where</b> Search for data in
+-        memory</a></li>
+-      <li><a href="cmd_memory.html#hole"><b>hole</b> search area in
+-      memory, filled with value
++          memory</a></li>
++      <li><a href="cmd_memory.html#hole"><b>hole</b> search area in memory,
++          filled with value </a></li>
+       <li><a href="cmd_memory.html#memory"><b>memory</b> Manage address spaces,
+           memory chips and address decoders</a>
+         <ul>
+diff --git a/sdcc/sim/ucsim/doc/cmd_general.html b/sdcc/sim/ucsim/doc/cmd_general.html
+index 49c6d2c12..4cb231cc5 100644
+--- a/sdcc/sim/ucsim/doc/cmd_general.html
++++ b/sdcc/sim/ucsim/doc/cmd_general.html
+@@ -1,12 +1,12 @@
+ <html>
+   <head>
+-    <meta content="text/html; charset=ISO-8859-2" http-equiv="content-type">
+-    <title>General commands of &mu;Csim</title>
++    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-2">
++    <title>General commands of ?Csim</title>
+   </head>
+   <body style="background-color: white;">
+-    <h2>General commands of <i>&mu;Csim</i></h2>
++    <h2>General commands of <i>?Csim</i></h2>
+     <h3><a name="conf">conf</a></h3>
+-    Conf command can be used to display different kind of information about <i>&mu;Csim</i>.
++    Conf command can be used to display different kind of information about <i>?Csim</i>.
+     It can be followed by a subcommand:
+     <p><a href="#conf_">conf</a> <br>
+       conf <a href="#conf_objects">objects</a> </p>
+@@ -34,9 +34,16 @@ Controller has 9 hardware element(s).
+       <h4><a name="conf_objects">conf <i>objects</i></a></h4>
+       This command is for development only. </blockquote>
+     <hr>
++    <h3><a name="version">version</a></h3>
++    Print out the version of the program.
++    <pre>0&gt; <font color="#118811">ver</font>
++0.6-pre58
++0&gt; 
++    </pre>
++    <hr>
+     <h3><a name="h">?,help <i>[command]</i></a></h3>
+     Help command. It prints out short description of the commands.
+-    <p>If a command name is given as parameter then <i>&mu;Csim</i> prints out all
++    <p>If a command name is given as parameter then <i>?Csim</i> prints out all
+       command that has similar names: </p>
+     <pre>0&gt; <font color="#118811">? s</font>
+ show subcommand    Generic command for showing things about the uCsim
+@@ -464,8 +471,8 @@ under certain conditions; type `show c' for details.
+     <p>info <a href="#info_breakpoints">breakpoints</a> <br>
+       info <a href="#info_registers">registers</a> <br>
+       info <a href="#info_hardware">hardware</a> <br>
+-      <!-- info <a href="#info_stack">stack</a> <br>-->
+-      info <a href="#info_memory">memory</a> <br>
++      <!-- info <a href="#info_stack">stack</a> <br>--> info <a href="#info_memory">memory</a>
++      <br>
+       info <a href="#info_variables">variables</a> </p>
+     <blockquote>
+       <h4><a name="info_breakpoints">info breakpoints</a></h4>
+@@ -663,38 +670,23 @@ timer0[0] 0x0000 13 bit timer OFF irq=0 dis prio=0
+ timer2[2] 0x0000 reload 0x0000 timer OFF irq=0 dis prio=0
+ 0&gt; 
+ </pre>
+-<hr>
+-<!-- 
+-      <h4><a name="info_stack">info stack</a></h4>
+-      This command prints out information about data stored in the CPU's stack
+-      and operations which put them there.
+-      <pre>$ <font color="#118811">s51 ~/remo.hex</font>
+-uCsim 0.5.0-pre3, Copyright (C) 1997 Daniel Drotos, Talker Bt.
+-uCsim comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+-This is free software, and you are welcome to redistribute it
+-under certain conditions; type `show c' for details.
+-55470 words read from /home/staff/drdani/remo.hex
+-0&gt; <font color="#118811">set opt irq_stop true</font>
+-0&gt; <font color="#118811">r</font>
+-Simulation started, PC=0x000000
+-Stop at 0x000023: (2) Interrupt
+-F 0x000023
+-0&gt; <font color="#118811">i s</font>
+-OP   SP before-after   L DATA/ADDR   INSTRUCTION
+-call 0x000022-0x000024 2 0x002976    0x022a 12 29 76 LCALL 2976
+-call 0x000024-0x000026 2 0x002379    0x2976 12 23 79 LCALL 2379
+-call 0x000026-0x000028 2 0x003612    0x2517 12 36 12 LCALL 3612
+-intr 0x000028-0x00002a 2 0x000023    0x366f 20 0c 02 JB    21.4,3674
+-0&gt; 
+-</pre> First column shows the operation which can be <b>call</b> or <b>push</b>
+-      or <b>intr</b> (interrupt call). Next column contains value of the SP
+-      register before and after the operation. Column "L" shows size of the
+-      data, and the next column the data itself. Note, that for call operations
+-      (call, and intr) the <b>called</b> address is printed, not the pushed
+-      one! Last column is the instruction which has been executed when the
+-      operation occurred.
+-<hr>
+--->
++      <hr>
++      <!-- 
++      <h4><a name="info_stack">info stack</a></h4>      This command prints out information about data stored in the CPU's stack
++      and operations which put them there.      <pre>$ <font color="#118811">s51 ~/remo.hex</font>
++uCsim 0.5.0-pre3, Copyright (C) 1997 Daniel Drotos, Talker Bt.uCsim comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
++This is free software, and you are welcome to redistribute itunder certain conditions; type `show c' for details.
++55470 words read from /home/staff/drdani/remo.hex0&gt; <font color="#118811">set opt irq_stop true</font>
++0&gt; <font color="#118811">r</font>Simulation started, PC=0x000000
++Stop at 0x000023: (2) InterruptF 0x000023
++0&gt; <font color="#118811">i s</font>OP   SP before-after   L DATA/ADDR   INSTRUCTION
++call 0x000022-0x000024 2 0x002976    0x022a 12 29 76 LCALL 2976call 0x000024-0x000026 2 0x002379    0x2976 12 23 79 LCALL 2379
++call 0x000026-0x000028 2 0x003612    0x2517 12 36 12 LCALL 3612intr 0x000028-0x00002a 2 0x000023    0x366f 20 0c 02 JB    21.4,3674
++0&gt; </pre> First column shows the operation which can be <b>call</b> or <b>push</b>
++      or <b>intr</b> (interrupt call). Next column contains value of the SP      register before and after the operation. Column "L" shows size of the
++      data, and the next column the data itself. Note, that for call operations      (call, and intr) the <b>called</b> address is printed, not the pushed
++      one! Last column is the instruction which has been executed when the      operation occurred.
++<hr>-->
+       <h4><a name="info_memory">info memory</a></h4>
+       This command shows information about <a href="memory.html">memory system</a>:
+       chips, address spaces and address decoders.
+diff --git a/sdcc/sim/ucsim/error.cc b/sdcc/sim/ucsim/error.cc
+index 25e91a060..d7e1150a5 100644
+--- a/sdcc/sim/ucsim/error.cc
++++ b/sdcc/sim/ucsim/error.cc
+@@ -168,7 +168,7 @@ cl_error::is_on(void)
+ void
+ cl_error::print(class cl_commander_base *c)
+ {
+-  c->dd_printf(cchars("%s\n"), get_type_name());
++  c->dd_cprintf("error", cchars("%s\n"), get_type_name());
+ }
+ 
+ char *
+diff --git a/sdcc/sim/ucsim/fio.cc b/sdcc/sim/ucsim/fio.cc
+index 8b18f69de..b382f4ffa 100644
+--- a/sdcc/sim/ucsim/fio.cc
++++ b/sdcc/sim/ucsim/fio.cc
+@@ -28,16 +28,17 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <sys/time.h>
++//#include <sys/time.h>
+ #include <sys/types.h>
+ #include <unistd.h>
+ #include HEADER_FD
+-#include <errno.h>
++//#include <errno.h>
+ #include <string.h>
+ #if defined HAVE_SYS_SOCKET_H
+ # include <sys/socket.h>
+ # include <netinet/in.h>
+ # include <arpa/inet.h>
++# include <sys/socket.h>
+ #endif
+ #include <stdlib.h>
+ #include <ctype.h>
+diff --git a/sdcc/sim/ucsim/fuio.cc b/sdcc/sim/ucsim/fuio.cc
+index 71ecec924..0f4022e1d 100644
+--- a/sdcc/sim/ucsim/fuio.cc
++++ b/sdcc/sim/ucsim/fuio.cc
+@@ -13,10 +13,12 @@
+ #include <stdlib.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <sys/time.h>
+ #include <time.h>
+ #include <string.h>
+ #include <stdarg.h>
+ #include <fcntl.h>
++#include <termios.h>
+ 
+ #include "utils.h"
+ 
+diff --git a/sdcc/sim/ucsim/globals.cc b/sdcc/sim/ucsim/globals.cc
+index 11024e215..82d020d6f 100644
+--- a/sdcc/sim/ucsim/globals.cc
++++ b/sdcc/sim/ucsim/globals.cc
+@@ -25,7 +25,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ 
+diff --git a/sdcc/sim/ucsim/gui.src/serio.src/clean.mk b/sdcc/sim/ucsim/gui.src/serio.src/clean.mk
+index f50d8c676..ef6f2cdaa 100644
+--- a/sdcc/sim/ucsim/gui.src/serio.src/clean.mk
++++ b/sdcc/sim/ucsim/gui.src/serio.src/clean.mk
+@@ -5,7 +5,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f serialview$(EXEEXT)
++	rm -f serialview$(EXEEXT) serialview.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/gui.src/serio.src/fileio.cc b/sdcc/sim/ucsim/gui.src/serio.src/fileio.cc
+index 5f7e6fa14..0a69e981a 100644
+--- a/sdcc/sim/ucsim/gui.src/serio.src/fileio.cc
++++ b/sdcc/sim/ucsim/gui.src/serio.src/fileio.cc
+@@ -7,7 +7,7 @@
+ #include <stdlib.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+-#include <errno.h>
++//#include <errno.h>
+ #include <string.h>
+ #include <unistd.h>
+ #include "fileio.hh"
+diff --git a/sdcc/sim/ucsim/gui.src/serio.src/frontend.cc b/sdcc/sim/ucsim/gui.src/serio.src/frontend.cc
+index 98472a23a..111f6650d 100644
+--- a/sdcc/sim/ucsim/gui.src/serio.src/frontend.cc
++++ b/sdcc/sim/ucsim/gui.src/serio.src/frontend.cc
+@@ -2,15 +2,19 @@
+  * to emulate the serial input and output of an 8051 controller               *
+  * frontend.cc - the ncurses frontend                                         *
+  ******************************************************************************/
+-#include <sys/types.h>
+-#include <iostream>
++
++#include <stdio.h>
++#include <ctype.h>
++//#include <sys/types.h>
++//#include <iostream>
+ #include <stdlib.h>
+-#include <sys/stat.h>
+-#include <fcntl.h>
+-#include <curses.h>
+-#include <errno.h>
++//#include <sys/stat.h>
++//#include <fcntl.h>
++//#include <curses.h>
++//#include <errno.h>
+ #include <string.h>
+-#include <unistd.h>
++//#include <unistd.h>
++
+ #include "frontend.hh"
+ 
+ char *
+diff --git a/sdcc/sim/ucsim/gui.src/serio.src/main.cc b/sdcc/sim/ucsim/gui.src/serio.src/main.cc
+index cd5554068..160f1fe3d 100644
+--- a/sdcc/sim/ucsim/gui.src/serio.src/main.cc
++++ b/sdcc/sim/ucsim/gui.src/serio.src/main.cc
+@@ -2,14 +2,16 @@
+  * to emulate the serial input and output of an 8051 controller               *
+  * main.cc - the main stuff                                                   *
+  ******************************************************************************/
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <sys/types.h>
++#include <stdio.h>
++//#include <sys/types.h>
++#include <sys/time.h>
+ #include <iostream>
+ #include <stdlib.h>
+-#include <sys/stat.h>
+-#include <fcntl.h>
+-#include <errno.h>
++//#include <sys/stat.h>
++//#include <fcntl.h>
++//#include <errno.h>
+ #include <string.h>
+ #include <unistd.h>
+ #include <signal.h>
+diff --git a/sdcc/sim/ucsim/gui.src/serio.src/posix_signal.cc b/sdcc/sim/ucsim/gui.src/serio.src/posix_signal.cc
+index 8183f5769..0217eb136 100644
+--- a/sdcc/sim/ucsim/gui.src/serio.src/posix_signal.cc
++++ b/sdcc/sim/ucsim/gui.src/serio.src/posix_signal.cc
+@@ -15,10 +15,10 @@
+ #include <sys/wait.h>   /* header for waitpid() and various macros */
+ #include <signal.h>     /* header for signal functions */
+ #include <stdlib.h>
+-#include <unistd.h>
++//#include <unistd.h>
+ #include <string.h>
+-#include <strings.h>
+-#include <errno.h>
++//#include <strings.h>
++//#include <errno.h>
+ 
+ #include "posix_signal.hh"
+ 
+diff --git a/sdcc/sim/ucsim/hc08.src/clean.mk b/sdcc/sim/ucsim/hc08.src/clean.mk
+index f5708793e..edc790886 100644
+--- a/sdcc/sim/ucsim/hc08.src/clean.mk
++++ b/sdcc/sim/ucsim/hc08.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f shc08$(EXEEXT)
++	rm -f shc08$(EXEEXT) shc08.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/hc08.src/hc08.cc b/sdcc/sim/ucsim/hc08.src/hc08.cc
+index 4d4bbc5cd..f93971f2c 100644
+--- a/sdcc/sim/ucsim/hc08.src/hc08.cc
++++ b/sdcc/sim/ucsim/hc08.src/hc08.cc
+@@ -27,16 +27,17 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+ #include "simcl.h"
+@@ -44,7 +45,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ // local
+ #include "hc08cl.h"
+ #include "glob.h"
+-#include "regshc08.h"
++//#include "regshc08.h"
+ #include "hc08mac.h"
+ 
+ #define uint32 t_addr
+@@ -83,6 +84,7 @@ cl_hc08::init(void)
+     ram->set((t_addr) i, 0);
+   }
+ 
++  sp_limit= 0x7000;
+   return(0);
+ }
+ 
+@@ -129,7 +131,11 @@ void
+ cl_hc08::mk_hw_elements(void)
+ {
+   //class cl_base *o;
++  class cl_hw *h;
+   cl_uc::mk_hw_elements();
++
++  add_hw(h= new cl_hc08_cpu(this));
++  h->init();
+ }
+ 
+ void
+@@ -442,10 +448,11 @@ cl_hc08::print_regs(class cl_console_base *con)
+ 		 regs.H, regs.H, isprint(regs.H)?regs.H:'.');
+   con->dd_printf("X= 0x%02x %3d %c\n",
+ 		 regs.X, regs.X, isprint(regs.X)?regs.X:'.');
+-  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c\n",
++  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c",
+                  regs.SP, ram->get(regs.SP+1), ram->get(regs.SP+1),
+                  isprint(ram->get(regs.SP+1))?ram->get(regs.SP+1):'.');
+-
++  con->dd_printf("  Limit= 0x%04x\n", AU(sp_limit));
++  
+   print_disass(PC, con);
+ }
+ 
+@@ -678,6 +685,26 @@ cl_hc08::exec_inst(void)
+   return(resINV_INST);
+ }
+ 
++
++void
++cl_hc08::stack_check_overflow(class cl_stack_op *op)
++{
++  if (op)
++    {
++      if (op->get_op() & stack_write_operation)
++	{
++	  t_addr a= op->get_after();
++	  if (a < sp_limit)
++	    {
++	      class cl_error_stack_overflow *e=
++		new cl_error_stack_overflow(op);
++	      e->init();
++	      error(e);
++	    }
++	}
++    }
++}
++
+ t_mem
+ cl_hc08::get_1(t_addr addr)
+ {
+@@ -692,4 +719,54 @@ cl_hc08::get_2(t_addr addr)
+   return (ram->read(addr & 0xffff) << 8) | ram->read((addr+1) & 0xffff);
+ }
+ 
++
++cl_hc08_cpu::cl_hc08_cpu(class cl_uc *auc):
++  cl_hw(auc, HW_CPU, 0, "cpu")
++{
++}
++
++int
++cl_hc08_cpu::init(void)
++{
++  cl_hw::init();
++
++  cl_var *v;
++  uc->vars->add(v= new cl_var(cchars("sp_limit"), cfg, hc08cpu_sp_limit,
++			      cfg_help(hc08cpu_sp_limit)));
++  v->init();
++
++  return 0;
++}
++
++char *
++cl_hc08_cpu::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case hc08cpu_sp_limit:
++      return (char*)"Stack overflows when SP is below this limit";
++    }
++  return (char*)"Not used";
++}
++
++t_mem
++cl_hc08_cpu::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  class cl_hc08 *u= (class cl_hc08 *)uc;
++  if (val)
++    cell->set(*val);
++  switch ((enum hc08cpu_confs)addr)
++    {
++    case hc08cpu_sp_limit:
++      if (val)
++	u->sp_limit= *val & 0xffff;
++      else
++	cell->set(u->sp_limit);
++      break;
++    case hc08cpu_nuof: break;
++    }
++  return cell->get();
++}
++
++
+ /* End of hc08.src/hc08.cc */
+diff --git a/sdcc/sim/ucsim/hc08.src/hc08cl.h b/sdcc/sim/ucsim/hc08.src/hc08cl.h
+index a894f15eb..18b03a3bc 100644
+--- a/sdcc/sim/ucsim/hc08.src/hc08cl.h
++++ b/sdcc/sim/ucsim/hc08.src/hc08cl.h
+@@ -44,6 +44,7 @@ public:
+   class cl_memory *rom;
+   class cl_address_space *regs8, *regs16;
+   struct t_regs regs;
++  t_addr sp_limit;
+ public:
+   cl_hc08(struct cpu_entry *Itype, class cl_sim *asim);
+   virtual int init(void);
+@@ -62,6 +63,8 @@ public:
+ 
+   virtual int exec_inst(void);
+ 
++  virtual void stack_check_overflow(class cl_stack_op *op);
++
+   virtual const char * get_disasm_info(t_addr addr,
+ 				       int *ret_len,
+ 				       int *ret_branch,
+@@ -76,6 +79,23 @@ public:
+ };
+ 
+ 
++enum hc08cpu_confs
++  {
++   hc08cpu_sp_limit	= 0,
++   hc08cpu_nuof		= 1
++  };
++
++class cl_hc08_cpu: public cl_hw
++{
++public:
++  cl_hc08_cpu(class cl_uc *auc);
++  virtual int init(void);
++  virtual int cfg_size(void) { return hc08cpu_nuof; }
++  virtual char *cfg_help(t_addr addr);
++
++  virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++};
++
+ #endif
+ 
+ /* End of hc08.src/hc08cl.h */
+diff --git a/sdcc/sim/ucsim/hc08.src/hc08mac.h b/sdcc/sim/ucsim/hc08.src/hc08mac.h
+index 47408f6a0..8e3c5e291 100644
+--- a/sdcc/sim/ucsim/hc08.src/hc08mac.h
++++ b/sdcc/sim/ucsim/hc08.src/hc08mac.h
+@@ -27,8 +27,24 @@
+ #define get2(addr) get_2(addr)
+ //#define fetch2() ((fetch() << 8) | fetch() )
+ #define fetch1() fetch()
+-#define push2(val) {store2(regs.SP-1,(val)); regs.SP-=2; }
+-#define push1(val) {store1(regs.SP,(val)); regs.SP-=1; }
++#define push2(val) {							\
++    t_addr sp_before= regs.SP;						\
++    store2(regs.SP-1,(val));						\
++    regs.SP-=2;								\
++    class cl_stack_op *so=						\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);			\
++    so->init();								\
++    stack_write(so);							\
++  }
++#define push1(val) {							\
++    t_addr sp_before= regs.SP;						\
++    store1(regs.SP,(val));						\
++    regs.SP-=1;								\
++    class cl_stack_op *so=						\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);			\
++    so->init();								\
++    stack_write(so);							\
++  }
+ #define pop2(var) {var=get2(regs.SP+1); regs.SP+=2;}
+ #define pop1(var) {var=get1(regs.SP+1); regs.SP+=1;}
+ #define add_u16_disp(_w, _d) (( (unsigned short)(_w) + (char)(_d) ) & 0xffff)
+diff --git a/sdcc/sim/ucsim/hc08.src/inst.cc b/sdcc/sim/ucsim/hc08.src/inst.cc
+index 56bf49509..c0d30d7b5 100644
+--- a/sdcc/sim/ucsim/hc08.src/inst.cc
++++ b/sdcc/sim/ucsim/hc08.src/inst.cc
+@@ -27,13 +27,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
+-#include "stdio.h"
+-#include <stdlib.h>
++//#include "ddconfig.h"
++
++//#include <stdio.h>
++//#include <stdlib.h>
+ 
+ // local
+ #include "hc08cl.h"
+-#include "regshc08.h"
++//#include "regshc08.h"
+ #include "hc08mac.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/hc08.src/shc08.cc b/sdcc/sim/ucsim/hc08.src/shc08.cc
+index 3a49d790a..9f1fd2c4a 100644
+--- a/sdcc/sim/ucsim/hc08.src/shc08.cc
++++ b/sdcc/sim/ucsim/hc08.src/shc08.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simhc08cl.h"
+diff --git a/sdcc/sim/ucsim/hc08.src/simhc08.cc b/sdcc/sim/ucsim/hc08.src/simhc08.cc
+index cd112701f..26cae1ac0 100644
+--- a/sdcc/sim/ucsim/hc08.src/simhc08.cc
++++ b/sdcc/sim/ucsim/hc08.src/simhc08.cc
+@@ -25,6 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++#include <string.h>
++
+ #include "globals.h"
+ 
+ // local
+diff --git a/sdcc/sim/ucsim/pdk.src/clean.mk b/sdcc/sim/ucsim/pdk.src/clean.mk
+index 0215de0f1..5c3a321e0 100644
+--- a/sdcc/sim/ucsim/pdk.src/clean.mk
++++ b/sdcc/sim/ucsim/pdk.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f spdk$(EXEEXT)
++	rm -f spdk$(EXEEXT) spdk.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/pdk.src/inst.cc b/sdcc/sim/ucsim/pdk.src/inst.cc
+index 522b6b5d3..d4540263b 100644
+--- a/sdcc/sim/ucsim/pdk.src/inst.cc
++++ b/sdcc/sim/ucsim/pdk.src/inst.cc
+@@ -111,7 +111,7 @@ int cl_pdk::execute(unsigned int code) {
+   case CPU_PDK15:
+     return(execute_pdk15(code));
+   default:
+-    __builtin_unreachable();
++    return 0;//__builtin_unreachable();
+   }
+ }
+ 
+@@ -1154,4 +1154,4 @@ int cl_pdk::execute_pdk15(unsigned int code) {
+ }
+ 
+ /* End of pdk.src/inst.cc */
+-/* End of pdk.src/inst.cc */
++
+diff --git a/sdcc/sim/ucsim/pdk.src/pdk.cc b/sdcc/sim/ucsim/pdk.src/pdk.cc
+index 52a654185..2eede46b7 100644
+--- a/sdcc/sim/ucsim/pdk.src/pdk.cc
++++ b/sdcc/sim/ucsim/pdk.src/pdk.cc
+@@ -25,27 +25,28 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <ctype.h>
+-#include <stdarg.h> /* for va_list */
+-#include <cassert>
++//#include <ctype.h>
++//#include <stdarg.h> /* for va_list */
++//#include <cassert>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "glob.h"
+ #include "pdkcl.h"
+-#include "portcl.h"
+-#include "regspdk.h"
++//#include "portcl.h"
++//#include "regspdk.h"
+ 
+ /*******************************************************************/
+ 
+@@ -140,7 +141,7 @@ void cl_pdk::make_memories(void) {
+     ram_storage = 0x100;
+     break;
+   default:
+-    __builtin_unreachable();
++    return;//__builtin_unreachable();
+   }
+   rom = as = new cl_address_space("rom", 0, rom_storage, 16);
+   as->init();
+@@ -190,7 +191,7 @@ struct dis_entry *cl_pdk::dis_tbl(void) {
+   case CPU_PDK15:
+     return (disass_pdk_15);
+   default:
+-    __builtin_unreachable();
++    return NULL;//__builtin_unreachable();
+   }
+ }
+ 
+@@ -251,7 +252,7 @@ const char *cl_pdk::get_disasm_info(t_addr addr, int *ret_len, int *ret_branch,
+         break;
+ 
+       default:
+-        __builtin_unreachable();
++        return (char*)"";//__builtin_unreachable();
+   }
+ 
+   uint code = rom->get(addr++);
+@@ -327,7 +328,7 @@ char *cl_pdk::disass(t_addr addr, const char *sep) {
+               code &= 0x7F;
+               break;
+             default:
+-              __builtin_unreachable();
++              ;//__builtin_unreachable();
+            }
+ 
+             ++b;
+@@ -347,7 +348,7 @@ char *cl_pdk::disass(t_addr addr, const char *sep) {
+             n = (code & 0x380) >> 7;
+             break;
+           default:
+-            __builtin_unreachable();
++            n= 0;//__builtin_unreachable();
+           }
+           sprintf(temp, "#%u", n);
+           break;
+diff --git a/sdcc/sim/ucsim/pdk.src/simpdk.cc b/sdcc/sim/ucsim/pdk.src/simpdk.cc
+index 58ad48a82..2d11e6d39 100644
+--- a/sdcc/sim/ucsim/pdk.src/simpdk.cc
++++ b/sdcc/sim/ucsim/pdk.src/simpdk.cc
+@@ -25,6 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++#include <strings.h>
++
+ // prj
+ #include "globals.h"
+ 
+diff --git a/sdcc/sim/ucsim/pdk.src/spdk.cc b/sdcc/sim/ucsim/pdk.src/spdk.cc
+index c4e76a62d..c08c9b0de 100644
+--- a/sdcc/sim/ucsim/pdk.src/spdk.cc
++++ b/sdcc/sim/ucsim/pdk.src/spdk.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simpdkcl.h"
+diff --git a/sdcc/sim/ucsim/pobj.cc b/sdcc/sim/ucsim/pobj.cc
+index dbf8d8484..9d71ee2e1 100644
+--- a/sdcc/sim/ucsim/pobj.cc
++++ b/sdcc/sim/ucsim/pobj.cc
+@@ -25,7 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++#include <string.h>
++#include <strings.h>
++#include <unistd.h>
++
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/sdcc/sim/ucsim/relay.cc b/sdcc/sim/ucsim/relay.cc
+index be4d374ea..5eed29c93 100644
+--- a/sdcc/sim/ucsim/relay.cc
++++ b/sdcc/sim/ucsim/relay.cc
+@@ -1,4 +1,5 @@
+-#include <stdio.h>
++//#include <stdio.h>
++#include <unistd.h>
+ 
+ #include "fiocl.h"
+ 
+diff --git a/sdcc/sim/ucsim/s51.src/arith.cc b/sdcc/sim/ucsim/s51.src/arith.cc
+index 8a1a5e3b8..1a2876be8 100644
+--- a/sdcc/sim/ucsim/s51.src/arith.cc
++++ b/sdcc/sim/ucsim/s51.src/arith.cc
+@@ -25,9 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ // local
+ #include "uc51cl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/bit.cc b/sdcc/sim/ucsim/s51.src/bit.cc
+index 48d5e5ba4..5f26a3c5c 100644
+--- a/sdcc/sim/ucsim/s51.src/bit.cc
++++ b/sdcc/sim/ucsim/s51.src/bit.cc
+@@ -25,12 +25,12 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "uc51cl.h"
+-#include "regs51.h"
+-#include "types51.h"
++//#include "regs51.h"
++//#include "types51.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/s51.src/clean.mk b/sdcc/sim/ucsim/s51.src/clean.mk
+index 72a866e4f..b7b6de3b3 100644
+--- a/sdcc/sim/ucsim/s51.src/clean.mk
++++ b/sdcc/sim/ucsim/s51.src/clean.mk
+@@ -6,7 +6,7 @@ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f test_*.??* '(null).cdb' *.lnk *.ihx
+ 	rm -f .[a-z]*~
+-	rm -f s51$(EXEEXT)
++	rm -f s51$(EXEEXT) s51.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/s51.src/inc.cc b/sdcc/sim/ucsim/s51.src/inc.cc
+index 645f9ccb4..ce292538e 100644
+--- a/sdcc/sim/ucsim/s51.src/inc.cc
++++ b/sdcc/sim/ucsim/s51.src/inc.cc
+@@ -25,11 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "uc51cl.h"
+-#include "regs51.h"
++//#include "regs51.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/s51.src/interrupt.cc b/sdcc/sim/ucsim/s51.src/interrupt.cc
+index b0500459e..fb4ffb811 100644
+--- a/sdcc/sim/ucsim/s51.src/interrupt.cc
++++ b/sdcc/sim/ucsim/s51.src/interrupt.cc
+@@ -25,8 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++//#include <stdarg.h>
++
+ // prj
+-#include <stdarg.h>
+ #include "utils.h"
+ 
+ // sim
+diff --git a/sdcc/sim/ucsim/s51.src/jmp.cc b/sdcc/sim/ucsim/s51.src/jmp.cc
+index 01849f4b4..022c1c5bb 100644
+--- a/sdcc/sim/ucsim/s51.src/jmp.cc
++++ b/sdcc/sim/ucsim/s51.src/jmp.cc
+@@ -29,16 +29,16 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  *	relative<->absolute jump in "jmp @a+dptr"
+  */
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <stdlib.h>
++//#include <stdio.h>
++//#include <stdlib.h>
+ 
+ // local
+ #include "uc51cl.h"
+ #include "regs51.h"
+-#include "types51.h"
+-#include "interruptcl.h"
++//#include "types51.h"
++//#include "interruptcl.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/s51.src/logic.cc b/sdcc/sim/ucsim/s51.src/logic.cc
+index afc7cf18a..1585ad515 100644
+--- a/sdcc/sim/ucsim/s51.src/logic.cc
++++ b/sdcc/sim/ucsim/s51.src/logic.cc
+@@ -25,14 +25,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // prj
+-#include "stypes.h"
++//#include "stypes.h"
+ 
+ // local
+ #include "uc51cl.h"
+-#include "regs51.h"
++//#include "regs51.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/s51.src/mdu.cc b/sdcc/sim/ucsim/s51.src/mdu.cc
+index ad29f8daa..6019fd801 100644
+--- a/sdcc/sim/ucsim/s51.src/mdu.cc
++++ b/sdcc/sim/ucsim/s51.src/mdu.cc
+@@ -25,6 +25,8 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++
+ #include "uc51cl.h"
+ 
+ #include "mducl.h"
+@@ -392,8 +394,8 @@ cl_mdu88x::read(class cl_memory_cell *cell)
+   else if (sfr->is_owned(cell, &a))
+     {
+       a-= 0xb2;
+-      if ((a < 0) ||
+-	  (a > 5))
++      if (((a < 0) ||
++	   (a > 5)))
+ 	{
+ 	  if (con->get() & 0x20)
+ 	    val= regs[a]->get();
+diff --git a/sdcc/sim/ucsim/s51.src/mov.cc b/sdcc/sim/ucsim/s51.src/mov.cc
+index 4794f67e1..83c27c56f 100644
+--- a/sdcc/sim/ucsim/s51.src/mov.cc
++++ b/sdcc/sim/ucsim/s51.src/mov.cc
+@@ -30,12 +30,12 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+  *	get register in "mov @ri,address"
+  */
+  
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ // sim
+-#include "memcl.h"
++//#include "memcl.h"
+ 
+ // local
+ #include "uc51cl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/pca.cc b/sdcc/sim/ucsim/s51.src/pca.cc
+index 2aa889961..64c877635 100644
+--- a/sdcc/sim/ucsim/s51.src/pca.cc
++++ b/sdcc/sim/ucsim/s51.src/pca.cc
+@@ -25,7 +25,8 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include <ctype.h>
++#include <stdio.h>
++//#include <ctype.h>
+ 
+ // sim.src
+ #include "itsrccl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/port.cc b/sdcc/sim/ucsim/s51.src/port.cc
+index 4e5f41e42..c7cb96469 100644
+--- a/sdcc/sim/ucsim/s51.src/port.cc
++++ b/sdcc/sim/ucsim/s51.src/port.cc
+@@ -25,6 +25,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
+ #include <ctype.h>
+ 
+ // cmd
+diff --git a/sdcc/sim/ucsim/s51.src/s51.cc b/sdcc/sim/ucsim/s51.src/s51.cc
+index 64d3da006..ee7a4f22e 100644
+--- a/sdcc/sim/ucsim/s51.src/s51.cc
++++ b/sdcc/sim/ucsim/s51.src/s51.cc
+@@ -25,13 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // prj
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "sim51cl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/serial.cc b/sdcc/sim/ucsim/s51.src/serial.cc
+index a9cc8d327..a21dc2b45 100644
+--- a/sdcc/sim/ucsim/s51.src/serial.cc
++++ b/sdcc/sim/ucsim/s51.src/serial.cc
+@@ -25,22 +25,22 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <stdlib.h>
++//#include <stdio.h>
++//#include <stdlib.h>
+ #include <ctype.h>
+-#include <errno.h>
+-#include <fcntl.h>
+-#include <sys/time.h>
+-#include <strings.h>
++//#include <errno.h>
++//#include <fcntl.h>
++//#include <sys/time.h>
++//#include <strings.h>
+ 
+ // prj
+ #include "globals.h"
+-#include "utils.h"
++//#include "utils.h"
+ 
+ // cmd
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ // local
+ #include "serialcl.h"
+@@ -77,7 +77,7 @@ cl_serial::init(void)
+     }
+ 
+   class cl_hw *t2= uc->get_hw(HW_TIMER, 2, 0);
+-  if ((there_is_t2= t2 != 0))
++  if (((there_is_t2= t2) != 0))
+     {
+       t_mem d= sfr->get(T2CON);
+       t2_baud= d & (bmRCLK | bmTCLK);
+@@ -425,11 +425,13 @@ cl_serial::print_info(class cl_console_base *con)
+   con->dd_printf(" %s", (sc&bmREN)?"ON":"OFF");
+   con->dd_printf(" RB8=%c", (sc&bmRB8)?'1':'0');
+   con->dd_printf(" irq=%c", (sc&bmRI)?'1':'0');
++  con->dd_printf(" buf=0x%02x", s_in);
+   con->dd_printf("\n");
+ 
+   con->dd_printf("Transmitter");
+   con->dd_printf(" TB8=%c", (sc&bmTB8)?'1':'0');
+   con->dd_printf(" irq=%c", (sc&bmTI)?'1':'0');
++  con->dd_printf(" buf=0x%02x", s_out);
+   con->dd_printf("\n");
+   /*con->dd_printf("s_rec_t1=%d s_rec_bit=%d s_rec_tick=%d\n",
+ 		 s_rec_t1, s_rec_bit, s_rec_tick);
+diff --git a/sdcc/sim/ucsim/s51.src/sim51.cc b/sdcc/sim/ucsim/s51.src/sim51.cc
+index 063249c44..a6bf9e5c5 100644
+--- a/sdcc/sim/ucsim/s51.src/sim51.cc
++++ b/sdcc/sim/ucsim/s51.src/sim51.cc
+@@ -25,33 +25,34 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <stdlib.h>
+-#include <ctype.h>
+-#include <errno.h>
+-#include "i_string.h"
++//#include <stdlib.h>
++//#include <ctype.h>
++//#include <errno.h>
++#include <strings.h>
++//#include "i_string.h"
+ 
+ #include "globals.h"
+-#include "utils.h"
+-#include "cmdutil.h"
+-#include "charscl.h"
++//#include "utils.h"
++//#include "cmdutil.h"
++//#include "charscl.h"
+ 
+ #include "sim51cl.h"
+ //#include "cmd51cl.h"
+-#include "uc51cl.h"
+-#include "uc52cl.h"
+-#include "uc521cl.h"
++//#include "uc51cl.h"
++//#include "uc52cl.h"
++//#include "uc521cl.h"
+ #include "uc517cl.h"
+-#include "uc51rcl.h"
+-#include "uc89c51rcl.h"
++//#include "uc51rcl.h"
++//#include "uc89c51rcl.h"
+ #include "uc251cl.h"
+ #include "uc390cl.h"
+ #include "uc88xcl.h"
+ #include "uc320cl.h"
+ #include "uc380cl.h"
+-#include "glob.h"
++//#include "glob.h"
+ 
+ 
+ cl_sim51::cl_sim51(class cl_app *the_app):
+diff --git a/sdcc/sim/ucsim/s51.src/test/Makefile b/sdcc/sim/ucsim/s51.src/test/Makefile
+index 5f1ec23f4..93a5f2e00 100644
+--- a/sdcc/sim/ucsim/s51.src/test/Makefile
++++ b/sdcc/sim/ucsim/s51.src/test/Makefile
+@@ -1,7 +1,7 @@
+ PRJ		= test_mdu517 test_mdu88x \
+ 		  stn stp strr sts stt stxr stxrw stxw \
+ 		  stt_small stt_large \
+-		  monitor test_ser tim_ser
++		  monitor test_ser tim_ser stck_ovf
+ 
+ all:
+ 	for p in $(PRJ); do \
+diff --git a/sdcc/sim/ucsim/s51.src/test/stck_ovf.c b/sdcc/sim/ucsim/s51.src/test/stck_ovf.c
+new file mode 100644
+index 000000000..c5eac1c3a
+--- /dev/null
++++ b/sdcc/sim/ucsim/s51.src/test/stck_ovf.c
+@@ -0,0 +1,4 @@
++void main(void)
++{
++  main();
++}
+diff --git a/sdcc/sim/ucsim/s51.src/test/stck_ovf.mk b/sdcc/sim/ucsim/s51.src/test/stck_ovf.mk
+new file mode 100644
+index 000000000..3a99bb4d4
+--- /dev/null
++++ b/sdcc/sim/ucsim/s51.src/test/stck_ovf.mk
+@@ -0,0 +1,7 @@
++MAIN		= stck_ovf
++
++OTHERS		=
++
++include sdcc.mk
++
++MODEL		= small
+diff --git a/sdcc/sim/ucsim/s51.src/test/tim_ser.c b/sdcc/sim/ucsim/s51.src/test/tim_ser.c
+index 91d109a1c..bb559227d 100644
+--- a/sdcc/sim/ucsim/s51.src/test/tim_ser.c
++++ b/sdcc/sim/ucsim/s51.src/test/tim_ser.c
+@@ -10,6 +10,7 @@
+ 
+ unsigned int t0cnt;
+ __xdata char *simif;
++volatile __bit dummy;
+ 
+ void t0_it(void) __interrupt (1)
+ {
+@@ -69,5 +70,6 @@ void main(void)
+ 	    c= min;
+ 	  t0cnt= 10;
+ 	}
++      dummy= !dummy;
+     }
+ }
+diff --git a/sdcc/sim/ucsim/s51.src/timer0.cc b/sdcc/sim/ucsim/s51.src/timer0.cc
+index 936a795f2..1accf9d15 100644
+--- a/sdcc/sim/ucsim/s51.src/timer0.cc
++++ b/sdcc/sim/ucsim/s51.src/timer0.cc
+@@ -25,10 +25,12 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++
+ #include "timer0cl.h"
+ #include "regs51.h"
+ #include "types51.h"
+-#include "uc51cl.h"
++//#include "uc51cl.h"
+ 
+ 
+ cl_timer0::cl_timer0(class cl_uc *auc, int aid, const char *aid_string):
+diff --git a/sdcc/sim/ucsim/s51.src/uc251.cc b/sdcc/sim/ucsim/s51.src/uc251.cc
+index 6ee375775..db7357d19 100644
+--- a/sdcc/sim/ucsim/s51.src/uc251.cc
++++ b/sdcc/sim/ucsim/s51.src/uc251.cc
+@@ -25,9 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ #include "uc251cl.h"
+ 
+diff --git a/sdcc/sim/ucsim/s51.src/uc320.cc b/sdcc/sim/ucsim/s51.src/uc320.cc
+index 3da18ebe6..cbd2b9c24 100644
+--- a/sdcc/sim/ucsim/s51.src/uc320.cc
++++ b/sdcc/sim/ucsim/s51.src/uc320.cc
+@@ -24,14 +24,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <ctype.h>
+-#include "i_string.h"
++//#include <stdio.h>
++//#include <stdlib.h>
++//#include <ctype.h>
++//#include "i_string.h"
+ 
+-#include "glob.h"
++//#include "glob.h"
+ #include "uc320cl.h"
+ #include "regs51.h"
+ 
+diff --git a/sdcc/sim/ucsim/s51.src/uc380.cc b/sdcc/sim/ucsim/s51.src/uc380.cc
+index caf05720d..906197861 100644
+--- a/sdcc/sim/ucsim/s51.src/uc380.cc
++++ b/sdcc/sim/ucsim/s51.src/uc380.cc
+@@ -25,6 +25,8 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++//#include <string.h>
++
+ #include "portcl.h"
+ 
+ #include "uc380cl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/uc390.cc b/sdcc/sim/ucsim/s51.src/uc390.cc
+index 519720fb6..553dda51c 100644
+--- a/sdcc/sim/ucsim/s51.src/uc390.cc
++++ b/sdcc/sim/ucsim/s51.src/uc390.cc
+@@ -35,22 +35,22 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ // strcpy (mem(MEM_ROM) ->addr_format, "0x%06x");
+ // strcpy (mem(MEM_XRAM)->addr_format, "0x%06x");
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ #include "glob.h"
+ #include "uc390cl.h"
+ #include "regs51.h"
+ #include "uc390hwcl.h"
+ 
+-
+-#include "uc52cl.h"
++//#include "uc52cl.h"
+ #include "regs51.h"
+-#include "timer2cl.h"
++//#include "timer2cl.h"
+ 
+ /*
+  * Names of instructions
+diff --git a/sdcc/sim/ucsim/s51.src/uc390hw.cc b/sdcc/sim/ucsim/s51.src/uc390hw.cc
+index 72a449b90..444239b28 100644
+--- a/sdcc/sim/ucsim/s51.src/uc390hw.cc
++++ b/sdcc/sim/ucsim/s51.src/uc390hw.cc
+@@ -25,15 +25,15 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <stdlib.h>
++//#include <stdio.h>
++//#include <stdlib.h>
+ 
+ // local
+ #include "uc390hwcl.h"
+ #include "regs51.h"
+-#include "uc51cl.h"
++//#include "uc51cl.h"
+ 
+ 
+ cl_uc390_hw::cl_uc390_hw (class cl_uc *auc):
+diff --git a/sdcc/sim/ucsim/s51.src/uc51.cc b/sdcc/sim/ucsim/s51.src/uc51.cc
+index d1faf565e..358d5f50f 100644
+--- a/sdcc/sim/ucsim/s51.src/uc51.cc
++++ b/sdcc/sim/ucsim/s51.src/uc51.cc
+@@ -25,27 +25,28 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <stdarg.h>
++//#include <stdarg.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include <fcntl.h>
+-#include <errno.h>
+-#include <sys/types.h>
+-#include <sys/time.h>
++//#include <fcntl.h>
++//#include <errno.h>
++//#include <sys/types.h>
++//#include <sys/time.h>
+ //#if FD_HEADER_OK
+ //# include HEADER_FD
+ //#endif
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "utils.h"
+ #include "globals.h"
+ 
+ // sim
+-#include "optioncl.h"
++//#include "optioncl.h"
+ #include "iwrap.h"
+ 
+ //cmd.src
+@@ -55,12 +56,12 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "uc51cl.h"
+ #include "glob.h"
+ #include "regs51.h"
+-#include "timer0cl.h"
++//#include "timer0cl.h"
+ #include "timer1cl.h"
+ #include "serialcl.h"
+ #include "portcl.h"
+-#include "interruptcl.h"
+-#include "types51.h"
++//#include "interruptcl.h"
++//#include "types51.h"
+ 
+ 
+ 
+@@ -482,6 +483,7 @@ cl_irq_stop_option::init(void)
+ {
+   cl_optref::init();
+   create(uc51, bool_opt, "irq_stop", "Stop when IRQ accepted");
++  
+   return(0);
+ }
+ 
+@@ -1268,7 +1270,7 @@ cl_51core::disass(t_addr addr, const char *sep)
+ void
+ cl_51core::print_regs(class cl_console_base *con)
+ {
+-  t_addr start;
++  t_addr start, stop;
+   t_mem data;
+   t_mem dp;
+   
+@@ -1290,9 +1292,13 @@ cl_51core::print_regs(class cl_console_base *con)
+               (data&bmCY)?'1':'0', (data&bmAC)?'1':'0',
+               (data&bmOV)?'1':'0', (data&bmP)?'1':'0');
+   /* show stack pointer */
+-  start = sfr->get (SP);
+-  con->dd_printf ("SP ", start);
+-  iram->dump (start, start - 7, 8, con/*->get_fout()*/);
++  start= sfr->get (SP);
++  if (start >= 7)
++    stop = start-7;
++  else
++    stop= 0;
++  con->dd_printf ("SP ");
++  iram->dump (start, stop, 8, con/*->get_fout()*/);
+   con->dd_color("answer");
+   // show DPTR(s)
+   if (dptr)
+@@ -1570,7 +1576,8 @@ cl_51core::analyze(t_addr addr)
+ {
+   uint code;
+   struct dis_entry *tabl;
+-
++  t_addr a;
++  
+   code= rom->get(addr);
+   tabl= &(dis_tbl()[code]);
+   while (!inst_at(addr) &&
+@@ -1580,29 +1587,34 @@ cl_51core::analyze(t_addr addr)
+       switch (tabl->branch)
+ 	{
+ 	case 'a': // acall
+-	  analyze((addr & 0xf800)|
+-		  ((rom->get(addr+1)&0x07)*256+
+-		   rom->get(addr+2)));
+-	  analyze(addr+tabl->length);
++	  a= (addr & 0xf800)|
++	    ((rom->get(addr+1)&0x07)*256+
++	     rom->get(addr+2));
++	  analyze(a);
++	  addr= addr+tabl->length;
+ 	  break;
+ 	case 'A': // ajmp
+-	  addr= (addr & 0xf800)|
+-	    ((rom->get(addr+1) & 0x07)*256 + rom->get(addr+2));
++	  a= (addr & 0xf800)|
++	    (((rom->get(addr)>>5) & 0x07)*256 + rom->get(addr+1));
++	  addr= a;
+ 	  break;
+ 	case 'l': // lcall
+-	  analyze(rom->get(addr+1)*256 + rom->get(addr+2));
+-	  analyze(addr+tabl->length);
++	  a= rom->get(addr+1)*256 + rom->get(addr+2);
++	  analyze(a);
++	  addr= addr+tabl->length;
+ 	  break;
+ 	case 'L': // ljmp
+-	  addr= rom->get(addr+1)*256 + rom->get(addr+2);
++	  a= rom->get(addr+1)*256 + rom->get(addr+2);
++	  addr= a;
+ 	  break;
+ 	case 'r': // reljmp (2nd byte)
+-	  analyze(rom->validate_address(addr+(signed char)(rom->get(addr+1))));
+-	  analyze(addr+tabl->length);
++	  a= rom->validate_address(addr+2+(signed char)(rom->get(addr+1)));
++	  analyze(a);
++	  addr= addr+tabl->length;
+ 	  break;
+ 	case 'R': // reljmp (3rd byte)
+-	  analyze(rom->validate_address(addr+(signed char)(rom->get(addr+2))));
+-	  analyze(addr+tabl->length);
++	  analyze(rom->validate_address(addr+3+(signed char)(rom->get(addr+2))));
++	  addr= addr+tabl->length;
+ 	  break;
+ 	case 's': // sjmp
+ 	  {
+@@ -1840,6 +1852,26 @@ cl_51core::it_enabled(void)
+ }
+ 
+ 
++/* 
++ * Check SP validity after stack (write) poeration
++ */
++
++void
++cl_51core::stack_check_overflow(class cl_stack_op *op)
++{
++  t_addr b, a;
++  b= op->get_before();
++  a= op->get_after();
++  if (a < b)
++    {
++      class cl_error_stack_overflow *e=
++	new cl_error_stack_overflow(op);
++      e->init();
++      error(e);
++    }
++}
++
++
+ /*
+  * Checking if Idle or PowerDown mode should be activated
+  */
+diff --git a/sdcc/sim/ucsim/s51.src/uc51cl.h b/sdcc/sim/ucsim/s51.src/uc51cl.h
+index 4cc38afd1..fae591083 100644
+--- a/sdcc/sim/ucsim/s51.src/uc51cl.h
++++ b/sdcc/sim/ucsim/s51.src/uc51cl.h
+@@ -132,6 +132,8 @@ public:
+   virtual int  do_interrupt(void);
+   virtual int  accept_it(class it_level *il);
+   virtual bool it_enabled(void);
++
++  virtual void stack_check_overflow(class cl_stack_op *op);
+   
+ protected:
+   virtual int  idle_pd(void);
+diff --git a/sdcc/sim/ucsim/s51.src/uc51r.cc b/sdcc/sim/ucsim/s51.src/uc51r.cc
+index 9a763b25e..b2eef0cac 100644
+--- a/sdcc/sim/ucsim/s51.src/uc51r.cc
++++ b/sdcc/sim/ucsim/s51.src/uc51r.cc
+@@ -25,14 +25,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ // local
+ #include "uc51rcl.h"
+ #include "regs51.h"
+-#include "types51.h"
++//#include "types51.h"
+ #include "wdtcl.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/s51.src/uc52.cc b/sdcc/sim/ucsim/s51.src/uc52.cc
+index c81524be2..e83366986 100644
+--- a/sdcc/sim/ucsim/s51.src/uc52.cc
++++ b/sdcc/sim/ucsim/s51.src/uc52.cc
+@@ -25,16 +25,16 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ // local
+ #include "uc52cl.h"
+ #include "regs51.h"
+ #include "timer2cl.h"
+-#include "portcl.h"
+-#include "mducl.h"
++//#include "portcl.h"
++//#include "mducl.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/s51.src/uc89c51r.cc b/sdcc/sim/ucsim/s51.src/uc89c51r.cc
+index 9a658f130..3a61ad92e 100644
+--- a/sdcc/sim/ucsim/s51.src/uc89c51r.cc
++++ b/sdcc/sim/ucsim/s51.src/uc89c51r.cc
+@@ -25,10 +25,10 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <ctype.h>
++//#include <stdio.h>
++//#include <ctype.h>
+ 
+ // local
+ #include "uc89c51rcl.h"
+diff --git a/sdcc/sim/ucsim/s51.src/wdt.cc b/sdcc/sim/ucsim/s51.src/wdt.cc
+index cf4795f92..916aaa089 100644
+--- a/sdcc/sim/ucsim/s51.src/wdt.cc
++++ b/sdcc/sim/ucsim/s51.src/wdt.cc
+@@ -25,7 +25,8 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include <ctype.h>
++#include <stdio.h>
++//#include <ctype.h>
+ 
+ // local
+ #include "wdtcl.h"
+diff --git a/sdcc/sim/ucsim/sim.src/arg.cc b/sdcc/sim/ucsim/sim.src/arg.cc
+index c20dac4b8..7bce7a22e 100644
+--- a/sdcc/sim/ucsim/sim.src/arg.cc
++++ b/sdcc/sim/ucsim/sim.src/arg.cc
+@@ -25,20 +25,21 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // cmd
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ // local
+ #include "argcl.h"
+diff --git a/sdcc/sim/ucsim/sim.src/brk.cc b/sdcc/sim/ucsim/sim.src/brk.cc
+index aaa396ab7..d022298eb 100644
+--- a/sdcc/sim/ucsim/sim.src/brk.cc
++++ b/sdcc/sim/ucsim/sim.src/brk.cc
+@@ -25,12 +25,12 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <ctype.h>
+ 
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ #include "globals.h"
+ 
+ #include "brkcl.h"
+diff --git a/sdcc/sim/ucsim/sim.src/hw.cc b/sdcc/sim/ucsim/sim.src/hw.cc
+index 7e7bc087e..aea7434b9 100644
+--- a/sdcc/sim/ucsim/sim.src/hw.cc
++++ b/sdcc/sim/ucsim/sim.src/hw.cc
+@@ -25,13 +25,15 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
++#include <stdio.h>
+ #include <ctype.h>
+ #include <stdlib.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+-#include "stypes.h"
++//#include "stypes.h"
+ #include "globals.h"
+ 
+ #include "hwcl.h"
+diff --git a/sdcc/sim/ucsim/sim.src/itsrc.cc b/sdcc/sim/ucsim/sim.src/itsrc.cc
+index 5ee9fbe21..90bfb8521 100644
+--- a/sdcc/sim/ucsim/sim.src/itsrc.cc
++++ b/sdcc/sim/ucsim/sim.src/itsrc.cc
+@@ -25,16 +25,16 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <stdlib.h>
+-#include "i_string.h"
++//#include <stdlib.h>
++//#include "i_string.h"
+ 
+ #include "itsrccl.h"
+-#include "pobjcl.h"
+-#include "stypes.h"
+-#include "memcl.h"
++//#include "pobjcl.h"
++//#include "stypes.h"
++//#include "memcl.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/sim.src/mem.cc b/sdcc/sim/ucsim/sim.src/mem.cc
+index 7b5947a9f..8b2b84a54 100644
+--- a/sdcc/sim/ucsim/sim.src/mem.cc
++++ b/sdcc/sim/ucsim/sim.src/mem.cc
+@@ -30,23 +30,24 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include <stdarg.h>
+-#include "i_string.h"
++//#include <stdarg.h>
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+-#include "utils.h"
++//#include "utils.h"
+ #include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // cmd
+-#include "newcmdcl.h"
+-#include "cmdutil.h"
++//#include "newcmdcl.h"
++//#include "cmdutil.h"
+ 
+ // local
+ #include "memcl.h"
+-#include "hwcl.h"
++//#include "hwcl.h"
+ 
+ 
+ static class cl_mem_error_registry mem_error_registry;
+diff --git a/sdcc/sim/ucsim/sim.src/port_hw.cc b/sdcc/sim/ucsim/sim.src/port_hw.cc
+index 4c365bc8b..1345e3cb9 100644
+--- a/sdcc/sim/ucsim/sim.src/port_hw.cc
++++ b/sdcc/sim/ucsim/sim.src/port_hw.cc
+@@ -25,6 +25,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
+ #include <ctype.h>
+ 
+ #include "globals.h"
+@@ -159,7 +160,7 @@ cl_port_ui::handle_input(int c)
+   //pio->tu_cll();
+   if (!ret)
+     {
+-      u8_t u= c;
++      //u8_t u= c;
+       //fprintf(stderr, "Unknown command: %c (%d,0x%x)\n", isprint(u)?u:'?', i8, c);
+     }
+   return ret;
+diff --git a/sdcc/sim/ucsim/sim.src/serial_hw.cc b/sdcc/sim/ucsim/sim.src/serial_hw.cc
+index 529b43df1..093b21b3b 100644
+--- a/sdcc/sim/ucsim/sim.src/serial_hw.cc
++++ b/sdcc/sim/ucsim/sim.src/serial_hw.cc
+@@ -31,7 +31,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ #include "utils.h"
+ #include "globals.h"
+-#include "fiocl.h"
++//#include "fiocl.h"
+ 
+ #include "serial_hwcl.h"
+ 
+diff --git a/sdcc/sim/ucsim/sim.src/sim.cc b/sdcc/sim/ucsim/sim.src/sim.cc
+index 9b71c3ce3..550679484 100644
+--- a/sdcc/sim/ucsim/sim.src/sim.cc
++++ b/sdcc/sim/ucsim/sim.src/sim.cc
+@@ -25,12 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <stdlib.h>
+-#include <unistd.h>
+-#include "i_string.h"
++//#include <stdlib.h>
++//#include <unistd.h>
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+@@ -38,11 +39,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ // cmd
+ #include "cmd_execcl.h"
+-#include "cmd_guicl.h"
++//#include "cmd_guicl.h"
+ 
+ // local, sim.src
+-#include "simcl.h"
+-#include "appcl.h"
++//#include "simcl.h"
++//#include "appcl.h"
+ #include "simifcl.h"
+ 
+ 
+@@ -250,10 +251,14 @@ cl_sim::stop(int reason, class cl_ev_brk *ebrk)
+       unsigned long dt= uc?(uc->ticks->ticks - start_tick):0;
+       if ((reason != resSTEP) ||
+ 	  (steps_done > 1))
+-	cmd->frozen_console->dd_printf("Simulated %lu ticks in %f sec, rate=%f\n",
+-				       dt,
+-				       stop_at - start_at,
+-				       (dt*(1/uc->xtal)) / (stop_at - start_at));
++	{
++	  cmd->frozen_console->dd_printf("Simulated %lu ticks (%.3e sec)\n",
++					 dt,
++					 dt*(1/uc->xtal));
++	  cmd->frozen_console->dd_printf("Host usage: %f sec, rate=%f\n",
++					 stop_at - start_at,
++					 (dt*(1/uc->xtal)) / (stop_at - start_at));
++	}
+       //if (cmd->actual_console != cmd->frozen_console)
+       cmd->frozen_console->set_flag(CONS_FROZEN, false);
+       //cmd->frozen_console->dd_printf("_s_");
+diff --git a/sdcc/sim/ucsim/sim.src/simif.cc b/sdcc/sim/ucsim/sim.src/simif.cc
+index 6eefc6608..4ac937d67 100644
+--- a/sdcc/sim/ucsim/sim.src/simif.cc
++++ b/sdcc/sim/ucsim/sim.src/simif.cc
+@@ -25,16 +25,17 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
+-#include "i_string.h"
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ #include "simifcl.h"
+ 
+diff --git a/sdcc/sim/ucsim/sim.src/stack.cc b/sdcc/sim/ucsim/sim.src/stack.cc
+index 062f6d4d6..ad9549da4 100644
+--- a/sdcc/sim/ucsim/sim.src/stack.cc
++++ b/sdcc/sim/ucsim/sim.src/stack.cc
+@@ -25,10 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+ 
+ // cmd.src
+-#include "newcmdcl.h"
++//#include "newcmdcl.h"
+ 
+ // sim.src
+ #include "uccl.h"
+@@ -432,7 +433,25 @@ cl_stack_pop::match(class cl_stack_op *op)
+ 
+ cl_error_stack::cl_error_stack(void)
+ {
+-classification = stack_error_registry.find("stack");
++  classification = stack_error_registry.find("stack");
++}
++
++/*
++ * Stack overflow error
++ */
++
++cl_error_stack_overflow::cl_error_stack_overflow(class cl_stack_op *op):
++  cl_error_stack()
++{
++  PC= op->get_pc();
++  SP_before= op->get_before();
++  SP_after= op->get_after();
++}
++
++void
++cl_error_stack_overflow::print(class cl_commander_base *c)
++{
++  c->dd_cprintf("error", "Stack overflow, PC=0x%x\n", AU(PC));
+ }
+ 
+ /* Stack Tracker Errors */
+@@ -454,8 +473,9 @@ cl_error_stack_tracker_wrong_handle::cl_error_stack_tracker_wrong_handle(bool wr
+ void
+ cl_error_stack_tracker_wrong_handle::print(class cl_commander_base *c)
+ {
+-  c->dd_printf("%s: wrong stack tracker handle called for %s operation\n",
+-	       get_type_name(), write_operation?"write":"read");
++  c->dd_cprintf("error",
++		"%s: wrong stack tracker handle called for %s operation\n",
++		get_type_name(), write_operation?"write":"read");
+ }
+ 
+ /* Stack Tracker: operation on empty stack */
+@@ -476,13 +496,14 @@ cl_error_stack_tracker_empty::~cl_error_stack_tracker_empty(void)
+ void
+ cl_error_stack_tracker_empty::print(class cl_commander_base *c)
+ {
+-  c->dd_printf("%s(0x%06x): %s on empty stack, PC="
+-	       "0x06x, SP=0x%06x->0x%06x\n",
+-	       get_type_name(), AU(operation->get_pc()),
+-	       operation->get_op_name(),
+-	       AU(operation->get_pc()),
+-	       AU(operation->get_before()),
+-	       AU(operation->get_after()));
++  c->dd_cprintf("error",
++		"%s(0x%06x): %s on empty stack, PC="
++		"0x06x, SP=0x%06x->0x%06x\n",
++		get_type_name(), AU(operation->get_pc()),
++		operation->get_op_name(),
++		AU(operation->get_pc()),
++		AU(operation->get_before()),
++		AU(operation->get_after()));
+ }
+ 
+ /* Stack Tracker: operation on empty stack */
+@@ -517,12 +538,12 @@ cl_error_stack_tracker_unmatch::~cl_error_stack_tracker_unmatch(void)
+ void
+ cl_error_stack_tracker_unmatch::print(class cl_commander_base *c)
+ {
+-  c->dd_printf("%s(0x%06x): %s when %s expected, "
+-	       "SP=0x%06x->0x%06x\n",
+-	       get_type_name(), AU(operation->get_pc()),
+-	       operation->get_op_name(), top->get_matching_name(),
+-	       AU(operation->get_before()),
+-	       AU(operation->get_after()));
++  c->dd_cprintf("error", "%s(0x%06x): %s when %s expected, "
++		"SP=0x%06x->0x%06x\n",
++		get_type_name(), AU(operation->get_pc()),
++		operation->get_op_name(), top->get_matching_name(),
++		AU(operation->get_before()),
++		AU(operation->get_after()));
+ }
+ 
+ /* Stack Tracker: stack is inconsistent */
+@@ -544,7 +565,7 @@ cl_error_stack_tracker_inconsistent::~cl_error_stack_tracker_inconsistent(void)
+ void
+ cl_error_stack_tracker_inconsistent::print(class cl_commander_base *c)
+ {
+-  c->dd_printf("%s(0x%06x): %d byte(s) unread from the stack\n",
++  c->dd_cprintf("error",  "%s(0x%06x): %d byte(s) unread from the stack\n",
+ 	       get_type_name(), AU(operation->get_pc()),
+ 	       unread_data_size);
+ }
+@@ -552,12 +573,13 @@ cl_error_stack_tracker_inconsistent::print(class cl_commander_base *c)
+ cl_stack_error_registry::cl_stack_error_registry(void)
+ {
+   class cl_error_class *prev = stack_error_registry.find("non-classified");
+-  prev = register_error(new cl_error_class(err_error, "stack", prev, ERROR_OFF));
+-  prev = register_error(new cl_error_class(err_error, "stack_tracker", prev));
+-  prev = register_error(new cl_error_class(err_error, "stack_tracker_wrong_handle", prev));
+-  prev = register_error(new cl_error_class(err_error, "operation_on_empty_stack", prev));
+-  prev = register_error(new cl_error_class(err_warning, "stack_operation_unmatched_to_top_of_stack", prev));
+-  prev = register_error(new cl_error_class(err_warning, "stack_looks_corrupted", prev));
++  prev = register_error(new cl_error_class(err_error, "stack", prev, ERROR_ON));
++  /*prev =*/register_error(new cl_error_class(err_error, "stack_overflow", prev));
++  //prev = register_error(new cl_error_class(err_error, "stack_tracker", prev));
++  //prev = register_error(new cl_error_class(err_error, "stack_tracker_wrong_handle", prev));
++  //prev = register_error(new cl_error_class(err_error, "operation_on_empty_stack", prev));
++  //prev = register_error(new cl_error_class(err_warning, "stack_operation_unmatched_to_top_of_stack", prev));
++  //prev = register_error(new cl_error_class(err_warning, "stack_looks_corrupted", prev));
+ }
+ 
+ 
+diff --git a/sdcc/sim/ucsim/sim.src/stackcl.h b/sdcc/sim/ucsim/sim.src/stackcl.h
+index 61138fc4f..72810dd28 100644
+--- a/sdcc/sim/ucsim/sim.src/stackcl.h
++++ b/sdcc/sim/ucsim/sim.src/stackcl.h
+@@ -182,6 +182,18 @@ public:
+   cl_error_stack(void);
+ };
+ 
++/*
++ * Stack overflow error
++ */
++class cl_error_stack_overflow: public cl_error_stack
++{
++protected:
++  t_addr PC, SP_before, SP_after;
++public:
++  cl_error_stack_overflow(class cl_stack_op *op);
++  virtual void print(class cl_commander_base *c);
++};
++  
+ /*
+  * All kind of stack tracker errors
+  */
+@@ -197,7 +209,6 @@ public:
+   bool write_operation;
+ public:
+   cl_error_stack_tracker_wrong_handle(bool write_op);
+-
+   virtual void print(class cl_commander_base *c);
+ };
+ 
+@@ -208,7 +219,6 @@ protected:
+ public:
+   cl_error_stack_tracker_empty(class cl_stack_op *op);
+   virtual ~cl_error_stack_tracker_empty(void);
+-
+   virtual void print(class cl_commander_base *c);
+ };
+ 
+@@ -220,7 +230,6 @@ public:
+   cl_error_stack_tracker_unmatch(class cl_stack_op *Top,
+                                 class cl_stack_op *op);
+   virtual ~cl_error_stack_tracker_unmatch(void);
+-
+   virtual void print(class cl_commander_base *c);
+ };
+ 
+@@ -233,7 +242,6 @@ public:
+   cl_error_stack_tracker_inconsistent(class cl_stack_op *op,
+ 				      int the_unread_data_size);
+   virtual ~cl_error_stack_tracker_inconsistent(void);
+-
+   virtual void print(class cl_commander_base *c);
+ };
+ 
+diff --git a/sdcc/sim/ucsim/sim.src/uc.cc b/sdcc/sim/ucsim/sim.src/uc.cc
+index 983d2b655..7440471f4 100644
+--- a/sdcc/sim/ucsim/sim.src/uc.cc
++++ b/sdcc/sim/ucsim/sim.src/uc.cc
+@@ -25,21 +25,22 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
++//#include "i_string.h"
+ 
+ // prj
+ #include "globals.h"
+ #include "utils.h"
+ 
+ // cmd.src
+-#include "newcmdcl.h"
+-#include "cmdutil.h"
++//#include "newcmdcl.h"
++//#include "cmdutil.h"
+ #include "cmd_uccl.h"
+ #include "cmd_bpcl.h"
+ #include "cmd_getcl.h"
+@@ -51,9 +52,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ // local, sim.src
+ #include "uccl.h"
+-#include "hwcl.h"
+-#include "memcl.h"
+-#include "simcl.h"
++//#include "hwcl.h"
++//#include "memcl.h"
++//#include "simcl.h"
+ #include "itsrccl.h"
+ #include "simifcl.h"
+ #include "vcdcl.h"
+@@ -2323,6 +2324,7 @@ cl_uc::touch(void)
+ void
+ cl_uc::stack_write(class cl_stack_op *op)
+ {
++  stack_check_overflow(op);
+   delete op;
+   return ;
+   if (op->get_op() & stack_read_operation)
+@@ -2418,6 +2420,12 @@ cl_uc::stack_read(class cl_stack_op *op)
+   delete op;
+ }
+ 
++void
++cl_uc::stack_check_overflow(class cl_stack_op *op)
++{
++}
++
++  
+ /*
+  * Breakpoint handling
+  */
+diff --git a/sdcc/sim/ucsim/sim.src/uccl.h b/sdcc/sim/ucsim/sim.src/uccl.h
+index 4aad069f6..0f4518f72 100644
+--- a/sdcc/sim/ucsim/sim.src/uccl.h
++++ b/sdcc/sim/ucsim/sim.src/uccl.h
+@@ -321,7 +321,8 @@ public:
+   // stack tracking
+   virtual void stack_write(class cl_stack_op *op);
+   virtual void stack_read(class cl_stack_op *op);
+-
++  virtual void stack_check_overflow(class cl_stack_op *op);
++  
+   // breakpoints
+   virtual class cl_fetch_brk *fbrk_at(t_addr addr);
+   virtual class cl_ev_brk *ebrk_at(t_addr addr, char *id);
+diff --git a/sdcc/sim/ucsim/sim.src/var.cc b/sdcc/sim/ucsim/sim.src/var.cc
+index 2649f49d7..5de1576a5 100644
+--- a/sdcc/sim/ucsim/sim.src/var.cc
++++ b/sdcc/sim/ucsim/sim.src/var.cc
+@@ -27,6 +27,8 @@
+ */
+ /*@1@*/
+ 
++#include <string.h>
++
+ #include "varcl.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/sim.src/vcd.cc b/sdcc/sim/ucsim/sim.src/vcd.cc
+index 69dea2ba8..ebc07755f 100644
+--- a/sdcc/sim/ucsim/sim.src/vcd.cc
++++ b/sdcc/sim/ucsim/sim.src/vcd.cc
+@@ -25,7 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
+ #include <time.h>
++#include <string.h>
+ 
+ // prj
+ #include "utils.h"
+diff --git a/sdcc/sim/ucsim/st7.src/clean.mk b/sdcc/sim/ucsim/st7.src/clean.mk
+index f2e1b3816..09a5af1a4 100644
+--- a/sdcc/sim/ucsim/st7.src/clean.mk
++++ b/sdcc/sim/ucsim/st7.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f sst7$(EXEEXT)
++	rm -f sst7$(EXEEXT) sst7.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/st7.src/inst.cc b/sdcc/sim/ucsim/st7.src/inst.cc
+index aa3479d0e..5516f77af 100644
+--- a/sdcc/sim/ucsim/st7.src/inst.cc
++++ b/sdcc/sim/ucsim/st7.src/inst.cc
+@@ -27,13 +27,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
+-#include "stdio.h"
+-#include <stdlib.h>
++//#include "ddconfig.h"
++
++//#include "stdio.h"
++//#include <stdlib.h>
+ 
+ // local
+ #include "st7cl.h"
+-#include "regsst7.h"
++//#include "regsst7.h"
+ #include "st7mac.h"
+ 
+ unsigned int
+diff --git a/sdcc/sim/ucsim/st7.src/sst7.cc b/sdcc/sim/ucsim/st7.src/sst7.cc
+index c85de7a4d..26913ca36 100644
+--- a/sdcc/sim/ucsim/st7.src/sst7.cc
++++ b/sdcc/sim/ucsim/st7.src/sst7.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simst7cl.h"
+diff --git a/sdcc/sim/ucsim/st7.src/st7.cc b/sdcc/sim/ucsim/st7.src/st7.cc
+index aca8f4f18..062ead73e 100644
+--- a/sdcc/sim/ucsim/st7.src/st7.cc
++++ b/sdcc/sim/ucsim/st7.src/st7.cc
+@@ -27,16 +27,16 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+ #include "simcl.h"
+@@ -44,7 +44,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ // local
+ #include "st7cl.h"
+ #include "glob.h"
+-#include "regsst7.h"
++//#include "regsst7.h"
+ #include "st7mac.h"
+ 
+ #define uint32 t_addr
+@@ -127,7 +127,11 @@ void
+ cl_st7::mk_hw_elements(void)
+ {
+   //class cl_base *o;
++  class cl_hw *h;
+   cl_uc::mk_hw_elements();
++
++  add_hw(h= new cl_st7_cpu(this));
++  h->init();
+ }
+ 
+ void
+@@ -476,10 +480,10 @@ cl_st7::print_regs(class cl_console_base *con)
+                  regs.X, regs.X, isprint(regs.X)?regs.X:'.');
+   con->dd_printf("Y= 0x%02x %3d %c\n",
+                  regs.Y, regs.Y, isprint(regs.Y)?regs.Y:'.');
+-  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c\n",
++  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c",
+                  regs.SP, ram->get(regs.SP+1), ram->get(regs.SP+1),
+                  isprint(ram->get(regs.SP+1))?ram->get(regs.SP+1):'.');
+-
++  con->dd_printf("  Limit= 0x%04x\n", AU(sp_limit));
+   print_disass(PC, con);
+ }
+ 
+@@ -1203,6 +1207,26 @@ cl_st7::exec_inst(void)
+   return(resINV_INST);
+ }
+ 
++
++void
++cl_st7::stack_check_overflow(class cl_stack_op *op)
++{
++  if (op)
++    {
++      if (op->get_op() & stack_write_operation)
++	{
++	  t_addr a= op->get_after();
++	  if (a < sp_limit)
++	    {
++	      class cl_error_stack_overflow *e=
++		new cl_error_stack_overflow(op);
++	      e->init();
++	      error(e);
++	    }
++	}
++    }
++}
++
+ t_mem
+ cl_st7::get_1(t_addr addr)
+ {
+@@ -1226,4 +1250,54 @@ cl_st7::get_3(t_addr addr)
+     (ram->read(addr+2));
+ }
+ 
++
++cl_st7_cpu::cl_st7_cpu(class cl_uc *auc):
++  cl_hw(auc, HW_CPU, 0, "cpu")
++{
++}
++
++int
++cl_st7_cpu::init(void)
++{
++  cl_hw::init();
++
++  cl_var *v;
++  uc->vars->add(v= new cl_var(cchars("sp_limit"), cfg, st7cpu_sp_limit,
++			      cfg_help(st7cpu_sp_limit)));
++  v->init();
++
++  return 0;
++}
++
++char *
++cl_st7_cpu::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case st7cpu_sp_limit:
++      return (char*)"Stack overflows when SP is below this limit";
++    }
++  return (char*)"Not used";
++}
++
++t_mem
++cl_st7_cpu::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  class cl_st7 *u= (class cl_st7 *)uc;
++  if (val)
++    cell->set(*val);
++  switch ((enum st7cpu_confs)addr)
++    {
++    case st7cpu_sp_limit:
++      if (val)
++	u->sp_limit= *val & 0xffff;
++      else
++	cell->set(u->sp_limit);
++      break;
++    case st7cpu_nuof: break;
++    }
++  return cell->get();
++}
++
++
+ /* End of st7.src/st7.cc */
+diff --git a/sdcc/sim/ucsim/st7.src/st7cl.h b/sdcc/sim/ucsim/st7.src/st7cl.h
+index bd033897b..86f1cf7e1 100644
+--- a/sdcc/sim/ucsim/st7.src/st7cl.h
++++ b/sdcc/sim/ucsim/st7.src/st7cl.h
+@@ -44,6 +44,7 @@ public:
+   class cl_memory *rom;
+   class cl_address_space *regs8, *regs16;
+   struct t_regs regs;
++  t_addr sp_limit;
+ public:
+   cl_st7(class cl_sim *asim);
+   virtual int init(void);
+@@ -62,6 +63,8 @@ public:
+ 
+   virtual int exec_inst(void);
+ 
++  virtual void stack_check_overflow(class cl_stack_op *op);
++
+   virtual const char *get_disasm_info(t_addr addr,
+                                       int *ret_len,
+                                       int *ret_branch,
+@@ -77,6 +80,23 @@ public:
+ };
+ 
+ 
++enum st7cpu_confs
++  {
++   st7cpu_sp_limit	= 0,
++   st7cpu_nuof		= 1
++  };
++
++class cl_st7_cpu: public cl_hw
++{
++public:
++  cl_st7_cpu(class cl_uc *auc);
++  virtual int init(void);
++  virtual int cfg_size(void) { return st7cpu_nuof; }
++  virtual char *cfg_help(t_addr addr);
++
++  virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++};
++
+ #endif
+ 
+ /* End of st7.src/st7cl.h */
+diff --git a/sdcc/sim/ucsim/st7.src/st7mac.h b/sdcc/sim/ucsim/st7.src/st7mac.h
+index 243d7c9ca..a494107fb 100644
+--- a/sdcc/sim/ucsim/st7.src/st7mac.h
++++ b/sdcc/sim/ucsim/st7.src/st7mac.h
+@@ -26,8 +26,24 @@
+ //((ram->get((t_addr) (addr)) << 16) | (ram->get((t_addr) (addr+1)) << 8) |ram->get((t_addr) (addr+2)) )
+ #define fetch2() ((fetch() << 8) | fetch() )
+ #define fetch1() fetch()
+-#define push2(val) {store2(regs.SP-1,(val)); regs.SP-=2; }
+-#define push1(val) {store1(regs.SP,(val)); regs.SP-=1; }
++#define push2(val) {					\
++    t_addr sp_before= regs.SP;				\
++    store2(regs.SP-1,(val));				\
++    regs.SP-=2;						\
++    class cl_stack_op *so=				\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);	\
++    so->init();						\
++    stack_write(so);					\
++  }
++#define push1(val) {					\
++    t_addr sp_before= regs.SP;				\
++    store1(regs.SP,(val));				\
++    regs.SP-=1;						\
++    class cl_stack_op *so=				\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);	\
++    so->init();						\
++    stack_write(so);					\
++  }
+ #define pop2(var) {var=get2(regs.SP+1); regs.SP+=2;}
+ #define pop1(var) {var=get1(regs.SP+1); regs.SP+=1;}
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/bl_head.cc b/sdcc/sim/ucsim/stm8.src/bl_head.cc
+index 7428e1817..3b1948fda 100644
+--- a/sdcc/sim/ucsim/stm8.src/bl_head.cc
++++ b/sdcc/sim/ucsim/stm8.src/bl_head.cc
+@@ -1,2 +1,2 @@
+-#include "stypes.h"
++//#include "stypes.h"
+ #include "bl.h"
+diff --git a/sdcc/sim/ucsim/stm8.src/clean.mk b/sdcc/sim/ucsim/stm8.src/clean.mk
+index 16a126693..80b19193f 100644
+--- a/sdcc/sim/ucsim/stm8.src/clean.mk
++++ b/sdcc/sim/ucsim/stm8.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f sstm8$(EXEEXT)
++	rm -f sstm8$(EXEEXT) sstm8.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/stm8.src/flash.cc b/sdcc/sim/ucsim/stm8.src/flash.cc
+index 74e215065..cd839d0c7 100644
+--- a/sdcc/sim/ucsim/stm8.src/flash.cc
++++ b/sdcc/sim/ucsim/stm8.src/flash.cc
+@@ -26,6 +26,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ #include <stdlib.h>
++#include <string.h>
+ 
+ #include "globals.h"
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/inst.cc b/sdcc/sim/ucsim/stm8.src/inst.cc
+index b723486cc..cf5a1032f 100644
+--- a/sdcc/sim/ucsim/stm8.src/inst.cc
++++ b/sdcc/sim/ucsim/stm8.src/inst.cc
+@@ -27,13 +27,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
+-#include "stdio.h"
+-#include <stdlib.h>
++//#include "ddconfig.h"
++
++#include <stdio.h>
++//#include <stdlib.h>
+ 
+ // local
+ #include "stm8cl.h"
+-#include "regsstm8.h"
++//#include "regsstm8.h"
+ #include "stm8mac.h"
+ 
+ int
+diff --git a/sdcc/sim/ucsim/stm8.src/itc.cc b/sdcc/sim/ucsim/stm8.src/itc.cc
+index 7dddd514d..9cd22374a 100644
+--- a/sdcc/sim/ucsim/stm8.src/itc.cc
++++ b/sdcc/sim/ucsim/stm8.src/itc.cc
+@@ -27,7 +27,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ // prj
+ 
+-#include <stdarg.h>
++//#include <stdarg.h>
+ #include "utils.h"
+ 
+ // sim
+diff --git a/sdcc/sim/ucsim/stm8.src/serial.cc b/sdcc/sim/ucsim/stm8.src/serial.cc
+index ff4a959a5..b62f21ee5 100644
+--- a/sdcc/sim/ucsim/stm8.src/serial.cc
++++ b/sdcc/sim/ucsim/stm8.src/serial.cc
+@@ -27,20 +27,20 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ #include "ddconfig.h"
+ 
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <ctype.h>
+-#include <errno.h>
+-#include <fcntl.h>
+-#include <sys/time.h>
+-#include <strings.h>
++//#include <stdio.h>
++//#include <stdlib.h>
++//#include <ctype.h>
++//#include <errno.h>
++//#include <fcntl.h>
++//#include <sys/time.h>
++//#include <strings.h>
+ 
+ // prj
+-#include "globals.h"
+-#include "utils.h"
++//#include "globals.h"
++//#include "utils.h"
+ 
+ // cmd
+-#include "cmdutil.h"
++//#include "cmdutil.h"
+ 
+ // sim
+ #include "itsrccl.h"
+diff --git a/sdcc/sim/ucsim/stm8.src/simstm8.cc b/sdcc/sim/ucsim/stm8.src/simstm8.cc
+index d8858bcf3..48d5ffe85 100644
+--- a/sdcc/sim/ucsim/stm8.src/simstm8.cc
++++ b/sdcc/sim/ucsim/stm8.src/simstm8.cc
+@@ -25,6 +25,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++#include <strings.h>
++
+ // prj
+ #include "globals.h"
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/sstm8.cc b/sdcc/sim/ucsim/stm8.src/sstm8.cc
+index 046fa17e5..cc4a076aa 100644
+--- a/sdcc/sim/ucsim/stm8.src/sstm8.cc
++++ b/sdcc/sim/ucsim/stm8.src/sstm8.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simstm8cl.h"
+diff --git a/sdcc/sim/ucsim/stm8.src/stm8.cc b/sdcc/sim/ucsim/stm8.src/stm8.cc
+index 7f98e8dd0..332e0b7e5 100644
+--- a/sdcc/sim/ucsim/stm8.src/stm8.cc
++++ b/sdcc/sim/ucsim/stm8.src/stm8.cc
+@@ -28,27 +28,27 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ #include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "stm8cl.h"
+ #include "glob.h"
+-#include "regsstm8.h"
++//#include "regsstm8.h"
+ #include "stm8mac.h"
+-#include "itccl.h"
++//#include "itccl.h"
+ #include "serialcl.h"
+ #include "rstcl.h"
+ #include "timercl.h"
+@@ -76,6 +76,7 @@ int
+ cl_stm8::init(void)
+ {
+   cl_uc::init(); /* Memories now exist */
++  sp_limit= 0x1500;
+ 
+   xtal = 8000000;
+ 
+@@ -969,9 +970,10 @@ cl_stm8::print_regs(class cl_console_base *con)
+                  regs.X, regs.X, isprint(regs.X)?regs.X:'.');
+   con->dd_printf("Y= 0x%04x %3d %c\n",
+                  regs.Y, regs.Y, isprint(regs.Y)?regs.Y:'.');
+-  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c\n",
++  con->dd_printf("SP= 0x%04x [SP+1]= %02x %3d %c  Limit= 0x%04x\n",
+                  regs.SP, ram->get(regs.SP+1), ram->get(regs.SP+1),
+-                 isprint(ram->get(regs.SP+1))?ram->get(regs.SP+1):'.');
++                 isprint(ram->get(regs.SP+1))?ram->get(regs.SP+1):'.',
++		 AU(sp_limit));
+ 
+   print_disass(PC, con);
+ }
+@@ -1573,11 +1575,18 @@ cl_stm8::exec_inst(void)
+       case 0xb:
+          switch ( code & 0xf0) {
+             case 0x30: // push longmem
+-               push1( get1(fetch2()));
+-               return(resGO);
++	      {
++		t_addr a= fetch2();
++		t_mem v= get1(a);
++		push1( v /*get1(fetch2())*/);
++		return(resGO);
++	      }
+             case 0x40: // push #byte
+-               push1( fetch1());
+-               return(resGO);
++	      {
++		t_mem v= fetch1();
++		push1(v);
++		return(resGO);
++	      }
+             case 0x50: // addw sp,#val
+                regs.SP += fetch1();
+                return(resGO);
+@@ -1911,6 +1920,24 @@ cl_stm8::it_enabled(void)
+   return !(regs.CC & BIT_I0) || !(regs.CC & BIT_I1);
+ }
+ 
++void
++cl_stm8::stack_check_overflow(class cl_stack_op *op)
++{
++  if (op)
++    {
++      if (op->get_op() & stack_write_operation)
++	{
++	  t_addr a= op->get_after();
++	  if (a < sp_limit)
++	    {
++	      class cl_error_stack_overflow *e=
++		new cl_error_stack_overflow(op);
++	      e->init();
++	      error(e);
++	    }
++	}
++    }
++}
+ 
+ cl_stm8_cpu::cl_stm8_cpu(class cl_uc *auc):
+   cl_hw(auc, HW_DUMMY, 0, "cpu")
+@@ -1926,6 +1953,11 @@ cl_stm8_cpu::init(void)
+     {
+       regs[i]= register_cell(uc->rom, 0x7f00+i);
+     }
++  cl_var *v;
++  uc->vars->add(v= new cl_var(chars("sp_limit"), cfg, cpuconf_sp_limit,
++			      cfg_help(cpuconf_sp_limit)));
++  v->init();
++  
+   return 0;
+ }
+ 
+@@ -2045,10 +2077,30 @@ cl_stm8_cpu::read(class cl_memory_cell *cell)
+ t_mem
+ cl_stm8_cpu::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
+ {
++  class cl_stm8 *u= (class cl_stm8 *)uc;
+   if (val)
+     cell->set(*val);
++  switch ((enum stm8_cpu_cfg)addr)
++    {
++    case cpuconf_sp_limit:
++      if (val)
++	u->sp_limit= *val & 0xffff;
++      else
++	cell->set(u->sp_limit);
++      break;
++    }
+   return cell->get();
+ }
+ 
++char *
++cl_stm8_cpu::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case cpuconf_sp_limit:
++      return (char*)"Stack overflows when SP is below this limit";
++    }
++  return (char*)"Not used";
++}
+ 
+ /* End of stm8.src/stm8.cc */
+diff --git a/sdcc/sim/ucsim/stm8.src/stm8cl.h b/sdcc/sim/ucsim/stm8.src/stm8cl.h
+index 5bc685de1..98daabbec 100644
+--- a/sdcc/sim/ucsim/stm8.src/stm8cl.h
++++ b/sdcc/sim/ucsim/stm8.src/stm8cl.h
+@@ -58,6 +58,7 @@ public:
+   class cl_itc *itc;
+   class cl_it_src *trap_src;
+   class cl_flash *flash_ctrl;
++  t_addr sp_limit;
+ public:
+   cl_stm8(struct cpu_entry *IType, class cl_sim *asim);
+   virtual int init(void);
+@@ -92,10 +93,17 @@ public:
+   virtual int  accept_it(class it_level *il);
+   virtual bool it_enabled(void);
+ 
++  virtual void stack_check_overflow(class cl_stack_op *op);
++
+ #include "instcl.h"
+ };
+ 
+ 
++enum stm8_cpu_cfg
++  {
++   cpuconf_sp_limit	= 0,
++  };
++
+ class cl_stm8_cpu: public cl_hw
+ {
+  protected:
+@@ -109,6 +117,7 @@ class cl_stm8_cpu: public cl_hw
+   virtual void write(class cl_memory_cell *cell, t_mem *val);
+   virtual t_mem read(class cl_memory_cell *cell);
+   virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++  virtual char *cfg_help(t_addr addr);
+ };
+ 
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/stm8mac.h b/sdcc/sim/ucsim/stm8.src/stm8mac.h
+index b734105d8..d8785565d 100644
+--- a/sdcc/sim/ucsim/stm8.src/stm8mac.h
++++ b/sdcc/sim/ucsim/stm8.src/stm8mac.h
+@@ -26,8 +26,24 @@
+ #define get1(addr) get_1(addr)
+ #define fetch2() ((fetch() << 8) | fetch() )
+ #define fetch1() fetch()
+-#define push2(val) {store2(regs.SP-1,(val)); regs.SP-=2; }
+-#define push1(val) {store1(regs.SP,(val)); regs.SP-=1; }
++#define push2(val) {							\
++    t_addr sp_before= regs.SP;						\
++    store2(regs.SP-1,(val));						\
++    regs.SP-=2;								\
++    class cl_stack_op *so=						\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);			\
++    so->init();								\
++    stack_write(so);							\
++  }
++#define push1(val) {							\
++    t_addr sp_before= regs.SP;						\
++    store1(regs.SP,(val));						\
++    regs.SP-=1;								\
++    class cl_stack_op *so=						\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);			\
++    so->init();								\
++    stack_write(so);							\
++  }
+ #define pop2(var) {var=get2(regs.SP+1); regs.SP+=2;}
+ #define pop1(var) {var=get1(regs.SP+1); regs.SP+=1;}
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/test/Makefile b/sdcc/sim/ucsim/stm8.src/test/Makefile
+index 1d0296b66..dc37d3b18 100644
+--- a/sdcc/sim/ucsim/stm8.src/test/Makefile
++++ b/sdcc/sim/ucsim/stm8.src/test/Makefile
+@@ -1,5 +1,5 @@
+ PROJECTS	= s0 s1 s2 s3 t1 t2 t3 t4 xtest \
+-		  sl ss lled sled ltim stim sertest \
++		  sl ss lled sled ltim stim sertest stck_ovf \
+ 		  getbl \
+ 		  monitor
+ 
+diff --git a/sdcc/sim/ucsim/stm8.src/test/flash.h b/sdcc/sim/ucsim/stm8.src/test/flash.h
+index 52a7ac6a3..0026c3fc1 100644
+--- a/sdcc/sim/ucsim/stm8.src/test/flash.h
++++ b/sdcc/sim/ucsim/stm8.src/test/flash.h
+@@ -3,8 +3,6 @@
+ #ifndef FLASH_HEADER
+ #define FLASH_HEADER
+ 
+-#include <stdbool.h>
+-
+ extern void flash_punlock(void);
+ extern void flash_dunlock(void);
+ extern void flash_plock(void);
+diff --git a/sdcc/sim/ucsim/stm8.src/test/s2.c b/sdcc/sim/ucsim/stm8.src/test/s2.c
+index f83a877f6..ee4c98bb5 100644
+--- a/sdcc/sim/ucsim/stm8.src/test/s2.c
++++ b/sdcc/sim/ucsim/stm8.src/test/s2.c
+@@ -32,7 +32,7 @@ char received()
+   return USART->sr & USART_SR_RXNE;
+ }
+ 
+-char getchar()
++int getchar()
+ {
+   while (!received())
+     ;
+diff --git a/sdcc/sim/ucsim/stm8.src/test/s3.c b/sdcc/sim/ucsim/stm8.src/test/s3.c
+index 9635bf69f..0d0636943 100644
+--- a/sdcc/sim/ucsim/stm8.src/test/s3.c
++++ b/sdcc/sim/ucsim/stm8.src/test/s3.c
+@@ -49,7 +49,7 @@ char received()
+   return first_free != last_used;
+ }
+ 
+-char getchar()
++int getchar()
+ {
+   uint8_t o;
+   while (!received())
+diff --git a/sdcc/sim/ucsim/stm8.src/test/serial.c b/sdcc/sim/ucsim/stm8.src/test/serial.c
+index 8d8fddd7f..9f18c0d42 100644
+--- a/sdcc/sim/ucsim/stm8.src/test/serial.c
++++ b/sdcc/sim/ucsim/stm8.src/test/serial.c
+@@ -66,7 +66,7 @@ serial_received()
+   return first_free != last_used;
+ }
+ 
+-char getchar()
++int getchar()
+ {
+   uint8_t o, nr;
+   while (!serial_received())
+diff --git a/sdcc/sim/ucsim/stm8.src/test/stck_ovf.c b/sdcc/sim/ucsim/stm8.src/test/stck_ovf.c
+new file mode 100644
+index 000000000..e5ae08373
+--- /dev/null
++++ b/sdcc/sim/ucsim/stm8.src/test/stck_ovf.c
+@@ -0,0 +1,9 @@
++int f(int i)
++{
++  return f(i+1);
++}
++
++void main(void)
++{
++  f(1);
++}
+diff --git a/sdcc/sim/ucsim/stm8.src/test/stck_ovf.mk b/sdcc/sim/ucsim/stm8.src/test/stck_ovf.mk
+new file mode 100644
+index 000000000..cd27c9e4d
+--- /dev/null
++++ b/sdcc/sim/ucsim/stm8.src/test/stck_ovf.mk
+@@ -0,0 +1 @@
++DEVICES		= SDISC
+diff --git a/sdcc/sim/ucsim/stm8.src/timer.cc b/sdcc/sim/ucsim/stm8.src/timer.cc
+index ad511c223..65b89f6e9 100644
+--- a/sdcc/sim/ucsim/stm8.src/timer.cc
++++ b/sdcc/sim/ucsim/stm8.src/timer.cc
+@@ -25,6 +25,8 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <string.h>
++
+ #include "itsrccl.h"
+ 
+ #include "clkcl.h"
+diff --git a/sdcc/sim/ucsim/test/Makefile b/sdcc/sim/ucsim/test/Makefile
+new file mode 100644
+index 000000000..8a198fe23
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/Makefile
+@@ -0,0 +1,15 @@
++PROJECTS	= t1 stck_ovf
++
++.PHONY: projects $(PROJECTS)
++
++projects: $(PROJECTS)
++
++$(PROJECTS):
++	$(MAKE) MAIN=$@ -f sdcc.mk
++
++clean:
++	for p in $(PROJECTS); do \
++		$(MAKE) MAIN=$$p -f sdcc.mk clean ;\
++		rm -rf $$p*.hex ;\
++		rm -rf $$p*.cdb ;\
++	done
+diff --git a/sdcc/sim/ucsim/test/dummy.h b/sdcc/sim/ucsim/test/dummy.h
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/sdcc/sim/ucsim/test/sdcc.mk b/sdcc/sim/ucsim/test/sdcc.mk
+new file mode 100644
+index 000000000..db4fc2b9a
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/sdcc.mk
+@@ -0,0 +1,67 @@
++VPATH		= ..
++
++vpath		%.mk $(VPATH)
++
++CPPFLAGS	=
++CFLAGS		= --debug
++LDFLAGS		=
++LIBS		=
++
++-include	$(MAIN).mk
++
++TARGETS		?= mcs51
++
++CC		= sdcc -m$(CPU) --std-c99 --out-fmt-ihx
++
++ALL		= $(MAIN) $(OTHERS)
++
++OBJECTS		= $(MAIN).rel $(OTHERS:=.rel)
++
++CPPFLAGS	= -I$(VPATH)
++
++.SUFFIXES: .rel .ihx .hex
++
++.PHONY: $(TARGETS)
++
++all: $(TARGETS)
++
++$(TARGETS):
++	test -d $@ || mkdir $@
++	echo "Compiling $@..."
++	$(MAKE) -C $@ CPU=$@ REAL=yes MAIN=$(MAIN) -I$(VPATH) -f$(VPATH)/sdcc.mk compile copy_result
++	echo "Done $@"
++
++copy_result: $(VPATH)/$(MAIN)_$(CPU).hex $(VPATH)/$(MAIN)_$(CPU).cdb
++
++$(VPATH)/$(MAIN)_$(CPU).hex: $(MAIN).hex
++	cp $< $@
++
++$(VPATH)/$(MAIN)_$(CPU).cdb: $(MAIN).cdb
++	cp $(MAIN).cdb $@
++
++compile: dep $(MAIN).hex
++
++.c.rel:
++	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
++
++.ihx.hex:
++	packihx $< >$@
++
++$(MAIN).ihx: $(OBJECTS)
++	$(CC) $(CFLAGS) $(LDFLAAGS) $(OBJECTS) -o $@
++
++$(MAIN).cdb: $(MAIN).hex
++
++dep: $(MAIN).dep
++
++$(MAIN).dep: $(addprefix ../,$(OBJECTS:.rel=.c)) ../*.h
++	for c in $(addprefix ../,$(OBJECTS:.rel=.c)); do \
++		$(CC) -MM $(CPPFLAGS) $$c >>$@; \
++	done
++
++clean:
++	rm -rf $(TARGETS)
++
++ifeq ($(REAL),yes)
++include $(MAIN).dep
++endif
+diff --git a/sdcc/sim/ucsim/test/stck_ovf.c b/sdcc/sim/ucsim/test/stck_ovf.c
+new file mode 100644
+index 000000000..cffb05a9f
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/stck_ovf.c
+@@ -0,0 +1,12 @@
++int x;
++
++int f(int i)
++{
++  return f(i+1);
++}
++
++void main(void)
++{
++  x= 1;
++  f(x);
++}
+diff --git a/sdcc/sim/ucsim/test/stck_ovf.mk b/sdcc/sim/ucsim/test/stck_ovf.mk
+new file mode 100644
+index 000000000..e4ec089bd
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/stck_ovf.mk
+@@ -0,0 +1 @@
++TARGETS		= mcs51 stm8 z80 hc08 tlcs90
+diff --git a/sdcc/sim/ucsim/test/t1.c b/sdcc/sim/ucsim/test/t1.c
+new file mode 100644
+index 000000000..5f7e8ebf8
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/t1.c
+@@ -0,0 +1,5 @@
++void
++main(void)
++{
++  for (;;) {}
++}
+diff --git a/sdcc/sim/ucsim/test/t1.mk b/sdcc/sim/ucsim/test/t1.mk
+new file mode 100644
+index 000000000..e79c2314b
+--- /dev/null
++++ b/sdcc/sim/ucsim/test/t1.mk
+@@ -0,0 +1,5 @@
++TARGETS		= mcs51 \
++		hc08 s08 \
++		z80 z180 r2k r3ka tlcs90 ez80_z80 \
++		stm8 \
++		pdk14 pdk15
+diff --git a/sdcc/sim/ucsim/tlcs.src/clean.mk b/sdcc/sim/ucsim/tlcs.src/clean.mk
+index 8324859ed..27b0f7838 100644
+--- a/sdcc/sim/ucsim/tlcs.src/clean.mk
++++ b/sdcc/sim/ucsim/tlcs.src/clean.mk
+@@ -7,7 +7,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa] *.map
+ 	rm -f .[a-z]*~
+-	rm -f stlcs$(EXEEXT)
++	rm -f stlcs$(EXEEXT) stlcs.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/tlcs.src/simtlcs.cc b/sdcc/sim/ucsim/tlcs.src/simtlcs.cc
+index d6a6ad215..98fc4b102 100644
+--- a/sdcc/sim/ucsim/tlcs.src/simtlcs.cc
++++ b/sdcc/sim/ucsim/tlcs.src/simtlcs.cc
+@@ -26,7 +26,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ /*@1@*/
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simtlcscl.h"
+diff --git a/sdcc/sim/ucsim/tlcs.src/stlcs.cc b/sdcc/sim/ucsim/tlcs.src/stlcs.cc
+index 08e3c563d..d23dc9577 100644
+--- a/sdcc/sim/ucsim/tlcs.src/stlcs.cc
++++ b/sdcc/sim/ucsim/tlcs.src/stlcs.cc
+@@ -25,13 +25,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include <stdio.h>
++//#include <stdio.h>
+ 
+ // prj
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simtlcscl.h"
+diff --git a/sdcc/sim/ucsim/tlcs.src/tlcs.cc b/sdcc/sim/ucsim/tlcs.src/tlcs.cc
+index 235ba26e5..53d5a00c8 100644
+--- a/sdcc/sim/ucsim/tlcs.src/tlcs.cc
++++ b/sdcc/sim/ucsim/tlcs.src/tlcs.cc
+@@ -25,20 +25,20 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+-#include <stdlib.h>
++//#include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+-#include "simcl.h"
+-#include "memcl.h"
+-#include "stackcl.h"
++//#include "simcl.h"
++//#include "memcl.h"
++//#include "stackcl.h"
+ 
+ // local
+ #include "tlcscl.h"
+@@ -101,12 +101,13 @@ cl_tlcs::init(void)
+   cl_uc::init(); /* Memories now exist */
+   //ram= address_space(MEM_IRAM_ID);
+   //rom= address_space(MEM_ROM_ID);
+-
++  sp_limit= 0xf000;
++  
+   // zero out ram(this is assumed in regression tests)
+   for (int i=0x8000; i<0x10000; i++) {
+     nas->set((t_addr) i, 0);
+   }
+-
++  
+   vars->add(v= new cl_var(cchars("A"), regs8, 0, ""));
+   v->init();
+   vars->add(v= new cl_var(cchars("F"), regs8, 1, ""));
+@@ -180,7 +181,11 @@ cl_tlcs::mk_hw_elements(void)
+   //class cl_base *o;
+   //hws->add(o= new cl_port(this));
+   //o->init();
++  class cl_hw *h;
+   cl_uc::mk_hw_elements();
++
++  add_hw(h= new cl_tlcs_cpu(this));
++  h->init();
+ }
+ 
+ 
+@@ -504,10 +509,32 @@ cl_tlcs::print_regs(class cl_console_base *con)
+   con->dd_printf("SP= 0x%04x [SP]= %02x %3d %c\n",
+                  reg.sp, nas->get(reg.sp), nas->get(reg.sp),
+                  isprint(nas->get(reg.sp))?nas->get(reg.sp):'.');
++  con->dd_printf("SP limit= 0x%04x\n", AU(sp_limit));
+ 
+   print_disass(PC, con);
+ }
+ 
++
++void
++cl_tlcs::stack_check_overflow(class cl_stack_op *op)
++{
++  if (op)
++    {
++      if (op->get_op() & stack_write_operation)
++	{
++	  t_addr a= op->get_after();
++	  if (a < sp_limit)
++	    {
++	      class cl_error_stack_overflow *e=
++		new cl_error_stack_overflow(op);
++	      e->init();
++	      error(e);
++	    }
++	}
++    }
++}
++
++
+ int
+ cl_tlcs::exec_inst(void)
+ {
+@@ -1824,4 +1851,52 @@ cl_tlcs::cc(u8_t cc)
+ }
+ 
+ 
++cl_tlcs_cpu::cl_tlcs_cpu(class cl_uc *auc):
++  cl_hw(auc, HW_CPU, 0, "cpu")
++{
++}
++
++int
++cl_tlcs_cpu::init(void)
++{
++  cl_hw::init();
++
++  cl_var *v;
++  uc->vars->add(v= new cl_var(cchars("sp_limit"), cfg, tlcscpu_sp_limit,
++			      cfg_help(tlcscpu_sp_limit)));
++  v->init();
++
++  return 0;
++}
++
++char *
++cl_tlcs_cpu::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case tlcscpu_sp_limit:
++      return (char*)"Stack overflows when SP is below this limit";
++    }
++  return (char*)"Not used";
++}
++
++t_mem
++cl_tlcs_cpu::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  class cl_tlcs *u= (class cl_tlcs *)uc;
++  if (val)
++    cell->set(*val);
++  switch ((enum tlcscpu_confs)addr)
++    {
++    case tlcscpu_sp_limit:
++      if (val)
++	u->sp_limit= *val & 0xffff;
++      else
++	cell->set(u->sp_limit);
++      break;
++    case tlcscpu_nuof: break;
++    }
++  return cell->get();
++}
++
+ /* End of tlcs.src/tlcs.cc */
+diff --git a/sdcc/sim/ucsim/tlcs.src/tlcscl.h b/sdcc/sim/ucsim/tlcs.src/tlcscl.h
+index a6a616912..349e86a5d 100644
+--- a/sdcc/sim/ucsim/tlcs.src/tlcscl.h
++++ b/sdcc/sim/ucsim/tlcs.src/tlcscl.h
+@@ -161,6 +161,7 @@ class cl_tlcs: public cl_uc
+   class cl_address_space *yas;
+   class cl_address_space *regs8;
+   class cl_address_space *regs16;
++  t_addr sp_limit;
+  public:
+   cl_tlcs(class cl_sim *asim);
+   virtual int init(void);
+@@ -185,6 +186,8 @@ class cl_tlcs: public cl_uc
+   virtual void print_regs(class cl_console_base *con);
+   virtual int inst_length(t_addr addr);
+ 
++  virtual void stack_check_overflow(class cl_stack_op *op);
++  
+   virtual int exec_inst(void);
+   virtual int exec_inst2(u8_t c1);
+   virtual int exec_inst2_f3(u8_t c1);
+@@ -360,6 +363,23 @@ class cl_tlcs: public cl_uc
+ };
+ 
+ 
++enum tlcscpu_confs
++  {
++   tlcscpu_sp_limit	= 0,
++   tlcscpu_nuof		= 1
++  };
++
++class cl_tlcs_cpu: public cl_hw
++{
++public:
++  cl_tlcs_cpu(class cl_uc *auc);
++  virtual int init(void);
++  virtual int cfg_size(void) { return tlcscpu_nuof; }
++  virtual char *cfg_help(t_addr addr);
++
++  virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++};
++
+ #endif
+ 
+ /* End of tlcs.src/tlcscl.h */
+diff --git a/sdcc/sim/ucsim/utils.cc b/sdcc/sim/ucsim/utils.cc
+index 4ce7904ce..20a2c6f28 100644
+--- a/sdcc/sim/ucsim/utils.cc
++++ b/sdcc/sim/ucsim/utils.cc
+@@ -35,13 +35,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include <ctype.h>
+ #include <stdarg.h>
+ #include <stdlib.h>
+-#include <unistd.h>
++//#include <unistd.h>
+ #include <sys/time.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+   // prj
+-#include "stypes.h"
+-#include "pobjcl.h"
++//#include "stypes.h"
++//#include "pobjcl.h"
+ 
+ #include "utils.h"
+ 
+diff --git a/sdcc/sim/ucsim/xa.src/clean.mk b/sdcc/sim/ucsim/xa.src/clean.mk
+index f7f241609..b6310d244 100644
+--- a/sdcc/sim/ucsim/xa.src/clean.mk
++++ b/sdcc/sim/ucsim/xa.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f sxa$(EXEEXT)
++	rm -f sxa$(EXEEXT) sxa.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/xa.src/glob.cc b/sdcc/sim/ucsim/xa.src/glob.cc
+index 0baed61eb..5f05d1d91 100644
+--- a/sdcc/sim/ucsim/xa.src/glob.cc
++++ b/sdcc/sim/ucsim/xa.src/glob.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ #include <stdio.h>
+ 
+-#include "stypes.h"
++//#include "stypes.h"
+ #include "glob.h"
+ 
+ /* this needs to match enum definition in glob.h */
+diff --git a/sdcc/sim/ucsim/xa.src/inst.cc b/sdcc/sim/ucsim/xa.src/inst.cc
+index c9f7d0885..e56b7971b 100644
+--- a/sdcc/sim/ucsim/xa.src/inst.cc
++++ b/sdcc/sim/ucsim/xa.src/inst.cc
+@@ -28,14 +28,15 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
++#include <stdio.h>
+ #include <stdlib.h>
+ 
+ // local
+ #include "glob.h"
+ #include "xacl.h"
+-#include "regsxa.h"
++//#include "regsxa.h"
+ 
+ #define NOTDONE_ASSERT { printf("**********Instr not done at %d!\n", __LINE__); }
+ 
+diff --git a/sdcc/sim/ucsim/xa.src/sxa.cc b/sdcc/sim/ucsim/xa.src/sxa.cc
+index 0cf07591e..a73346f89 100644
+--- a/sdcc/sim/ucsim/xa.src/sxa.cc
++++ b/sdcc/sim/ucsim/xa.src/sxa.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simxacl.h"
+diff --git a/sdcc/sim/ucsim/xa.src/xa.cc b/sdcc/sim/ucsim/xa.src/xa.cc
+index 92452bae6..da0f37cf3 100644
+--- a/sdcc/sim/ucsim/xa.src/xa.cc
++++ b/sdcc/sim/ucsim/xa.src/xa.cc
+@@ -27,15 +27,15 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <ctype.h>
+-#include "i_string.h"
++//#include <ctype.h>
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+ #include "simcl.h"
+@@ -43,7 +43,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ // local
+ #include "xacl.h"
+ #include "glob.h"
+-#include "regsxa.h"
++//#include "regsxa.h"
+ 
+ 
+ /*
+diff --git a/sdcc/sim/ucsim/z80.src/clean.mk b/sdcc/sim/ucsim/z80.src/clean.mk
+index 5781b8c3b..51eef9b7c 100644
+--- a/sdcc/sim/ucsim/z80.src/clean.mk
++++ b/sdcc/sim/ucsim/z80.src/clean.mk
+@@ -3,7 +3,7 @@
+ clean:
+ 	rm -f *core *[%~] *.[oa]
+ 	rm -f .[a-z]*~
+-	rm -f sz80$(EXEEXT)
++	rm -f sz80$(EXEEXT) sz80.exe
+ 
+ 
+ # Deleting all files created by configuring or building the program
+diff --git a/sdcc/sim/ucsim/z80.src/ez80.cc b/sdcc/sim/ucsim/z80.src/ez80.cc
+index e6041554a..f5a51797a 100644
+--- a/sdcc/sim/ucsim/z80.src/ez80.cc
++++ b/sdcc/sim/ucsim/z80.src/ez80.cc
+@@ -25,7 +25,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include <stdint.h>
++//#include <stdint.h>
+ 
+ #include "z80mac.h"
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/inst.cc b/sdcc/sim/ucsim/z80.src/inst.cc
+index 706944346..1696f4915 100644
+--- a/sdcc/sim/ucsim/z80.src/inst.cc
++++ b/sdcc/sim/ucsim/z80.src/inst.cc
+@@ -27,13 +27,13 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdlib.h>
++#include <stdio.h>
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/inst_cb.cc b/sdcc/sim/ucsim/z80.src/inst_cb.cc
+index 5bc4e86ad..cfd696229 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_cb.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_cb.cc
+@@ -25,11 +25,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ int
+diff --git a/sdcc/sim/ucsim/z80.src/inst_dd.cc b/sdcc/sim/ucsim/z80.src/inst_dd.cc
+index a1db99b22..7e3309cfe 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_dd.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_dd.cc
+@@ -28,7 +28,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+diff --git a/sdcc/sim/ucsim/z80.src/inst_ddcb.cc b/sdcc/sim/ucsim/z80.src/inst_ddcb.cc
+index 4d04fb298..f69b0d557 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_ddcb.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_ddcb.cc
+@@ -26,11 +26,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/inst_ed.cc b/sdcc/sim/ucsim/z80.src/inst_ed.cc
+index 1ff2c34ab..d442bfbdd 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_ed.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_ed.cc
+@@ -26,11 +26,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/inst_ed_r2k.cc b/sdcc/sim/ucsim/z80.src/inst_ed_r2k.cc
+index 127a4934e..af65bb70e 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_ed_r2k.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_ed_r2k.cc
+@@ -26,7 +26,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "r2kcl.h"
+diff --git a/sdcc/sim/ucsim/z80.src/inst_fd.cc b/sdcc/sim/ucsim/z80.src/inst_fd.cc
+index 29aaa7974..0f1604b20 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_fd.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_fd.cc
+@@ -28,11 +28,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ #define regs_iX_h regs.iy.h
+diff --git a/sdcc/sim/ucsim/z80.src/inst_fdcb.cc b/sdcc/sim/ucsim/z80.src/inst_fdcb.cc
+index cbd5e3d67..fbd9cdede 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_fdcb.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_fdcb.cc
+@@ -26,11 +26,11 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+ // local
+ #include "z80cl.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ #include "z80mac.h"
+ 
+ #define regs_IX_OR_IY regs.IY
+diff --git a/sdcc/sim/ucsim/z80.src/inst_lr35902.cc b/sdcc/sim/ucsim/z80.src/inst_lr35902.cc
+index 150b83de8..89acb6acf 100755
+--- a/sdcc/sim/ucsim/z80.src/inst_lr35902.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_lr35902.cc
+@@ -23,7 +23,8 @@ along with UCSIM; see the file COPYING.  If not, write to the Free
+ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+-#include "ddconfig.h"
++
++//#include "ddconfig.h"
+ 
+ #include "lr35902cl.h"
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/inst_r2k.cc b/sdcc/sim/ucsim/z80.src/inst_r2k.cc
+index 0b21f7075..9514784b1 100644
+--- a/sdcc/sim/ucsim/z80.src/inst_r2k.cc
++++ b/sdcc/sim/ucsim/z80.src/inst_r2k.cc
+@@ -16,7 +16,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
++
++#include <stdio.h>
+ 
+ // local
+ #include "r2kcl.h"
+diff --git a/sdcc/sim/ucsim/z80.src/lr35902.cc b/sdcc/sim/ucsim/z80.src/lr35902.cc
+index 3f0c8b794..96204f826 100755
+--- a/sdcc/sim/ucsim/z80.src/lr35902.cc
++++ b/sdcc/sim/ucsim/z80.src/lr35902.cc
+@@ -23,22 +23,22 @@
+  02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
+ 
+ // sim
+ #include "simcl.h"
+ 
+ // local
+-#include "z80cl.h"
++//#include "z80cl.h"
+ #include "lr35902cl.h"
+ #include "glob.h"
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/r2k.cc b/sdcc/sim/ucsim/z80.src/r2k.cc
+index f0ab1318c..cd4625ee0 100644
+--- a/sdcc/sim/ucsim/z80.src/r2k.cc
++++ b/sdcc/sim/ucsim/z80.src/r2k.cc
+@@ -30,22 +30,23 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
++#include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+-#include "z80cl.h"
++//#include "z80cl.h"
+ #include "r2kcl.h"
+ #include "glob.h"
+ 
+@@ -85,7 +86,12 @@ cl_r2k::init(void)
+   for (int i=0x8000; i<0x10000; i++) {
+     ram->set((t_addr) i, 0);
+   }
+-
++  /*
++  sp_limit_opt= new cl_sp_limit_opt(this);
++  sp_limit_opt->set_value((char*)"0xf000");
++  application->options->add(sp_limit_opt);
++  */
++  
+   return(0);
+ }
+ 
+@@ -122,7 +128,11 @@ void
+ cl_r2k::mk_hw_elements(void)
+ {
+   //class cl_base *o;
++  class cl_hw *h;
+   cl_uc::mk_hw_elements();
++  
++  add_hw(h= new cl_z80_cpu(this));
++  h->init();
+ }
+ 
+ void
+@@ -537,6 +547,7 @@ cl_r2k::print_regs(class cl_console_base *con)
+   con->dd_printf("SP= 0x%04x [SP]= %02x %3d %c\n",
+                  regs.SP, ram->get(regs.SP), ram->get(regs.SP),
+                  isprint(ram->get(regs.SP))?ram->get(regs.SP):'.');
++  con->dd_printf("SP limit= 0x%04x\n", AU(sp_limit));
+ 
+   print_disass(PC, con);
+ }
+diff --git a/sdcc/sim/ucsim/z80.src/simz80.cc b/sdcc/sim/ucsim/z80.src/simz80.cc
+index f5c5dbc58..d9ffc0e7d 100644
+--- a/sdcc/sim/ucsim/z80.src/simz80.cc
++++ b/sdcc/sim/ucsim/z80.src/simz80.cc
+@@ -25,11 +25,14 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
++#include <stdio.h>
++#include <string.h>
++
+ #include "globals.h"
+ 
+ // local
+ #include "simz80cl.h"
+-#include "z80cl.h"
++//#include "z80cl.h"
+ #include "r2kcl.h"
+ #include "lr35902cl.h"
+ #include "ez80cl.h"
+diff --git a/sdcc/sim/ucsim/z80.src/sz80.cc b/sdcc/sim/ucsim/z80.src/sz80.cc
+index 381ac8feb..cb1cdbe04 100644
+--- a/sdcc/sim/ucsim/z80.src/sz80.cc
++++ b/sdcc/sim/ucsim/z80.src/sz80.cc
+@@ -29,7 +29,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include "globals.h"
+ 
+ // sim.src
+-#include "appcl.h"
++//#include "appcl.h"
+ 
+ // local
+ #include "simz80cl.h"
+diff --git a/sdcc/sim/ucsim/z80.src/test/Makefile b/sdcc/sim/ucsim/z80.src/test/Makefile
+index 1d5f10e54..2f94960d3 100644
+--- a/sdcc/sim/ucsim/z80.src/test/Makefile
++++ b/sdcc/sim/ucsim/z80.src/test/Makefile
+@@ -1,4 +1,4 @@
+-PRJ		= t0 t1 t2
++PRJ		= t0 t1 t2 stck_ovf
+ 
+ all:
+ 	for p in $(PRJ); do \
+diff --git a/sdcc/sim/ucsim/z80.src/test/conf.cmd b/sdcc/sim/ucsim/z80.src/test/conf.cmd
+index 6989ceaa1..bdaf76070 100644
+--- a/sdcc/sim/ucsim/z80.src/test/conf.cmd
++++ b/sdcc/sim/ucsim/z80.src/test/conf.cmd
+@@ -1 +1 @@
+-set hw simif nas 0xffff
++set hw simif rom 0x00ff
+diff --git a/sdcc/sim/ucsim/z80.src/test/run.sh b/sdcc/sim/ucsim/z80.src/test/run.sh
+index 57d6d88d0..7a3b1ee97 100755
+--- a/sdcc/sim/ucsim/z80.src/test/run.sh
++++ b/sdcc/sim/ucsim/z80.src/test/run.sh
+@@ -4,4 +4,4 @@ if [ -z "$PRJ" ]; then
+    PRJ=t1
+ fi
+ 
+-../sz80 -C conf.cmd ${PRJ}.ihx <run.cmd
++../sz80 -C conf.cmd ${PRJ} <run.cmd
+diff --git a/sdcc/sim/ucsim/z80.src/test/stck_ovf.c b/sdcc/sim/ucsim/z80.src/test/stck_ovf.c
+new file mode 100644
+index 000000000..e5ae08373
+--- /dev/null
++++ b/sdcc/sim/ucsim/z80.src/test/stck_ovf.c
+@@ -0,0 +1,9 @@
++int f(int i)
++{
++  return f(i+1);
++}
++
++void main(void)
++{
++  f(1);
++}
+diff --git a/sdcc/sim/ucsim/z80.src/test/stck_ovf.mk b/sdcc/sim/ucsim/z80.src/test/stck_ovf.mk
+new file mode 100644
+index 000000000..3a99bb4d4
+--- /dev/null
++++ b/sdcc/sim/ucsim/z80.src/test/stck_ovf.mk
+@@ -0,0 +1,7 @@
++MAIN		= stck_ovf
++
++OTHERS		=
++
++include sdcc.mk
++
++MODEL		= small
+diff --git a/sdcc/sim/ucsim/z80.src/test/t1.c b/sdcc/sim/ucsim/z80.src/test/t1.c
+index 83cd78411..f427e5066 100644
+--- a/sdcc/sim/ucsim/z80.src/test/t1.c
++++ b/sdcc/sim/ucsim/z80.src/test/t1.c
+@@ -1,4 +1,4 @@
+-static unsigned char * volatile sif= (unsigned char *)0xffff;
++static unsigned char * volatile sif= (unsigned char *)0x00ff;
+ 
+ volatile unsigned char x;
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/test/t2.c b/sdcc/sim/ucsim/z80.src/test/t2.c
+index 50debbbbe..fe535ebaa 100644
+--- a/sdcc/sim/ucsim/z80.src/test/t2.c
++++ b/sdcc/sim/ucsim/z80.src/test/t2.c
+@@ -1,4 +1,4 @@
+-static unsigned char * volatile sif= (unsigned char *)0xffff;
++static unsigned char * volatile sif= (unsigned char *)0x00ff;
+ 
+ volatile unsigned char x;
+ 
+diff --git a/sdcc/sim/ucsim/z80.src/z80.cc b/sdcc/sim/ucsim/z80.src/z80.cc
+index c711f8ea4..e391afecd 100644
+--- a/sdcc/sim/ucsim/z80.src/z80.cc
++++ b/sdcc/sim/ucsim/z80.src/z80.cc
+@@ -27,24 +27,25 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 02111-1307, USA. */
+ /*@1@*/
+ 
+-#include "ddconfig.h"
++//#include "ddconfig.h"
+ 
+-#include <stdarg.h> /* for va_list */
++//#include <stdarg.h> /* for va_list */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <ctype.h>
+-#include "i_string.h"
++#include <string.h>
+ 
+ // prj
+-#include "pobjcl.h"
++//#include "pobjcl.h"
++#include "globals.h"
+ 
+ // sim
+-#include "simcl.h"
++//#include "simcl.h"
+ 
+ // local
+ #include "z80cl.h"
+ #include "glob.h"
+-#include "regsz80.h"
++//#include "regsz80.h"
+ 
+ #define uint32 t_addr
+ #define uint8 unsigned char
+@@ -76,7 +77,8 @@ cl_z80::init(void)
+   for (int i=0x8000; i<0x10000; i++) {
+     ram->set((t_addr) i, 0);
+   }
+-
++  sp_limit= 0xf000;
++  
+   return(0);
+ }
+ 
+@@ -108,7 +110,11 @@ void
+ cl_z80::mk_hw_elements(void)
+ {
+   //class cl_base *o;
++  class cl_hw *h;
+   cl_uc::mk_hw_elements();
++
++  add_hw(h= new cl_z80_cpu(this));
++  h->init();
+ }
+ 
+ void
+@@ -550,7 +556,8 @@ cl_z80::print_regs(class cl_console_base *con)
+   con->dd_printf("SP= 0x%04x [SP]= %02x %3d %c\n",
+                  regs.SP, ram->get(regs.SP), ram->get(regs.SP),
+                  isprint(ram->get(regs.SP))?ram->get(regs.SP):'.');
+-
++  con->dd_printf("SP limit= 0x%04x\n", AU(sp_limit));
++  
+   print_disass(PC, con);
+ }
+ 
+@@ -840,4 +847,73 @@ void        cl_z80::reg_g_store( t_mem g, u8_t new_val )
+     }
+ }
+ 
++void
++cl_z80::stack_check_overflow(class cl_stack_op *op)
++{
++  if (op)
++    {
++      if (op->get_op() & stack_write_operation)
++	{
++	  t_addr a= op->get_after();
++	  if (a < sp_limit)
++	    {
++	      class cl_error_stack_overflow *e=
++		new cl_error_stack_overflow(op);
++	      e->init();
++	      error(e);
++	    }
++	}
++    }
++}
++
++
++cl_z80_cpu::cl_z80_cpu(class cl_uc *auc):
++  cl_hw(auc, HW_CPU, 0, "cpu")
++{
++}
++
++int
++cl_z80_cpu::init(void)
++{
++  cl_hw::init();
++
++  cl_var *v;
++  uc->vars->add(v= new cl_var(cchars("sp_limit"), cfg, z80cpu_sp_limit,
++			      cfg_help(z80cpu_sp_limit)));
++  v->init();
++
++  return 0;
++}
++
++char *
++cl_z80_cpu::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case z80cpu_sp_limit:
++      return (char*)"Stack overflows when SP is below this limit";
++    }
++  return (char*)"Not used";
++}
++
++t_mem
++cl_z80_cpu::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  class cl_z80 *u= (class cl_z80 *)uc;
++  if (val)
++    cell->set(*val);
++  switch ((enum z80cpu_confs)addr)
++    {
++    case z80cpu_sp_limit:
++      if (val)
++	u->sp_limit= *val & 0xffff;
++      else
++	cell->set(u->sp_limit);
++      break;
++    case z80cpu_nuof: break;
++    }
++  return cell->get();
++}
++
++
+ /* End of z80.src/z80.cc */
+diff --git a/sdcc/sim/ucsim/z80.src/z80cl.h b/sdcc/sim/ucsim/z80.src/z80cl.h
+index 80637b671..9f5de6373 100644
+--- a/sdcc/sim/ucsim/z80.src/z80cl.h
++++ b/sdcc/sim/ucsim/z80.src/z80cl.h
+@@ -32,6 +32,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ 
+ #include "regsz80.h"
+ 
++class cl_z80;
++class cl_sp_limit_opt;
++
+ /*
+  * Base type of Z80 microcontrollers
+  */
+@@ -46,6 +49,8 @@ public:
+   class cl_address_space *regs16;
+   class cl_address_space *inputs;
+   class cl_address_space *outputs;
++  class cl_sp_limit_opt *sp_limit_opt;
++  t_addr sp_limit;
+ public:
+   cl_z80(struct cpu_entry *Itype, class cl_sim *asim);
+   virtual int init(void);
+@@ -70,7 +75,7 @@ public:
+                                       int *immed_offset,
+                                       struct dis_entry **dentry);
+   virtual bool is_call(t_addr addr);
+-
++  
+   virtual void store1( u16_t addr, t_mem val );
+   virtual void store2( u16_t addr, u16_t val );
+ 
+@@ -88,6 +93,8 @@ public:
+   virtual u8_t reg_g_read ( t_mem g );
+   virtual void reg_g_store( t_mem g, u8_t new_val );
+ 
++  virtual void stack_check_overflow(class cl_stack_op *op);
++
+   virtual int inst_nop(t_mem code);
+   virtual int inst_ld(t_mem code);
+   virtual int inst_inc(t_mem code);
+@@ -190,6 +197,23 @@ public:
+ unsigned   word_parity( u16_t  x );
+ /* returns parity for a 16-bit value */
+ 
++enum z80cpu_confs
++  {
++   z80cpu_sp_limit	= 0,
++   z80cpu_nuof		= 1
++  };
++
++class cl_z80_cpu: public cl_hw
++{
++public:
++  cl_z80_cpu(class cl_uc *auc);
++  virtual int init(void);
++  virtual int cfg_size(void) { return z80cpu_nuof; }
++  virtual char *cfg_help(t_addr addr);
++
++  virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++};
++
+ #endif
+ 
+ /* End of z80.src/z80cl.h */
+diff --git a/sdcc/sim/ucsim/z80.src/z80mac.h b/sdcc/sim/ucsim/z80.src/z80mac.h
+index f454efba6..b10965ab2 100644
+--- a/sdcc/sim/ucsim/z80.src/z80mac.h
++++ b/sdcc/sim/ucsim/z80.src/z80mac.h
+@@ -24,8 +24,24 @@
+ #define fetch1() fetch()
+ #endif
+ 
+-#define push2(val) {regs.SP-=2; store2(regs.SP,(val));}
+-#define push1(val) {regs.SP-=1; store1(regs.SP,(val));}
++#define push2(val) {							\
++    t_addr sp_before= regs.SP;						\
++    regs.SP-=2;								\
++    store2(regs.SP,(val));						\
++    class cl_stack_op *so=						\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);			\
++    so->init();								\
++    stack_write(so);							\
++  }
++#define push1(val) {					\
++    t_addr sp_before= regs.SP;				\
++    regs.SP-=1;						\
++    store1(regs.SP,(val));				\
++    class cl_stack_op *so=				\
++      new cl_stack_push(instPC,val,sp_before,regs.SP);	\
++    so->init();						\
++    stack_write(so);					\
++  }
+ #define pop2(var) {var=get2(regs.SP),regs.SP+=2;}
+ //#define pop1(var) {var=get1(regs.SP),regs.SP+=1;}
+ #define add_u16_disp(_w, _d) (( (unsigned short)(_w) + (signed char)(_d) ) & 0xffff)
+-- 

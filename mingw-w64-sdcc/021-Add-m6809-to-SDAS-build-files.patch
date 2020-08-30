@@ -1,0 +1,37 @@
+From 4b0de2d9fe9bbde7fcdcccdd05074a817c451d15 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 26 Aug 2020 13:51:10 -0400
+Subject: Add m6809 to SDAS build files
+
+---
+ sdcc/sdas/linksrc/Makefile.in |  6 +++--
+
+diff --git a/sdcc/sdas/linksrc/Makefile.in b/sdcc/sdas/linksrc/Makefile.in
+index 43e16f54d..91460594e 100644
+--- a/sdcc/sdas/linksrc/Makefile.in
++++ b/sdcc/sdas/linksrc/Makefile.in
+@@ -63,7 +63,7 @@ transform       = @program_transform_name@
+ 
+ # Compiling entire program or any subproject
+ # ------------------------------------------
+-all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk
++all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk sdcc-ld6809
+ 
+ sdcc-ld8051: checkconf $(ASLINK)
+ 
+@@ -73,11 +73,13 @@ sdcc-ldgb: checkconf $(top_builddir)/bin/sdldgb$(EXEEXT)
+ 
+ sdcc-ld6808: checkconf $(top_builddir)/bin/sdld6808$(EXEEXT)
+ 
++sdcc-ld6809: checkconf $(top_builddir)/bin/sdld6809$(EXEEXT)
++
+ sdcc-ldstm8: checkconf $(top_builddir)/bin/sdldstm8$(EXEEXT)
+ 
+ sdcc-ldpdk: checkconf $(top_builddir)/bin/sdldpdk$(EXEEXT)
+ 
+-$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
++$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdld6809$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
+ 	cp -p $(ASLINK) $@
+ 
+ $(ASLINK): $(LKOBJECTS)
+-- 

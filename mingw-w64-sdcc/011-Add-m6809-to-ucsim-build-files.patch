@@ -1,0 +1,124 @@
+From 32e398acae85a7a9473ca76441bdbda7d25d548e Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 28 Aug 2020 15:36:07 -0400
+Subject: Add m6809 to ucsim build files
+
+---
+ sdcc/sim/ucsim/configure      | 14 +++++++++++++-
+ sdcc/sim/ucsim/configure.ac   |  7 +++++++
+ sdcc/sim/ucsim/packages_in.mk |  9 +++++++--
+ 3 files changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/sdcc/sim/ucsim/configure b/sdcc/sim/ucsim/configure
+index f9f45a672..256df5fa6 100755
+--- a/sdcc/sim/ucsim/configure
++++ b/sdcc/sim/ucsim/configure
+@@ -774,6 +774,7 @@ enable_r3ka_port
+ enable_tlcs_port
+ enable_hc08_port
+ enable_s08_port
++enable_mc6809_port
+ enable_xa_port
+ enable_stm8_port
+ enable_pdk_port
+@@ -1447,6 +1448,7 @@ Optional Features:
+   --disable-tlcs-port    do not compile simulator for TLCS
+   --disable-hc08-port     do not compile simulator for hc08
+   --disable-s08-port      do not compile simulator for s08
++  --disable-mc6809-port     do not compile simulator for mc6809
+   --enable-xa-port        compile simulator for xa
+   --disable-stm8-port     do not compile simulator for stm8
+   --disable-pdk-port      do not compile simulator for pdk
+@@ -2911,6 +2913,15 @@ else
+   enable_s08_port="yes"
+ fi
+ 
++# Check whether --enable-mc6809-port was given.
++if test "${enable_mc6809_port+set}" = set; then :
++  enableval=$enable_mc6809_port; if test $enable_mc6809_port != "no"; then
++    enable_mc6809_port="yes"
++fi
++else
++  enable_mc6809_port="yes"
++fi
++
+ # Check whether --enable-xa-port was given.
+ if test "${enable_xa_port+set}" = set; then :
+   enableval=$enable_xa_port; if test $enable_xa_port != "no"; then
+@@ -18199,7 +18210,7 @@ _ACEOF
+ # Generating output files
+ # ===========================================================================
+ 
+-ac_config_files="$ac_config_files Makefile main.mk:main_in.mk packages.mk:packages_in.mk sim.src/Makefile cmd.src/Makefile s51.src/Makefile avr.src/Makefile z80.src/Makefile tlcs.src/Makefile hc08.src/Makefile xa.src/Makefile stm8.src/Makefile pdk.src/Makefile st7.src/Makefile p1516.src/Makefile gui.src/Makefile gui.src/serio.src/Makefile doc/Makefile"
++ac_config_files="$ac_config_files Makefile main.mk:main_in.mk packages.mk:packages_in.mk sim.src/Makefile cmd.src/Makefile s51.src/Makefile avr.src/Makefile z80.src/Makefile tlcs.src/Makefile hc08.src/Makefile mc6809.src/Makefile xa.src/Makefile stm8.src/Makefile pdk.src/Makefile st7.src/Makefile p1516.src/Makefile gui.src/Makefile gui.src/serio.src/Makefile doc/Makefile"
+ 
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+@@ -19294,6 +19305,7 @@ do
+     "z80.src/Makefile") CONFIG_FILES="$CONFIG_FILES z80.src/Makefile" ;;
+     "tlcs.src/Makefile") CONFIG_FILES="$CONFIG_FILES tlcs.src/Makefile" ;;
+     "hc08.src/Makefile") CONFIG_FILES="$CONFIG_FILES hc08.src/Makefile" ;;
++    "mc6809.src/Makefile") CONFIG_FILES="$CONFIG_FILES mc6809.src/Makefile" ;;
+     "xa.src/Makefile") CONFIG_FILES="$CONFIG_FILES xa.src/Makefile" ;;
+     "stm8.src/Makefile") CONFIG_FILES="$CONFIG_FILES stm8.src/Makefile" ;;
+     "pdk.src/Makefile") CONFIG_FILES="$CONFIG_FILES pdk.src/Makefile" ;;
+diff --git a/sdcc/sim/ucsim/configure.ac b/sdcc/sim/ucsim/configure.ac
+index 3045e4d60..5084d948b 100644
+--- a/sdcc/sim/ucsim/configure.ac
++++ b/sdcc/sim/ucsim/configure.ac
+@@ -118,6 +118,12 @@ if test $enable_s08_port != "no"; then
+     enable_s08_port="yes"
+ fi,
+ enable_s08_port="yes")
++AC_ARG_ENABLE(mc6809-port,
++[  --disable-mc6809-port     do not compile simulator for mc6809],
++if test $enable_mc6809_port != "no"; then
++    enable_mc6809_port="yes"
++fi,
++enable_mc6809_port="yes")
+ AC_ARG_ENABLE(xa-port,
+ [  --enable-xa-port        compile simulator for xa],
+ if test $enable_xa_port != "no"; then
+@@ -717,6 +723,7 @@ avr.src/Makefile
+ z80.src/Makefile
+ tlcs.src/Makefile
+ hc08.src/Makefile
++mc6809.src/Makefile
+ xa.src/Makefile
+ stm8.src/Makefile
+ pdk.src/Makefile
+diff --git a/sdcc/sim/ucsim/packages_in.mk b/sdcc/sim/ucsim/packages_in.mk
+index 5f91f8584..006fd713e 100644
+--- a/sdcc/sim/ucsim/packages_in.mk
++++ b/sdcc/sim/ucsim/packages_in.mk
+@@ -16,6 +16,7 @@ enable_stm8_port    = @enable_stm8_port@
+ enable_st7_port     = @enable_st7_port@
+ enable_pdk_port     = @enable_pdk_port@
+ enable_p1516_port   = @enable_p1516_port@
++enable_mc6809_port  = @enable_mc6809_port@
+ 
+ ifeq ($(enable_mcs51_port),yes)
+ S51		= s51.src
+@@ -71,6 +72,10 @@ SHC08		=
+ endif
+ endif
+ 
++ifeq ($(enable_mc6809_port),yes)
++SMC6809		= mc6809.src
++endif
++
+ ifeq ($(enable_xa_port),yes)
+ XA		= xa.src
+ else
+@@ -103,8 +108,8 @@ endif
+ 
+ PKGS		= $(S51) $(S390) \
+ 		  $(SAVR) $(SZ80) $(SZ180) $(SGBZ80) $(SR2K) $(SR3KA) \
+-		  $(TLCS) \
++		  $(TLCS) $(SMC6809) \
+ 		  $(SHC08) $(SS08) $(XA) $(STM8) $(ST7) $(PDK) $(P1516) doc
+ 
+ PKGS_ALL	= cmd.src sim.src gui.src s51.src avr.src z80.src tlcs.src xa.src \
+-		  hc08.src stm8.src st7.src pdk.src p1516.src doc
++		  hc08.src stm8.src st7.src pdk.src p1516.src mc6809.src doc
+-- 

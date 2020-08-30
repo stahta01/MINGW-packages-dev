@@ -5,20 +5,46 @@ _realname=sdcc
 pkgbase=mingw-w64-${_realname}
 pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
 pkgver=4.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Retargettable ANSI C compiler [Intel 8051, Maxim 80DS390, Zilog Z80 and the Motorola 68HC08] (mingw-w64)"
 arch=('any')
 license=('GPL') # pic14 and pic16 has non free headers and likely other files
 depends=('bash' 'gcc-libs') # 'boost-libs'
 # Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
-makedepends=('flex' 'bison' 'patch' 'perl' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
+makedepends=('flex' 'bison' 'diffutils' 'dos2unix' 'make' 'patch' 'perl' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
 #optdepends=('python')
 url="http://sdcc.sourceforge.net/"
 options=(!strip  staticlibs)
 source=(https://downloads.sourceforge.net/sourceforge/sdcc/${_realname}-src-${pkgver//_/-}.tar.bz2
-    '001-comment-out-vsnprintf-prototype.patch')
+    '001-comment-out-vsnprintf-prototype.patch'
+    '002-sdcc-4.0-backport-implement-help-as-requed-in-features-671.patch'
+    '003-sdcc-4.0-backport-New-processor-simulator-in-uCsim-p1516.patch'
+    '004-sdcc-4.0-backport-fix-RST-in-z80-simulator-remove-hack-from-hc08.patch'
+    '005-sdcc-4.0-backport-sim-ucsim-z80.src-ez80.cc-change-int8_t-to-i8_t.patch'
+    '010-Add-m6809-sim-files.patch'
+    '011-Add-m6809-to-ucsim-build-files.patch'
+    '012-Add-m6809-to-ucsim-sourcecode.patch'
+    '020-Add-m6809-sdas-files.patch'
+    '021-Add-m6809-to-SDAS-build-files.patch'
+    '030-Add-m6809-compiler-files.patch'
+    '031-Add-m6809-files-to-device-lib.patch'
+    '032-Add-m6809-to-SDCC-build-files.patch'
+    '033-sdcc-4.0-Add-m6809-to-SDCC-sourcecode.patch')
 sha256sums=('489180806fc20a3911ba4cf5ccaf1875b68910d7aed3f401bbd0695b0bef4e10'
-            'e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe')
+            'e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe'
+            '5d04cc9fd97f982bec4114b1f7e3326b0d02a42c13469390f4495f11498c0038'
+            '28db60842f46615d25cfc9a375748fda0f69bca01ae7c0fd3ab5788e1f091af7'
+            '18d045de798d8d35a6f936f879f9db49e8ee44b6311388c4c157270cea5795a5'
+            '06556b980549080f21803ca4d5cf7b52ece6fe049b3deabbd0a4528e6ea4e12a'
+            '8e1e0e04531281d2dd19ad49c9a3cf53f7e6327c947d12af1416ac6c9369ea6c'
+            'b57e4c4cb5d9924b70f471f895b966e6fa0e1f9cfedf4c7ec6d6355fa445e7c0'
+            'f58914804b1738060e2a322295bb79bf5004aa2dbf8c8d7f597e40d571eeb1c6'
+            '189c8b2fb294f3816172d02942c2a87f31a4e30fe0b2a6b02f6d30a51ed2d05e'
+            'd8be2d1468b209627405895ed5dfb17a798edf8c531dd0fcbed94d19a7b101bd'
+            '354e8ce7c434c9ca4f9a26047f2f8774961ea9426ab5a3f8774eb98e15793a5c'
+            '766c6e3de506453f7258d48fe6e98f3c0bdf8bee980b6236a31b9d86ed92667f'
+            '1a76bdfad13bed562224150fbcd0e511e59c8a045d896de9ba79bfc49678d92d'
+            '594c0c4391cdb0c2036ff694243453c6ab803fd2943ba5267071f8a1066a2fe9')
 
 # Helper macros to help make tasks easier #
 apply_patch_with_msg() {
@@ -42,7 +68,46 @@ del_file_exists() {
 prepare() {
   cd "$srcdir/${_realname}-$pkgver"
 
-  apply_patch_with_msg 001-comment-out-vsnprintf-prototype.patch
+  # Fix line feed issues when applying patch files
+  dos2unix sim/ucsim/st7.src/sst7.cc
+
+  # remove folders and files added by patch files
+  rm -fr sdas/as6809
+  rm -fr src/mc6809
+  rm -fr device/lib/mc6809
+  rm -fr sim/ucsim/mc6809.src
+  rm -fr sim/ucsim/p1516.src
+
+  del_file_exists \
+    sim/ucsim/s51.src/test/stck_ovf.c \
+    sim/ucsim/s51.src/test/stck_ovf.mk \
+    sim/ucsim/stm8.src/test/stck_ovf.c \
+    sim/ucsim/stm8.src/test/stck_ovf.mk \
+    sim/ucsim/test/Makefile \
+    sim/ucsim/test/dummy.h \
+    sim/ucsim/test/sdcc.mk \
+    sim/ucsim/test/stck_ovf.c \
+    sim/ucsim/test/stck_ovf.mk \
+    sim/ucsim/test/t1.c \
+    sim/ucsim/test/t1.mk \
+    sim/ucsim/z80.src/test/stck_ovf.c \
+    sim/ucsim/z80.src/test/stck_ovf.mk
+
+  apply_patch_with_msg \
+    001-comment-out-vsnprintf-prototype.patch \
+    002-sdcc-4.0-backport-implement-help-as-requed-in-features-671.patch \
+    003-sdcc-4.0-backport-New-processor-simulator-in-uCsim-p1516.patch \
+    004-sdcc-4.0-backport-fix-RST-in-z80-simulator-remove-hack-from-hc08.patch \
+    005-sdcc-4.0-backport-sim-ucsim-z80.src-ez80.cc-change-int8_t-to-i8_t.patch \
+    010-Add-m6809-sim-files.patch \
+    011-Add-m6809-to-ucsim-build-files.patch \
+    012-Add-m6809-to-ucsim-sourcecode.patch \
+    020-Add-m6809-sdas-files.patch \
+    021-Add-m6809-to-SDAS-build-files.patch \
+    030-Add-m6809-compiler-files.patch \
+    031-Add-m6809-files-to-device-lib.patch \
+    032-Add-m6809-to-SDCC-build-files.patch \
+    033-sdcc-4.0-Add-m6809-to-SDCC-sourcecode.patch
 
   sed -i 's|CC -E|CC -O2 -E|g' support/sdbinutils/libiberty/configure
 }
@@ -59,6 +124,10 @@ build() {
     --disable-pic14-port \
     --disable-pic16-port \
     --disable-werror
+
+#  make -C sdas/as6809 --jobs=1
+#
+#  make -C sim/ucsim/mc6809.src --jobs=1
 
   PATH="${srcdir}"/build-${CARCH}/bin:$PATH \
   make --jobs=1

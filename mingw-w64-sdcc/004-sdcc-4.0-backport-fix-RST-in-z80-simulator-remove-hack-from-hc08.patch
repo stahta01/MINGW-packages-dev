@@ -1,0 +1,1176 @@
+From f2c43f0f60eaece0a9e78a32208f55fd5d637aa7 Mon Sep 17 00:00:00 2001
+From: drdani <drdani@4a8a32a2-be11-0410-ad9d-d568d2c75423>
+Date: Sat, 13 Jun 2020 16:30:36 +0000
+Subject: [PATCH] fix RST in z80 simulator; remove hack from hc08
+
+git-svn-id: https://svn.code.sf.net/p/sdcc/code/trunk@11669 4a8a32a2-be11-0410-ad9d-d568d2c75423
+---
+ sdcc/sim/ucsim/.version              |   2 +-
+ sdcc/sim/ucsim/app.cc                |  21 ++-
+ sdcc/sim/ucsim/avr.src/savr.cc       |   1 +
+ sdcc/sim/ucsim/conf                  |   2 +-
+ sdcc/sim/ucsim/fuio.cc               |   4 +-
+ sdcc/sim/ucsim/hc08.src/hc08.cc      |  10 +-
+ sdcc/sim/ucsim/hc08.src/shc08.cc     |   1 +
+ sdcc/sim/ucsim/p1516.src/Makefile.in |   2 +-
+ sdcc/sim/ucsim/p1516.src/p1516.cc    | 149 ++++++++++++---
+ sdcc/sim/ucsim/p1516.src/p1516cl.h   |   7 +-
+ sdcc/sim/ucsim/p1516.src/port.cc     | 269 +++++++++++++++++++++++++++
+ sdcc/sim/ucsim/p1516.src/portcl.h    |  78 ++++++++
+ sdcc/sim/ucsim/p1516.src/sp1516.cc   |   1 +
+ sdcc/sim/ucsim/pdk.src/spdk.cc       |   1 +
+ sdcc/sim/ucsim/s51.src/s51.cc        |   1 +
+ sdcc/sim/ucsim/sim.src/hw.cc         |   8 +
+ sdcc/sim/ucsim/sim.src/hwcl.h        |   1 +
+ sdcc/sim/ucsim/sim.src/memcl.h       |   2 +
+ sdcc/sim/ucsim/sim.src/port_hw.cc    |  40 ++--
+ sdcc/sim/ucsim/st7.src/sst7.cc       |   1 +
+ sdcc/sim/ucsim/stm8.src/sstm8.cc     |   1 +
+ sdcc/sim/ucsim/tlcs.src/stlcs.cc     |   1 +
+ sdcc/sim/ucsim/xa.src/sxa.cc         |   1 +
+ sdcc/sim/ucsim/z80.src/inst.cc       |  19 +-
+ sdcc/sim/ucsim/z80.src/sz80.cc       |   1 +
+ 25 files changed, 565 insertions(+), 59 deletions(-)
+ create mode 100644 sdcc/sim/ucsim/p1516.src/port.cc
+ create mode 100644 sdcc/sim/ucsim/p1516.src/portcl.h
+
+diff --git a/sdcc/sim/ucsim/.version b/sdcc/sim/ucsim/.version
+index c01525a96..31137f475 100644
+--- a/sdcc/sim/ucsim/.version
++++ b/sdcc/sim/ucsim/.version
+@@ -1 +1 @@
+-0.6-pre62
++0.6-pre63
+diff --git a/sdcc/sim/ucsim/app.cc b/sdcc/sim/ucsim/app.cc
+index 38e0be549..6a127950a 100644
+--- a/sdcc/sim/ucsim/app.cc
++++ b/sdcc/sim/ucsim/app.cc
+@@ -84,7 +84,8 @@ cl_app::init(int argc, char *argv[])
+ {
+   sigpipe_off();
+   cl_base::init();
+-  set_name(cchars("application"));
++  if (!have_real_name())
++    set_name(cchars("application"));
+   mk_options();
+   proc_arguments(argc, argv);
+   class cl_cmdset *cmdset= new cl_cmdset();
+@@ -133,6 +134,7 @@ cl_app::run(void)
+ 		  if ((l= sim->uc->read_file(fname, NULL)) >= 0)
+ 		    {
+ 		      ///*commander->all_printf*/printf("%ld words read from %s\n", l, fname);
++		      sim->uc->reset();
+ 		    }
+ 		}
+ 	    }
+@@ -242,6 +244,7 @@ print_help(char *name)
+      "  -o colors    List of color specification: what=colspec,...\n"
+      "               where colspec is : separated list of color options\n"
+      "               e.g.: prompt=b:white:black (bold white on black)\n"
++     "  -l           Use default (builtin) colors\n"
+      "  -b           Black & white (non-color) console\n"
+      "  -g           Go, start simulation\n"
+      "  -G           Go, start simulation, quit on stop\n"
+@@ -312,7 +315,7 @@ cl_app::proc_arguments(int argc, char *argv[])
+       if ((strcmp(argv[i], "-help")==0) ||
+ 	  (strcmp(argv[i], "--help")==0))
+ 	{
+-	  print_help(cchars("s51"));
++	  print_help((char*)get_name());
+ 	  exit(0);
+ 	}
+     }
+@@ -692,10 +695,12 @@ cl_app::proc_arguments(int argc, char *argv[])
+ 	set_option_s("color_ui_title", "magenta:bwhite");
+ 	set_option_s("color_ui_run", "black:green");
+ 	set_option_s("color_ui_stop", "white:red");
++	set_option_s("color_ui_bit0", "white:black");
++	set_option_s("color_ui_bit1", "bred:black");
+ 	set_option_s("color_debug", "magenta:bwhite");
+ 	break;
+       case 'h':
+-	print_help(cchars("s51"));
++	print_help((char*)get_name());
+ 	exit(0);
+ 	break;
+       case 'H':
+@@ -1109,6 +1114,16 @@ cl_app::mk_options(void)
+   o->init();
+   o->set_value((char*)"black:green");
+   
++  options->new_option(o= new cl_string_option(this, "color_ui_bit0",
++					      "Bit 0 color on UI display"));
++  o->init();
++  o->set_value((char*)"white:black");
++  
++  options->new_option(o= new cl_string_option(this, "color_ui_bit1",
++					      "Bit 1 color on UI display"));
++  o->init();
++  o->set_value((char*)"bred:black");
++  
+   options->new_option(o= new cl_string_option(this, "color_ui_stop",
+ 					      "Stop state color on UI display"));
+   o->init();
+diff --git a/sdcc/sim/ucsim/avr.src/savr.cc b/sdcc/sim/ucsim/avr.src/savr.cc
+index fceb9fe2f..17b0680f8 100644
+--- a/sdcc/sim/ucsim/avr.src/savr.cc
++++ b/sdcc/sim/ucsim/avr.src/savr.cc
+@@ -43,6 +43,7 @@ main(int argc, char *argv[])
+   class cl_sim *sim;
+   
+   application= new cl_app();
++  application->set_name("savr");
+   application->init(argc, argv);
+   sim= new cl_simavr(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/conf b/sdcc/sim/ucsim/conf
+index c29615171..c423b841a 100755
+--- a/sdcc/sim/ucsim/conf
++++ b/sdcc/sim/ucsim/conf
+@@ -55,7 +55,7 @@ case $TARGET in
+ 	    --enable-xa-port \
+ 	    --enable-stm8-port \
+ 	    --enable-st7-port \
+-	    --enable-p15160port \
++	    --enable-p1516-port \
+ 	    "$@"
+ 	#--enable-ucsim
+ 	;;
+diff --git a/sdcc/sim/ucsim/fuio.cc b/sdcc/sim/ucsim/fuio.cc
+index b4cc545d4..0f4022e1d 100644
+--- a/sdcc/sim/ucsim/fuio.cc
++++ b/sdcc/sim/ucsim/fuio.cc
+@@ -88,8 +88,8 @@ cl_io::close(void)
+   //file_f= NULL;
+   file_id= -1;
+   own= false;
+-  file_name= "";
+-  file_mode= "";
++  file_name= 0;
++  file_mode= 0;
+ 
+   changed();
+   return i;
+diff --git a/sdcc/sim/ucsim/hc08.src/hc08.cc b/sdcc/sim/ucsim/hc08.src/hc08.cc
+index f93971f2c..f65af3187 100644
+--- a/sdcc/sim/ucsim/hc08.src/hc08.cc
++++ b/sdcc/sim/ucsim/hc08.src/hc08.cc
+@@ -101,6 +101,7 @@ cl_hc08::reset(void)
+   regs.P = 0x60;
+   regs.VECTOR = 1;
+ 
++  PC= rom->get(0xfffe)*256 + rom->get(0xffff);
+ }
+ 
+ 
+@@ -614,8 +615,13 @@ cl_hc08::exec_inst(void)
+                 case 0x9: return(inst_adc(code, true));
+                 case 0xa: return(inst_ora(code, true));
+                 case 0xb: return(inst_add(code, true));
+-		case 0xc: return(resHALT); // not real instruction: regression test hack to exit simulation
+-		case 0xd: putchar(regs.A); fflush(stdout); return(resGO); // not real instruction: regression test hack to output results
++	      case 0xc: return(resINV_INST);
++		return(resHALT); // not real instruction: regression test hack to exit simulation
++	      case 0xd:
++		return(resINV_INST);
++		putchar(regs.A);
++		fflush(stdout);
++		return(resGO); // not real instruction: regression test hack to output results
+                 case 0xe: return(inst_ldx(code, true));
+                 case 0xf: return(inst_stx(code, true));
+                 default: return(resHALT);
+diff --git a/sdcc/sim/ucsim/hc08.src/shc08.cc b/sdcc/sim/ucsim/hc08.src/shc08.cc
+index 9f1fd2c4a..06dfb99d3 100644
+--- a/sdcc/sim/ucsim/hc08.src/shc08.cc
++++ b/sdcc/sim/ucsim/hc08.src/shc08.cc
+@@ -42,6 +42,7 @@ main(int argc, char *argv[])
+ 
+   cpus= cpus_hc08;
+   application= new cl_app();
++  application->set_name("shc08");
+   application->init(argc, argv);
+   sim= new cl_simhc08(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/p1516.src/Makefile.in b/sdcc/sim/ucsim/p1516.src/Makefile.in
+index 232a2d021..65bc8da60 100644
+--- a/sdcc/sim/ucsim/p1516.src/Makefile.in
++++ b/sdcc/sim/ucsim/p1516.src/Makefile.in
+@@ -49,7 +49,7 @@ infodir         = @infodir@
+ srcdir          = @srcdir@
+ VPATH           = @srcdir@
+ 
+-OBJECTS_SHARED	= simp1516.o p1516.o glob.o
++OBJECTS_SHARED	= simp1516.o p1516.o glob.o port.o
+ 
+ OBJECTS_EXE	= sp1516.o
+ OBJECTS		= $(OBJECTS_SHARED) $(OBJECTS_EXE)
+diff --git a/sdcc/sim/ucsim/p1516.src/p1516.cc b/sdcc/sim/ucsim/p1516.src/p1516.cc
+index 482e05d04..a82477f23 100644
+--- a/sdcc/sim/ucsim/p1516.src/p1516.cc
++++ b/sdcc/sim/ucsim/p1516.src/p1516.cc
+@@ -28,6 +28,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
+ #include <stdlib.h>
+ 
+ #include "glob.h"
++#include "portcl.h"
+ 
+ #include "p1516cl.h"
+ 
+@@ -45,6 +46,7 @@ cl_p1516::init(void)
+   F= 0;
+   for (i=0; i<16; i++)
+     R[i]= 0;
++  xtal= 10000000;
+   return 0;
+ }
+ 
+@@ -69,17 +71,96 @@ cl_p1516::set_PC(t_addr addr)
+ void
+ cl_p1516::mk_hw_elements(void)
+ {
+-  //class cl_hw *h;
+   cl_uc::mk_hw_elements();
+-  //add_hw(h= new cl_port(this));
+-  //h->init();
++  add_hw(pa= new cl_porto(this, 0xf000, "pa"));
++  pa->init();
++  add_hw(pb= new cl_porto(this, 0xf001, "pb"));
++  pb->init();
++  add_hw(pc= new cl_porto(this, 0xf002, "pc"));
++  pc->init();
++  add_hw(pd= new cl_porto(this, 0xf003, "pd"));
++  pd->init();
++
++  add_hw(pi= new cl_porti(this, 0xe000, "pi"));
++  pi->init();
++  add_hw(pj= new cl_porti(this, 0xd000, "pj"));
++  pj->init();
++
++  class cl_port_ui *u= new cl_port_ui(this, 0, "dport");
++  u->init();
++  add_hw(u);
++  class cl_port_ui *uo= new cl_port_ui(this, 0, "oports");
++  uo->init();
++  add_hw(uo);
++  class cl_port_ui *ui= new cl_port_ui(this, 0, "iports");
++  ui->init();
++  add_hw(ui);
++
++  class cl_port_data d;
++  d.init();
++  d.cell_dir= NULL;
++
++  d.set_name("PA");
++  d.cell_p = pa->dr;
++  d.cell_in= pa->dr;
++  d.keyset = NULL;
++  d.basx   = 1;
++  d.basy   = 4;
++  u->add_port(&d, 0);
++  uo->add_port(&d, 0);
++  
++  d.set_name("PB");
++  d.cell_p = pb->dr;
++  d.cell_in= pb->dr;
++  d.keyset = NULL;
++  d.basx   = 1;
++  d.basy   = 9;
++  u->add_port(&d, 1);
++  uo->add_port(&d, 1);
++
++  d.set_name("PC");
++  d.cell_p = pc->dr;
++  d.cell_in= pc->dr;
++  d.keyset = NULL;
++  d.basx   = 1;
++  d.basy   = 14;
++  uo->add_port(&d, 2);
++
++  d.set_name("PD");
++  d.cell_p = pd->dr;
++  d.cell_in= pd->dr;
++  d.keyset = NULL;
++  d.basx   = 1;
++  d.basy   = 19;
++  uo->add_port(&d, 3);
++
++  d.set_name("PI");
++  d.cell_p = pi->dr;
++  d.cell_in= pi->cfg_cell(port_pin);
++  d.keyset = chars("                qwertyui12345678");
++  d.basx   = 1;
++  d.basy   = 14;
++  u->add_port(&d, 2);
++  d.basy   = 4;
++  ui->add_port(&d, 0);
++
++  d.set_name("PJ");
++  d.cell_p = pj->dr;
++  d.cell_in= pj->cfg_cell(port_pin);
++  d.keyset = chars("                asdfghjkzxcvbnm,");
++  d.basx   = 1;
++  d.basy   = 20;
++  u->add_port(&d, 3);
++  d.basy   = 10;
++  ui->add_port(&d, 1);
+ }
+ 
+ void
+ cl_p1516::make_memories(void)
+ {
+   class cl_address_space *as;
+-
++  int i;
++  
+   rom= as= new cl_address_space("rom"/*MEM_ROM_ID*/, 0, 0x10000, 32);
+   as->init();
+   address_spaces->add(as);
+@@ -87,14 +168,31 @@ cl_p1516::make_memories(void)
+   class cl_address_decoder *ad;
+   class cl_memory_chip *chip;
+ 
+-  chip= new cl_memory_chip("rom_chip", 0x10000, 32);
++  chip= new cl_memory_chip("rom_chip", 0x4000, 32);
+   chip->init();
+   memchips->add(chip);
+   ad= new cl_address_decoder(as= rom/*address_space(MEM_ROM_ID)*/,
+-			     chip, 0, 0xffff, 0);
++			     chip, 0, 0x3fff, 0);
+   ad->init();
+   as->decoders->add(ad);
+   ad->activate(0);
++
++  regs= new cl_address_space("regs", 0, 16, 32);
++  regs->init();
++  for (i= 0; i<16; i++)
++    {
++      RC[i]= regs->get_cell(i);
++      RC[i]->decode((t_mem*)&R[i]);
++    }
++  address_spaces->add(regs);
++
++  class cl_var *v;
++  for (i=0; i<16; i++)
++    {
++      v= new cl_var(chars("", "R%d", i), regs, i, chars("", "CPU register %d",i));
++      v->init();
++      vars->add(v);
++    }
+ }
+ 
+ 
+@@ -269,64 +367,64 @@ cl_p1516::inst_alu(t_mem code)
+   switch (Op)
+     {
+     case 0: // ADD
+-      R[d]= inst_ad(R[a], R[b], 0);
++      RC[d]->W(inst_ad(RC[a]->R(), RC[b]->R(), 0));
+       break;
+     case 1: // ADC
+-      R[d]= inst_ad(R[a], R[b], (F&C)?1:0);
++      RC[d]->W(inst_ad(RC[a]->R(), RC[b]->R(), (F&C)?1:0));
+       break;
+     case 2: // SUB
+-      R[d]= inst_ad(R[a], ~R[b], 1);
++      RC[d]->W(inst_ad(RC[a]->R(), ~(RC[b]->R()), 1));
+       break;
+     case 3: // SBB
+-      R[d]= inst_ad(R[a], ~R[b], (F&C)?1:0);
++      RC[d]->W(inst_ad(RC[a]->R(), ~(RC[b]->R()), (F&C)?1:0));
+       break;
+ 
+     case 4: // INC
+-      R[d]= R[a]+1;
++      RC[d]->W(RC[a]->R()+1);
+       break;
+     case 5: // DEC
+-      R[d]= R[a]=1;
++      RC[d]->W(RC[a]->R()-1);
+       break;
+ 
+     case 6: // AND
+-      R[d]= R[a] & R[b];
++      RC[d]->W(RC[a]->R() & RC[b]->R());
+       SET_Z(R[d]);
+       break;
+     case 7: // OR
+-      R[d]= R[a] | R[b];
++      RC[d]->W(RC[a]->R() | RC[b]->R());
+       SET_Z(R[d]);
+       break;
+     case 8: // XOR
+-      R[d]= R[a] ^ R[b];
++      RC[d]->W(RC[a]->R() ^ RC[b]->R());
+       SET_Z(R[d]);
+       break;
+ 
+     case 9: // SHL
+       SET_C(R[a] & 0x80000000);
+-      R[d]= R[a] << 1;
++      RC[d]->W(RC[a]->R() << 1);
+       SET_Z(R[d]);
+       break;
+     case 10: // SHR
+       SET_C(R[a] & 1);
+-      R[d]= R[a] >> 1;
++      RC[d]->W(RC[a]->R() >> 1);
+       SET_Z(R[d]);
+       break;
+     case 16: // SHA
+       SET_C(R[a] & 1);
+-      R[d]= ((i32_t)(R[a])) >> 1;
++      RC[d]->W(((i32_t)(RC[a]->R())) >> 1);
+       SET_Z(R[d]);
+       break;
+     case 11: // ROL
+       c1= (F&C)?1:0;
+       c2= (R[a] & 0x80000000)?1:0;
+-      R[d]= (R[a]<<1) + c1;
++      RC[d]->W((RC[a]->R()<<1) + c1);
+       SET_C(c2);
+       SET_Z(R[d]);
+       break;
+     case 12: // ROR
+       c1= (F&C)?1:0;
+       c2= R[a] & 1;
+-      R[d]= R[a] >> 1;
++      RC[d]->W(RC[a]->R() >> 1);
+       if (c1)
+ 	R[d]|= 0x80000000;
+       SET_C(c2);
+@@ -334,13 +432,13 @@ cl_p1516::inst_alu(t_mem code)
+       break;
+ 
+     case 13: // MUL
+-      R[d]= R[a] * R[b];
++      RC[d]->W(RC[a]->R() * RC[b]->R());
+       SET_Z(R[d]);
+       SET_S(R[d] & 0x80000000);
+       break;
+     case 19: // MUH
+-      big= R[a] * R[b];
+-      R[d]= big >> 32;
++      big= RC[a]->R() * RC[b]->R();
++      RC[d]->W(big >> 32);
+       SET_Z(R[d]);
+       SET_S(R[d] & 0x80000000);
+       break;
+@@ -355,7 +453,7 @@ cl_p1516::inst_alu(t_mem code)
+       break;
+       
+     case 15: // CMP
+-      inst_ad(R[a], ~R[b], 1);
++      inst_ad(RC[a]->R(), ~(RC[b]->R()), 1);
+       break;
+     }
+   
+@@ -399,6 +497,9 @@ cl_p1516::exec_inst(void)
+   if (code & 0x08000000)
+     {
+       // CALL
++      t_addr data= (code & 0x07ffffff);
++      RC[14]->W(R[15]);
++      RC[15]->W(PC= data);
+       return resGO;
+     }
+ 
+diff --git a/sdcc/sim/ucsim/p1516.src/p1516cl.h b/sdcc/sim/ucsim/p1516.src/p1516cl.h
+index ece51b06d..68725904e 100644
+--- a/sdcc/sim/ucsim/p1516.src/p1516cl.h
++++ b/sdcc/sim/ucsim/p1516.src/p1516cl.h
+@@ -49,6 +49,10 @@ class cl_p1516: public cl_uc
+ public:
+   u8_t F;
+   u32_t R[16];
++  cl_memory_cell *RC[16];
++  cl_address_space *regs;
++  class cl_porto *pa, *pb, *pc, *pd;
++  class cl_porti *pi, *pj;
+ public:
+   class cl_address_space *rom;
+  public:
+@@ -60,7 +64,8 @@ public:
+ 
+   virtual void mk_hw_elements(void);
+   virtual void make_memories(void);
+-
++  virtual int clock_per_cycle(void) { return 4; }
++  
+   virtual struct dis_entry *dis_tbl(void);
+   virtual char *disass(t_addr addr, const char *sep);
+   virtual void print_regs(class cl_console_base *con);
+diff --git a/sdcc/sim/ucsim/p1516.src/port.cc b/sdcc/sim/ucsim/p1516.src/port.cc
+new file mode 100644
+index 000000000..6b44e9796
+--- /dev/null
++++ b/sdcc/sim/ucsim/p1516.src/port.cc
+@@ -0,0 +1,269 @@
++/*
++ * Simulator of microcontrollers (port.cc)
++ *
++ * Copyright (C) 2020,20 Drotos Daniel, Talker Bt.
++ * 
++ * To contact author send email to drdani@mazsola.iit.uni-miskolc.hu
++ *
++ */
++
++/* This file is part of microcontroller simulator: ucsim.
++
++UCSIM is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 2 of the License, or
++(at your option) any later version.
++
++UCSIM is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with UCSIM; see the file COPYING.  If not, write to the Free
++Software Foundation, 59 Temple Place - Suite 330, Boston, MA
++02111-1307, USA. */
++/*@1@*/
++
++#include "portcl.h"
++
++
++/* OUTPUT port */
++
++cl_porto::cl_porto(class cl_uc *auc, t_addr the_addr, const char *aname):
++  cl_hw(auc, HW_PORT, 0, aname)
++{
++  addr= the_addr;
++  set_name(aname);
++}
++
++int
++cl_porto::init(void)
++{
++  cl_hw::init();
++  dr= register_cell(uc->rom, addr);
++  dr->decode((t_mem*)&value);
++  
++  cl_var *v;
++  chars s= chars();
++  s= get_name();
++  
++  v= new cl_var(s, uc->rom, addr, chars("", "Data register of %s", get_name()));
++  v->init();
++  uc->vars->add(v);
++
++  cache= 0;
++  
++  return 0;
++}
++
++void
++cl_porto::reset(void)
++{
++  value= 0;
++}
++
++void
++cl_porto::write(class cl_memory_cell *cell, t_mem *val)
++{
++  if (cell == dr)
++    {
++      cell->set(*val);
++    }
++
++  conf(cell, val);
++}
++
++/*
++t_mem
++cl_porto::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  switch ((enum port_cfg)addr)
++    {
++    case port_on: // turn this HW on/off
++      if (val)
++	{
++	  if (*val)
++	    on= true;
++	  else
++	    on= false;
++	}
++      else
++	{
++	  cell->set(on?1:0);
++	}
++      break;
++    case port_pin: // get/set PINS
++      break;
++    case port_value:
++      if (val)
++	*val= dr->get();//cell->set(*val);
++      break;
++    }
++  return cell->get();
++}
++*/
++
++void
++cl_porto::print(class cl_console_base *con)
++{
++  u32_t m;
++  t_mem d= value;//dr->get();
++  con->dd_color("answer");
++  con->dd_printf("%s at %04x %08x\n", get_name(), addr, d);
++  for (m= 0x80000000; m; m>>= 1)
++    {
++      //if (d & m)
++	con->dd_printf("%c", (d & m)?'1':'0');
++	//else 	con->dd_printf("-");
++    }
++  con->dd_printf("\n");
++}
++
++void
++cl_porto::print_info(class cl_console_base *con)
++{
++  print(con);
++  print_cfg_info(con);
++}
++
++void
++cl_porto::refresh_display(bool force)
++{
++  class cl_port_io *pio= (class cl_port_io *)io;
++  if (!io)
++    return;
++
++  t_mem d= value;
++  if (force || d != cache)
++    {
++      t_mem m;
++      int b, bv;
++      pio->tu_go(1,6);
++      pio->dd_color("answer");
++      pio->dd_printf("%s at %04x %08x\n", get_name(), addr, d);
++      cache= d;
++      pio->tu_go(1,8);
++      for (b=31; b>=0; b--)
++	{
++	  m= 1<<b;
++	  bv= (d&m)?1:0;
++	  pio->dd_printf("%d", bv);
++	  if (b%8 == 0) pio->dd_printf(" ");
++	}
++      pio->tu_go(1,9);
++      for (b=31; b>=0; b--)
++	{
++	  m= 1<<b;
++	  bv= (d&m)?1:0;
++	  if (bv)
++	    {
++	      pio->dd_cprintf("ui_bit1", "O");
++	    }
++	  else
++	    {
++	      pio->dd_cprintf("ui_bit0", ".");
++	    }
++	  if (b%8 == 0) pio->dd_printf(" ");
++	}
++    }
++  pio->dd_color("answer");
++  
++  cl_hw::refresh_display(force);
++}
++
++void
++cl_porto::draw_display(void)
++{
++  class cl_port_io *pio= (class cl_port_io *)io;
++  if (!io)
++    return;
++  pio->tu_cls();
++
++  cl_hw::draw_display();
++
++  pio->tu_go(1,5);
++  pio->dd_printf("OPORT %s", get_name());
++
++  pio->tu_go(1,10);
++  int b;
++  for (b=31; b>=0; b--)
++    {
++      pio->dd_printf("%d", b/10);
++      if (b%8 == 0) pio->dd_printf(" ");
++    }
++  pio->tu_go(1,11);
++  for (b=31; b>=0; b--)
++    {
++      pio->dd_printf("%d", b%10);
++      if (b%8 == 0) pio->dd_printf(" ");
++    }
++  refresh_display(true);
++}
++
++
++/* INPUT port */
++
++cl_porti::cl_porti(class cl_uc *auc, t_addr the_addr, const char *aname):
++  cl_porto(auc, the_addr, aname)
++{
++  value= 0;
++}
++
++int
++cl_porti::init(void)
++{
++  cl_porto::init();
++
++  cl_var *v;
++  chars s= chars();
++  s= get_name();
++  s+= "_pins";
++  v= new cl_var(s, cfg, port_pin, cfg_help(port_pin));
++  v->init();
++  uc->vars->add(v);
++
++  return 0;
++}
++
++char *
++cl_porti::cfg_help(t_addr addr)
++{
++  switch (addr)
++    {
++    case port_pin: return (char*)"Outside value of port pins (int, RW)";
++    }
++  return (char*)"Not used";
++}
++
++void
++cl_porti::write(class cl_memory_cell *cell, t_mem *val)
++{
++  if (cell == dr)
++    {
++      *val= value;
++    }
++
++  conf(cell, val);
++}
++
++
++t_mem
++cl_porti::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
++{
++  switch ((enum port_cfg)addr)
++    {
++    case port_pin: // get/set PINS
++      if (val)
++	value= *val;
++      else
++	return value;
++      break;
++    default:
++      return cl_porto::conf_op(cell, addr, val);
++    }
++  return cell->get();
++}
++
++/* End of p1516.src/port.cc */
++
+diff --git a/sdcc/sim/ucsim/p1516.src/portcl.h b/sdcc/sim/ucsim/p1516.src/portcl.h
+new file mode 100644
+index 000000000..0b082d275
+--- /dev/null
++++ b/sdcc/sim/ucsim/p1516.src/portcl.h
+@@ -0,0 +1,78 @@
++/*
++ * Simulator of microcontrollers (portcl.h)
++ *
++ * Copyright (C) 2020,20 Drotos Daniel, Talker Bt.
++ * 
++ * To contact author send email to drdani@mazsola.iit.uni-miskolc.hu
++ *
++ */
++
++/* This file is part of microcontroller simulator: ucsim.
++
++UCSIM is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 2 of the License, or
++(at your option) any later version.
++
++UCSIM is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with UCSIM; see the file COPYING.  If not, write to the Free
++Software Foundation, 59 Temple Place - Suite 330, Boston, MA
++02111-1307, USA. */
++/*@1@*/
++
++#ifndef PORTCL_HEADER
++#define PORTCL_HEADER
++
++#include "port_hwcl.h"
++
++
++enum port_cfg
++  {
++   port_pin= 0 // RW
++  };
++
++
++class cl_porto: public cl_hw
++{
++ public:
++  class cl_memory_cell *dr;
++  t_addr addr;
++  u32_t value, cache;
++ public:
++  cl_porto(class cl_uc *auc, t_addr the_addr, const char *aname);
++  virtual int init(void);
++  virtual void reset(void);
++  virtual int cfg_size(void) { return 1; }
++  //virtual char *cfg_help(t_addr addr);
++
++  virtual void write(class cl_memory_cell *cell, t_mem *val);
++  //virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++
++  virtual void print(class cl_console_base *con);
++  virtual void print_info(class cl_console_base *con);
++  virtual void refresh_display(bool force);
++  virtual void draw_display(void);
++};
++
++class cl_porti: public cl_porto
++{
++public:
++  cl_porti(class cl_uc *auc, t_addr the_addr, const char *aname);
++public:
++  virtual int init(void);
++  virtual int cfg_size(void) { return 1; }
++  virtual char *cfg_help(t_addr addr);
++
++  virtual void write(class cl_memory_cell *cell, t_mem *val);
++  virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++};
++
++
++#endif
++
++/* End of p1516.src/portcl.h */
+diff --git a/sdcc/sim/ucsim/p1516.src/sp1516.cc b/sdcc/sim/ucsim/p1516.src/sp1516.cc
+index d50b2a826..20f1c6999 100644
+--- a/sdcc/sim/ucsim/p1516.src/sp1516.cc
++++ b/sdcc/sim/ucsim/p1516.src/sp1516.cc
+@@ -38,6 +38,7 @@ main(int argc, char *argv[])
+   class cl_sim *sim;
+   
+   application= new cl_app();
++  application->set_name("sp1516");
+   application->init(argc, argv);
+   sim= new cl_simp1516(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/pdk.src/spdk.cc b/sdcc/sim/ucsim/pdk.src/spdk.cc
+index c08c9b0de..c00eabc69 100644
+--- a/sdcc/sim/ucsim/pdk.src/spdk.cc
++++ b/sdcc/sim/ucsim/pdk.src/spdk.cc
+@@ -42,6 +42,7 @@ main(int argc, char *argv[])
+ 
+   cpus= cpus_pdk;
+   application= new cl_app();
++  application->set_name("spdk");
+   application->init(argc, argv);
+   sim= new cl_simpdk(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/s51.src/s51.cc b/sdcc/sim/ucsim/s51.src/s51.cc
+index ee7a4f22e..977866937 100644
+--- a/sdcc/sim/ucsim/s51.src/s51.cc
++++ b/sdcc/sim/ucsim/s51.src/s51.cc
+@@ -49,6 +49,7 @@ main(int argc, char *argv[])
+ 
+   cpus= cpus_51;
+   application= new cl_app();
++  application->set_name("s51");
+   application->init(argc, argv);
+   sim= new cl_sim51(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/sim.src/hw.cc b/sdcc/sim/ucsim/sim.src/hw.cc
+index aea7434b9..78ce6d04d 100644
+--- a/sdcc/sim/ucsim/sim.src/hw.cc
++++ b/sdcc/sim/ucsim/sim.src/hw.cc
+@@ -162,6 +162,14 @@ cl_hw::conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val)
+   return cell->get();
+ }
+ 
++class cl_memory_cell *
++cl_hw::cfg_cell(t_addr addr)
++{
++  if (addr >= cfg_size())
++    return 0;
++  return cfg->get_cell(addr);
++}
++
+ void
+ cl_hw::cfg_set(t_addr addr, t_mem val)
+ {
+diff --git a/sdcc/sim/ucsim/sim.src/hwcl.h b/sdcc/sim/ucsim/sim.src/hwcl.h
+index ff5c0501c..7006d58c0 100644
+--- a/sdcc/sim/ucsim/sim.src/hwcl.h
++++ b/sdcc/sim/ucsim/sim.src/hwcl.h
+@@ -93,6 +93,7 @@ class cl_hw: public cl_guiobj
+   virtual void write(class cl_memory_cell *cell, t_mem *val);
+   virtual bool conf(class cl_memory_cell *cell, t_mem *val);
+   virtual t_mem conf_op(cl_memory_cell *cell, t_addr addr, t_mem *val);
++  virtual class cl_memory_cell *cfg_cell(t_addr add);
+   virtual void cfg_set(t_addr addr, t_mem val);
+   virtual void cfg_write(t_addr addr, t_mem val);
+   virtual t_mem cfg_get(t_addr addr);
+diff --git a/sdcc/sim/ucsim/sim.src/memcl.h b/sdcc/sim/ucsim/sim.src/memcl.h
+index 415ac2a9f..0eda257f8 100644
+--- a/sdcc/sim/ucsim/sim.src/memcl.h
++++ b/sdcc/sim/ucsim/sim.src/memcl.h
+@@ -276,9 +276,11 @@ class cl_memory_cell: public cl_cell_data
+   virtual void decode(t_mem *data_ptr, t_mem bit_mask);
+   
+   virtual t_mem read(void);
++  virtual t_mem R(void) { return read(); }
+   virtual t_mem read(enum hw_cath skip);
+   virtual t_mem get(void);
+   virtual t_mem write(t_mem val);
++  virtual t_mem W(t_mem val) { return write(val); }
+   virtual t_mem set(t_mem val);
+   virtual t_mem download(t_mem val);
+   
+diff --git a/sdcc/sim/ucsim/sim.src/port_hw.cc b/sdcc/sim/ucsim/sim.src/port_hw.cc
+index 1345e3cb9..394eee05b 100644
+--- a/sdcc/sim/ucsim/sim.src/port_hw.cc
++++ b/sdcc/sim/ucsim/sim.src/port_hw.cc
+@@ -138,15 +138,16 @@ cl_port_ui::handle_input(int c)
+ 	{
+ 	  if (pd[i].cell_p == NULL)
+ 	    continue;
++	  int w= pd[i].cell_p->get_width();
+ 	  
+ 	  if (pd[i].keyset != NULL)
+ 	    {
+-	      int bit;
+-	      for (bit= 0; pd[i].keyset[bit]; bit++)
+-		if (pd[i].keyset[bit] == c)
++	      int bit, l= strlen(pd[i].keyset);
++	      for (bit= 0; (bit < l) && pd[i].keyset[bit]; bit++)
++		if ((pd[i].keyset[bit]!=' ') && (pd[i].keyset[bit] == c))
+ 		  {
+ 		    t_mem m= pd[i].cell_in->read();
+-		    pd[i].cell_in->write(m ^ (1<<(7-bit)));
++		    pd[i].cell_in->write(m ^ (1<<((w-1)-bit)));
+ 		    pio->tu_go(1,1);
+ 		    return true;
+ 		  }
+@@ -173,13 +174,16 @@ cl_port_ui::refresh_display(bool force)
+   if (!io)
+     return;
+ 
+-  int i, m;
++  int i, w;
++  t_mem m;
+   bool pc= false, ic= false;
++  chars fmt= chars();
+   pio->tu_hide();
+   for (i= 0; i < NUOF_PORT_UIS; i++)
+     {
+       if (pd[i].cell_p == NULL)
+ 	continue;
++      w= pd[i].cell_p->get_width();
+       // name
+       pio->tu_go(pd[i].basx, pd[i].basy);
+       pio->dd_printf("\033[%dm", (act_port == i)?7:0);
+@@ -203,7 +207,7 @@ cl_port_ui::refresh_display(bool force)
+ 	  // Out
+ 	  pd[i].cache_p= pd[i].cell_p->get();
+ 	  pio->tu_go(pd[i].basx+4, pd[i].basy+1);
+-	  m= 0x80;
++	  m= 1 << (w-1);
+ 	  for ( ; m; m>>= 1)
+ 	    {
+ 	      char v= (pd[i].cache_p&m)?'*':'-';
+@@ -214,8 +218,9 @@ cl_port_ui::refresh_display(bool force)
+ 		}
+ 	      pio->dd_printf("%c", v);		
+ 	    }
+-	  pio->tu_go(pd[i].basx+4+8+1, pd[i].basy+1);
+-	  pio->dd_printf("%02x", pd[i].cache_p);
++	  pio->tu_go(pd[i].basx+4+w+1, pd[i].basy+1);
++	  fmt.format("%%0%dx", w/4);
++	  pio->dd_printf(fmt, pd[i].cache_p);
+ 	  pc= true;
+ 	}
+       if (force ||
+@@ -225,11 +230,12 @@ cl_port_ui::refresh_display(bool force)
+ 	  // In
+ 	  pd[i].cache_in= pd[i].cell_in->get();
+ 	  pio->tu_go(pd[i].basx+4, pd[i].basy+3);
+-	  m= 0x80;
++	  m= 1 << (w-1);
+ 	  for ( ; m; m>>= 1)
+ 	    pio->dd_printf("%c", (pd[i].cache_in&m)?'*':'-');
+-	  pio->tu_go(pd[i].basx+4+8+1, pd[i].basy+3);
+-	  pio->dd_printf("%02x", pd[i].cache_in);
++	  pio->tu_go(pd[i].basx+4+w+1, pd[i].basy+3);
++	  fmt.format("%%0%dx", w/4);
++	  pio->dd_printf(fmt, pd[i].cache_in);
+ 	  ic= true;
+ 	}
+       if (force ||
+@@ -237,23 +243,25 @@ cl_port_ui::refresh_display(bool force)
+ 			pd[i].cell_dir == NULL*/))
+ 	{
+ 	  // port value on "Bits" line
+-	  int b, val, pval= pd[i].cache_in;
++	  int disp, b, val, pval= pd[i].cache_in;
+ 	  pio->tu_go(pd[i].basx+4, pd[i].basy+2);
+-	  for (b= 7; b>=0; b--)
++	  for (b= w-1; b>=0; b--)
+ 	    {
+ 	      m= 1<<b;
+ 	      val= pd[i].cache_in & m;
+ 	      if (pd[i].cell_dir == NULL)
+ 		val&= (pd[i].cache_p & m);
+ 	      //if (val)
+-		pio->dd_printf("\033[%dm", val?7:0);
++	      disp= b%8;
++	      pio->dd_printf("\033[%dm", val?7:0);
+ 		//else
+ 		//pio->dd_printf("\033[0m");
+-	      pio->dd_printf("%d", b);
++	      pio->dd_printf("%d", disp);
+ 	    }
+ 	  if (!pd[i].cell_dir)
+ 	    pval&= pd[i].cache_p;
+-	  pio->dd_printf("\033[0m %02x", pval);
++	  fmt.format("%%0%dx", w/4);
++	  pio->dd_printf(chars("\033[0m ")+fmt, pval);
+ 	}
+     }
+   pio->tu_show();
+diff --git a/sdcc/sim/ucsim/st7.src/sst7.cc b/sdcc/sim/ucsim/st7.src/sst7.cc
+index 32950a3a9..b201d9714 100644
+--- a/sdcc/sim/ucsim/st7.src/sst7.cc
++++ b/sdcc/sim/ucsim/st7.src/sst7.cc
+@@ -41,6 +41,7 @@ main(int argc, char *argv[])
+   class cl_sim *sim;
+ 
+   application= new cl_app();
++  application->set_name("sst7");
+   application->init(argc, argv);
+   sim= new cl_simst7(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/stm8.src/sstm8.cc b/sdcc/sim/ucsim/stm8.src/sstm8.cc
+index cc4a076aa..5be06cd87 100644
+--- a/sdcc/sim/ucsim/stm8.src/sstm8.cc
++++ b/sdcc/sim/ucsim/stm8.src/sstm8.cc
+@@ -42,6 +42,7 @@ main(int argc, char *argv[])
+ 
+   cpus= cpus_stm8;
+   application= new cl_app();
++  application->set_name("sstm8");
+   application->init(argc, argv);
+   sim= new cl_simstm8(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/tlcs.src/stlcs.cc b/sdcc/sim/ucsim/tlcs.src/stlcs.cc
+index d23dc9577..d9281e6c6 100644
+--- a/sdcc/sim/ucsim/tlcs.src/stlcs.cc
++++ b/sdcc/sim/ucsim/tlcs.src/stlcs.cc
+@@ -43,6 +43,7 @@ main(int argc, char *argv[])
+   class cl_sim *sim;
+   
+   application= new cl_app();
++  application->set_name("stlcs");
+   application->init(argc, argv);
+   sim= new cl_simtlcs(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/xa.src/sxa.cc b/sdcc/sim/ucsim/xa.src/sxa.cc
+index a73346f89..57188bb6f 100644
+--- a/sdcc/sim/ucsim/xa.src/sxa.cc
++++ b/sdcc/sim/ucsim/xa.src/sxa.cc
+@@ -41,6 +41,7 @@ main(int argc, char *argv[])
+   class cl_sim *sim;
+ 
+   application= new cl_app();
++  application->set_name("sxa");
+   application->init(argc, argv);
+   sim= new cl_simxa(application);
+   if (sim->init())
+diff --git a/sdcc/sim/ucsim/z80.src/inst.cc b/sdcc/sim/ucsim/z80.src/inst.cc
+index 1696f4915..504ac46e7 100644
+--- a/sdcc/sim/ucsim/z80.src/inst.cc
++++ b/sdcc/sim/ucsim/z80.src/inst.cc
+@@ -1021,12 +1021,15 @@ cl_z80::inst_rst(t_mem code)
+   switch(code)
+     {
+     case 0xC7: // RST 0
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x0;
+       vc.wr+= 2;
+       break;
+     case 0xCF: // RST 8
+-      //PC = 0x08;
++      push2(PC);
++      vc.wr+= 2;
++      PC = 0x08;
++      break;
+       switch (regs.raf.A)
+ 	{
+ 	case 0:
+@@ -1042,32 +1045,32 @@ cl_z80::inst_rst(t_mem code)
+ 	}
+       break;
+     case 0xD7: // RST 10H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x10;
+       vc.wr+= 2;
+       break;
+     case 0xDF: // RST 18H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x18;
+       vc.wr+= 2;
+       break;
+     case 0xE7: // RST 20H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x20;
+       vc.wr+= 2;
+       break;
+     case 0xEF: // RST 28H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x28;
+       vc.wr+= 2;
+       break;
+     case 0xF7: // RST 30H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x30;
+       vc.wr+= 2;
+       break;
+     case 0xFF: // RST 38H
+-      push2(PC+2);
++      push2(PC);
+       PC = 0x38;
+       vc.wr+= 2;
+       break;
+diff --git a/sdcc/sim/ucsim/z80.src/sz80.cc b/sdcc/sim/ucsim/z80.src/sz80.cc
+index cb1cdbe04..ae51a52a6 100644
+--- a/sdcc/sim/ucsim/z80.src/sz80.cc
++++ b/sdcc/sim/ucsim/z80.src/sz80.cc
+@@ -42,6 +42,7 @@ main(int argc, char *argv[])
+ 
+   cpus= cpus_z80;
+   application= new cl_app();
++  application->set_name("sz80");
+   application->init(argc, argv);
+   sim= new cl_simz80(application);
+   if (sim->init())
+-- 
