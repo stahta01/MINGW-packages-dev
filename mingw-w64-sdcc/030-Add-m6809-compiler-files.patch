@@ -1,4 +1,4 @@
-From 58b6b32f55fdb03f37ce8ce7bcf0fc1e9f7937e9 Mon Sep 17 00:00:00 2001
+From bb8d85cf755640496c6393b189560a90179bbb4b Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 10:22:40 -0400
 Subject: Add m6809 compiler files
@@ -50,7 +50,7 @@ index 000000000..dfb8a5245
 +include $(srcdir)/../port.mk
 diff --git a/sdcc/src/mc6809/gen.c b/sdcc/src/mc6809/gen.c
 new file mode 100644
-index 000000000..d0725a7cc
+index 000000000..d23456855
 --- /dev/null
 +++ b/sdcc/src/mc6809/gen.c
 @@ -0,0 +1,12064 @@
@@ -2520,7 +2520,7 @@ index 000000000..d0725a7cc
 +#define AOP(op) op->aop
 +#define AOP_TYPE(op) AOP(op)->type
 +#define AOP_SIZE(op) AOP(op)->size
-+#define AOP_NEEDSACC(x) (AOP(x) && ((AOP_TYPE(x) == AOP_CRY))))
++#define AOP_NEEDSACC(x) (AOP(x) && ((AOP_TYPE(x) == AOP_CRY)))
 +#define AOP_IS_PAIRPTR(x, p) (AOP_TYPE (x) == AOP_PAIRPTR && AOP (x)->aopu.aop_pairId == p)
 +
 +static bool
