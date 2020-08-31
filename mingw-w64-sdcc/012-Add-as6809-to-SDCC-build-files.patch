@@ -1,14 +1,16 @@
-From ae9d050a684b171278c1dfd93fd653eba25d3976 Mon Sep 17 00:00:00 2001
+From 0feb097e5d06876e28fa7d4d0972eeba76b2063d Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 13:51:10 -0400
-Subject: Add m6809 to SDCC build files
+Subject: Add as6809 to SDCC build files
 
 ---
  sdcc/Makefile.common.in       |  1 +
  sdcc/Makefile.in              |  5 +++++
- sdcc/configure                | 41 +++++++++++++++++++++++++++++++++++
- sdcc/configure.ac             |  8 +++++++
- sdcc/sdccconf_in.h            |  6 +++++
+ sdcc/configure                | 37 +++++++++++++++++++++++++++++++++++
+ sdcc/configure.ac             |  6 ++++++
+ sdcc/sdas/linksrc/Makefile.in |  6 ++++--
+ sdcc/sdccconf_in.h            |  6 ++++++
+ 6 files changed, 59 insertions(+), 2 deletions(-)
 
 diff --git a/sdcc/Makefile.common.in b/sdcc/Makefile.common.in
 index 412fd5a14..6a53e0242 100644
@@ -39,7 +41,7 @@ index f3b028d0f..e29c74807 100644
  SDCC_AS        += sdas/asstm8
  SDCC_LD        += sdcc-ldstm8
 diff --git a/sdcc/configure b/sdcc/configure
-index 43ccb6fac..b1d94d13d 100755
+index 43ccb6fac..e9aafface 100755
 --- a/sdcc/configure
 +++ b/sdcc/configure
 @@ -640,6 +640,7 @@ OPT_DISABLE_PACKIHX
@@ -111,7 +113,7 @@ index 43ccb6fac..b1d94d13d 100755
  if test $OPT_DISABLE_MCS51 = 0; then
    ac_config_files="$ac_config_files src/mcs51/Makefile sdas/as8051/Makefile"
  
-@@ -9657,6 +9693,7 @@ do
+@@ -9657,6 +9691,7 @@ do
      "sdas/as6808/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as6808/Makefile" ;;
      "device/lib/hc08/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/hc08/Makefile" ;;
      "device/lib/s08/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/s08/Makefile" ;;
@@ -119,24 +121,8 @@ index 43ccb6fac..b1d94d13d 100755
      "src/mcs51/Makefile") CONFIG_FILES="$CONFIG_FILES src/mcs51/Makefile" ;;
      "sdas/as8051/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as8051/Makefile" ;;
      "device/lib/mcs51/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/mcs51/Makefile" ;;
-@@ -10678,6 +10717,7 @@ sdcc ${VERSION} is now configured for
-     ds400               ${enable_ds400_port}
-     hc08                ${enable_hc08_port}
-     s08                 ${enable_s08_port}
-+    mc6809              ${enable_mc6809_port}
-     mcs51               ${enable_mcs51_port}
-     pic14               ${enable_pic14_port}
-     pic16               ${enable_pic16_port}
-@@ -10753,6 +10793,7 @@ sdcc ${VERSION} is now configured for
-     ds400               ${enable_ds400_port}
-     hc08                ${enable_hc08_port}
-     s08                 ${enable_s08_port}
-+    mc6809              ${enable_mc6809_port}
-     mcs51               ${enable_mcs51_port}
-     pic14               ${enable_pic14_port}
-     pic16               ${enable_pic16_port}
 diff --git a/sdcc/configure.ac b/sdcc/configure.ac
-index 2185793dc..08dca9582 100644
+index 2185793dc..0531d3d40 100644
 --- a/sdcc/configure.ac
 +++ b/sdcc/configure.ac
 @@ -784,6 +784,7 @@ AC_DO_PORT(pdk13,    pdk,    PDK13,    [Excludes the PDK13 port])
@@ -158,14 +144,34 @@ index 2185793dc..08dca9582 100644
  if test $OPT_DISABLE_MCS51 = 0; then
    AC_CONFIG_FILES([src/mcs51/Makefile
                     sdas/as8051/Makefile])
-@@ -1004,6 +1011,7 @@ sdcc ${VERSION} is now configured for
-     ds400               ${enable_ds400_port}
-     hc08                ${enable_hc08_port}
-     s08                 ${enable_s08_port}
-+    mc6809              ${enable_mc6809_port}
-     mcs51               ${enable_mcs51_port}
-     pic14               ${enable_pic14_port}
-     pic16               ${enable_pic16_port}
+diff --git a/sdcc/sdas/linksrc/Makefile.in b/sdcc/sdas/linksrc/Makefile.in
+index 43e16f54d..91460594e 100644
+--- a/sdcc/sdas/linksrc/Makefile.in
++++ b/sdcc/sdas/linksrc/Makefile.in
+@@ -63,7 +63,7 @@ transform       = @program_transform_name@
+ 
+ # Compiling entire program or any subproject
+ # ------------------------------------------
+-all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk
++all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk sdcc-ld6809
+ 
+ sdcc-ld8051: checkconf $(ASLINK)
+ 
+@@ -73,11 +73,13 @@ sdcc-ldgb: checkconf $(top_builddir)/bin/sdldgb$(EXEEXT)
+ 
+ sdcc-ld6808: checkconf $(top_builddir)/bin/sdld6808$(EXEEXT)
+ 
++sdcc-ld6809: checkconf $(top_builddir)/bin/sdld6809$(EXEEXT)
++
+ sdcc-ldstm8: checkconf $(top_builddir)/bin/sdldstm8$(EXEEXT)
+ 
+ sdcc-ldpdk: checkconf $(top_builddir)/bin/sdldpdk$(EXEEXT)
+ 
+-$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
++$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdld6809$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
+ 	cp -p $(ASLINK) $@
+ 
+ $(ASLINK): $(LKOBJECTS)
 diff --git a/sdcc/sdccconf_in.h b/sdcc/sdccconf_in.h
 index aeb272488..a5fd97620 100644
 --- a/sdcc/sdccconf_in.h
