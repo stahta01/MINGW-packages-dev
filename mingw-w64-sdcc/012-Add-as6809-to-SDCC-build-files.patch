@@ -1,4 +1,4 @@
-From 397fc911d186a8ff58f9222ced82e4ec78601fab Mon Sep 17 00:00:00 2001
+From f2b41945540fc02b3b72f309370b83fe1bfd4e96 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 13:51:10 -0400
 Subject: Add as6809 to SDCC build files
@@ -41,7 +41,7 @@ index f3b028d0f..e29c74807 100644
  SDCC_AS        += sdas/asstm8
  SDCC_LD        += sdcc-ldstm8
 diff --git a/sdcc/configure b/sdcc/configure
-index 43ccb6fac..cf89f62bf 100755
+index 43ccb6fac..dc61b048e 100755
 --- a/sdcc/configure
 +++ b/sdcc/configure
 @@ -640,6 +640,7 @@ OPT_DISABLE_PACKIHX
@@ -64,7 +64,7 @@ index 43ccb6fac..cf89f62bf 100755
    --disable-pdk14-port    Excludes the PDK14 port
    --disable-pdk15-port    Excludes the PDK15 port
    --enable-pdk16-port     Includes the PDK16 port
-+  --disable-mc6809-port   Excludes the MC6809 port
++  --enable-mc6809-port    Includes the MC6809 port
    --disable-ucsim         Disables configuring and building of ucsim
    --disable-device-lib    Disables building device libraries
    --disable-packihx       Disables building packihx
@@ -78,11 +78,11 @@ index 43ccb6fac..cf89f62bf 100755
 +fi
 +
 +
-+  if test "$enable_mc6809_port" = "no"; then
-+    OPT_DISABLE_MC6809=1
-+  else
-+    enable_mc6809_port="yes"
++  if test "$enable_mc6809_port" = "yes"; then
 +    OPT_DISABLE_MC6809=0
++  else
++    enable_mc6809_port="no"
++    OPT_DISABLE_MC6809=1
 +  fi
 +
 +
@@ -106,7 +106,7 @@ index 43ccb6fac..cf89f62bf 100755
  fi
  
 +if test $OPT_DISABLE_MC6809 = 0; then
-+  ac_config_files="$ac_config_files src/mc6809/Makefile sdas/as6809/Makefile"
++  ac_config_files="$ac_config_files sdas/as6809/Makefile"
 +
 +fi
 +
@@ -122,7 +122,7 @@ index 43ccb6fac..cf89f62bf 100755
      "sdas/as8051/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as8051/Makefile" ;;
      "device/lib/mcs51/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/mcs51/Makefile" ;;
 diff --git a/sdcc/configure.ac b/sdcc/configure.ac
-index 2185793dc..fb18774da 100644
+index 2185793dc..1d920f0e5 100644
 --- a/sdcc/configure.ac
 +++ b/sdcc/configure.ac
 @@ -784,6 +784,7 @@ AC_DO_PORT(pdk13,    pdk,    PDK13,    [Excludes the PDK13 port])
