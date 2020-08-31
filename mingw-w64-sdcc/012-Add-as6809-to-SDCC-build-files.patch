@@ -129,7 +129,7 @@ index 2185793dc..fb18774da 100644
  AC_DO_PORT(pdk14,    pdk,    PDK14,    [Excludes the PDK14 port])
  AC_DO_PORT(pdk15,    pdk,    PDK15,    [Excludes the PDK15 port])
  AC_DO_PORT_ENABLER(pdk16,    pdk,    PDK16,    [Includes the PDK16 port])
-+AC_DO_PORT(mc6809,   mc6809, MC6809,   [Excludes the MC6809 port])
++AC_DO_PORT_ENABLER(mc6809,   mc6809, MC6809,   [Includes the MC6809 port])
  
  # Unsupported targets
  ####AC_DO_PORT_ENABLER(avr,   avr,   AVR,   [Includes the AVR port (disabled by default)])
