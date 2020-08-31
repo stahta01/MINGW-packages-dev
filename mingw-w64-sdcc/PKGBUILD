@@ -23,8 +23,8 @@ source=(https://downloads.sourceforge.net/sourceforge/sdcc/${_realname}-src-${pk
     '005-sdcc-4.0-backport-sim-ucsim-z80.src-ez80.cc-change-int8_t-to-i8_t.patch'
     '011-Add-as6809-files.patch'
     '012-Add-as6809-to-SDCC-build-files.patch'
-    '030-Add-m6809-compiler-files.patch'
-    '031-Add-m6809-files-to-device-lib.patch'
+    '021-Add-m6809-files-to-device-lib.patch'
+    '031-Add-m6809-compiler-files.patch'
     '032-Add-m6809-to-SDCC-build-files.patch'
     '033-sdcc-4.0-Add-m6809-to-SDCC-sourcecode.patch'
     '101-Add-m6809-sim-files.patch'
@@ -37,9 +37,9 @@ sha256sums=('489180806fc20a3911ba4cf5ccaf1875b68910d7aed3f401bbd0695b0bef4e10'
             '18d045de798d8d35a6f936f879f9db49e8ee44b6311388c4c157270cea5795a5'
             '06556b980549080f21803ca4d5cf7b52ece6fe049b3deabbd0a4528e6ea4e12a'
             '189c8b2fb294f3816172d02942c2a87f31a4e30fe0b2a6b02f6d30a51ed2d05e'
-            '80c2d0ebd8396aa3f60fb4a95fde0088062f2e5c6614418c0f1fc88b9851d26e'
-            '22340354d5aea220f653118ee2194dba9cdfbf0dee095d69f1d190b0aff4ddab'
+            '1ead2bce036219797110737c224602fa9329578e1f8ff132926b6597901bc081'
             '766c6e3de506453f7258d48fe6e98f3c0bdf8bee980b6236a31b9d86ed92667f'
+            '22340354d5aea220f653118ee2194dba9cdfbf0dee095d69f1d190b0aff4ddab'
             '1a76bdfad13bed562224150fbcd0e511e59c8a045d896de9ba79bfc49678d92d'
             '594c0c4391cdb0c2036ff694243453c6ab803fd2943ba5267071f8a1066a2fe9'
             '8e1e0e04531281d2dd19ad49c9a3cf53f7e6327c947d12af1416ac6c9369ea6c'
@@ -106,7 +106,7 @@ prepare() {
 #    011-Add-m6809-to-ucsim-build-files.patch \
 #    012-Add-m6809-to-ucsim-sourcecode.patch \
 #    030-Add-m6809-compiler-files.patch \
-#    031-Add-m6809-files-to-device-lib.patch \
+#    021-Add-m6809-files-to-device-lib.patch \
 #    032-Add-m6809-to-SDCC-build-files.patch \
 #    033-sdcc-4.0-Add-m6809-to-SDCC-sourcecode.patch
 
@@ -122,6 +122,7 @@ build() {
     --build=${MINGW_CHOST} \
     --includedir=${MINGW_PREFIX}/include/sdcc \
     --libdir=${MINGW_PREFIX}/lib/sdcc \
+    --enable-mc6809-port \
     --disable-pic14-port \
     --disable-pic16-port \
     --disable-werror
