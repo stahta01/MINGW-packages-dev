@@ -1,4 +1,4 @@
-From 24d2021cdbb6086714ee826cc8e007d9c280a3a2 Mon Sep 17 00:00:00 2001
+From 58b6b32f55fdb03f37ce8ce7bcf0fc1e9f7937e9 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 10:22:40 -0400
 Subject: Add m6809 compiler files
@@ -6,12 +6,12 @@ Subject: Add m6809 compiler files
 Forked from z80 compiler files.
 ---
  sdcc/src/mc6809/Makefile.in |     7 +
- sdcc/src/mc6809/gen.c       | 12219 ++++++++++++++++++++++++++++++++++
- sdcc/src/mc6809/gen.h       |    90 +
+ sdcc/src/mc6809/gen.c       | 12064 ++++++++++++++++++++++++++++++++++
+ sdcc/src/mc6809/gen.h       |    88 +
  sdcc/src/mc6809/m6809.h     |    43 +
  sdcc/src/mc6809/main.c      |   680 ++
  sdcc/src/mc6809/mappings.i  |   167 +
- sdcc/src/mc6809/peep.c      |  1471 ++++
+ sdcc/src/mc6809/peep.c      |  1471 +++++
  sdcc/src/mc6809/peep.h      |    31 +
  sdcc/src/mc6809/peeph.def   |   278 +
  sdcc/src/mc6809/ralloc.c    |  3194 +++++++++
@@ -19,7 +19,7 @@ Forked from z80 compiler files.
  sdcc/src/mc6809/ralloc2.cc  |  1705 +++++
  sdcc/src/mc6809/support.c   |    37 +
  sdcc/src/mc6809/support.h   |    20 +
- 14 files changed, 20036 insertions(+)
+ 14 files changed, 19879 insertions(+)
  create mode 100644 sdcc/src/mc6809/Makefile.in
  create mode 100644 sdcc/src/mc6809/gen.c
  create mode 100644 sdcc/src/mc6809/gen.h
@@ -50,10 +50,10 @@ index 000000000..dfb8a5245
 +include $(srcdir)/../port.mk
 diff --git a/sdcc/src/mc6809/gen.c b/sdcc/src/mc6809/gen.c
 new file mode 100644
-index 000000000..15d075b77
+index 000000000..d0725a7cc
 --- /dev/null
 +++ b/sdcc/src/mc6809/gen.c
-@@ -0,0 +1,12219 @@
+@@ -0,0 +1,12064 @@
 +/*-------------------------------------------------------------------------
 +  gen.c - code generator for MC6809 / HD6309.
 +
@@ -792,8 +792,6 @@ index 000000000..15d075b77
 +        case AOP_IMMD:
 +        case AOP_LIT:
 +          return (2);
-+        case AOP_SFR:          /* 2 from in a, (...) */
-+          return ((aopInReg (op1, 0, A_IDX) || op1type == AOP_DUMMY) ? 2 : 3);
 +        case AOP_STK:
 +          return (3);
 +        case AOP_HL:           /* 3 from ld hl, #... */
@@ -812,28 +810,6 @@ index 000000000..15d075b77
 +          printf ("ld_cost op1: AOP_REG, op2: %d\n", (int) (op2type));
 +          wassert (0);
 +        }
-+    case AOP_SFR:              /* 2 from out (...), a */
-+      switch (op2type)
-+        {
-+        case AOP_REG:
-+        case AOP_DUMMY:
-+          return (2);
-+        case AOP_IMMD:
-+        case AOP_LIT:
-+          return (4);
-+        case AOP_STK:
-+          return (5);
-+        case AOP_HL:           /* 3 from ld hl, #... */
-+          return (6);
-+        case AOP_SFR:
-+          return (4);
-+        case AOP_IY:           /* 4 from ld iy, #... */
-+        case AOP_EXSTK:        /* 4 from ld iy, #... */
-+          return (9);
-+        default:
-+          printf ("ld_cost op1: AOP_SFR, op2: %d\n", (int) (op2type));
-+          wassert (0);
-+        }
 +    case AOP_IY:               /* 4 from ld iy, #... */
 +    case AOP_EXSTK:            /* 4 from ld iy, #... */
 +      switch (op2type)
@@ -841,8 +817,6 @@ index 000000000..15d075b77
 +        case AOP_IMMD:
 +        case AOP_LIT:
 +          return (8);
-+        case AOP_SFR:          /* 2 from in a, (...) */
-+          return (9);
 +        case AOP_STK:
 +        case AOP_HL:           /* 3 from ld hl, #... */
 +          return (10);
@@ -859,8 +833,6 @@ index 000000000..15d075b77
 +        case AOP_IMMD:
 +        case AOP_LIT:
 +          return (4);
-+        case AOP_SFR:          /* 2 from in a, (...) */
-+          return (5);
 +        case AOP_STK:
 +          return (6);
 +        case AOP_HL:
@@ -888,7 +860,6 @@ index 000000000..15d075b77
 +          return (5);
 +        case AOP_STK:
 +          return (7);
-+        case AOP_SFR:
 +        case AOP_HL:
 +          return (6);
 +        case AOP_IY:           /* 4 from ld iy, #... */
@@ -1072,7 +1043,6 @@ index 000000000..15d075b77
 +  "AOP_LIT",
 +  "AOP_REG",
 +  "AOP_DIR",
-+  "AOP_SFR",
 +  "AOP_STK",
 +  "AOP_IMMD",
 +  "AOP_STR",
@@ -1338,22 +1308,6 @@ index 000000000..15d075b77
 +      return aop;
 +    }
 +
-+  if (IN_REGSP (space))
-+    {
-+        {
-+          /*.p.t.20030716 adding SFR support to the Z80 port */
-+          aop = newAsmop (AOP_SFR);
-+          sym->aop = aop;
-+          aop->aopu.aop_dir = sym->rname;
-+          aop->size = getSize (sym->type);
-+          aop->paged = FUNC_REGBANK (sym->type);
-+          aop->bcInUse = isPairInUse (PAIR_BC, ic);
-+          /* emitDebug (";Z80 AOP_SFR for %s banked:%d bc:%d", sym->rname, FUNC_REGBANK (sym->type), aop->bcInUse); */
-+
-+          return (aop);
-+        }
-+    }
-+
 +  /* only remaining is far space */
 +  /* in which case DPTR gets the address */
 +  if (IY_RESERVED)
@@ -1517,9 +1471,6 @@ index 000000000..15d075b77
 +{
 +  int i;
 +
-+  if (aop1->type == AOP_SFR || aop2->type == AOP_SFR)
-+    return FALSE;
-+
 +  if (aop1 == aop2)
 +    return TRUE;
 +
@@ -1566,10 +1517,6 @@ index 000000000..15d075b77
 +  /* if already has a asmop then continue */
 +  if (op->aop)
 +    {
-+      if (op->aop->type == AOP_SFR)
-+        {
-+          op->aop->bcInUse = isPairInUse (PAIR_BC, ic);
-+        }
 +      return;
 +    }
 +
@@ -1577,10 +1524,6 @@ index 000000000..15d075b77
 +  if (IS_SYMOP (op) && OP_SYMBOL (op)->aop)
 +    {
 +      op->aop = OP_SYMBOL (op)->aop;
-+      if (op->aop->type == AOP_SFR)
-+        {
-+          op->aop->bcInUse = isPairInUse (PAIR_BC, ic);
-+        }
 +      return;
 +    }
 +
@@ -1840,7 +1783,6 @@ index 000000000..15d075b77
 +    case AOP_REG:
 +    case AOP_STK:
 +    case AOP_DIR:
-+    case AOP_SFR:
 +    case AOP_STR:
 +    case AOP_CRY:
 +    case AOP_EXSTK:
@@ -2483,31 +2425,6 @@ index 000000000..15d075b77
 +          dbuf_append_char (&dbuf, 'a');
 +          break;
 +
-+        case AOP_SFR:
-+            {
-+              /*.p.t.20030716 handling for i/o port read access for Z80 */
-+              if (aop->paged)
-+                {
-+                  /* banked mode */
-+                  /* reg A goes to address bits 15-8 during "in a,(x)" instruction */
-+                  emit2 ("ld a, !msbimmeds", aop->aopu.aop_dir);
-+                  emit2 ("in a, (!lsbimmeds)", aop->aopu.aop_dir);
-+                }
-+              else if (mc6809_opts.port_mode == 180)
-+                {
-+                  /* z180 in0/out0 mode */
-+                  emit2 ("in0 a, (%s)", aop->aopu.aop_dir);
-+                }
-+              else
-+                {
-+                  /* 8 bit mode */
-+                  emit2 ("in a, (%s)", aop->aopu.aop_dir);
-+                }
-+
-+              dbuf_append_char (&dbuf, 'a');
-+            }
-+          break;
-+
 +        case AOP_REG:
 +          dbuf_append_str (&dbuf, aop->aopu.aop_reg[offset]->name);
 +          break;
@@ -2603,7 +2520,7 @@ index 000000000..15d075b77
 +#define AOP(op) op->aop
 +#define AOP_TYPE(op) AOP(op)->type
 +#define AOP_SIZE(op) AOP(op)->size
-+#define AOP_NEEDSACC(x) (AOP(x) && ((AOP_TYPE(x) == AOP_CRY) || (AOP_TYPE(x) == AOP_SFR)))
++#define AOP_NEEDSACC(x) (AOP(x) && ((AOP_TYPE(x) == AOP_CRY))))
 +#define AOP_IS_PAIRPTR(x, p) (AOP_TYPE (x) == AOP_PAIRPTR && AOP (x)->aopu.aop_pairId == p)
 +
 +static bool
@@ -2660,45 +2577,6 @@ index 000000000..15d075b77
 +      if (strcmp (s, "a"))
 +        emit2 ("ld a, %s", s);
 +      emit2 ("ld (%s+%d),a", aop->aopu.aop_dir, offset);
-+      break;
-+
-+    case AOP_SFR:
-+        {
-+          /*.p.t.20030716 handling for i/o port read access for Z80 */
-+          if (aop->paged)
-+            {
-+              /* banked mode */
-+              if (aop->bcInUse)
-+                emit2 ("push bc");
-+
-+              if (strlen (s) != 1 || (s[0] != 'a' && s[0] != 'd' && s[0] != 'e' && s[0] != 'h' && s[0] != 'l'))
-+                {
-+                  emit2 ("ld a, %s", s);
-+                  s = "a";
-+                }
-+
-+              emit2 ("ld bc, !hashedstr", aop->aopu.aop_dir);
-+              emit2 ("out (c),%s", s);
-+
-+              if (aop->bcInUse)
-+                emit2 ("pop bc");
-+              else
-+                spillPair (PAIR_BC);
-+            }
-+          else if (mc6809_opts.port_mode == 180)
-+            {
-+              /* z180 in0/out0 mode */
-+              emit2 ("ld a, %s", s);
-+              emit2 ("out0 (%s), a", aop->aopu.aop_dir);
-+            }
-+          else
-+            {
-+              /* 8 bit mode */
-+              if (strcmp (s, "a"))
-+                emit2 ("ld a, %s", s);
-+              emit2 ("out (%s), a", aop->aopu.aop_dir);
-+            }
-+        }
 +      break;
 +
 +    case AOP_REG:
@@ -2917,7 +2795,6 @@ index 000000000..15d075b77
 +    }
 +  else if (!aopInReg (to, to_offset, A_IDX) && !aopInReg (from, from_offset, A_IDX) && // Go through a.
 +    (from->type == AOP_DIR ||
-+    from->type == AOP_SFR ||
 +    to->type == AOP_IY && (from->type == AOP_EXSTK || from->type == AOP_STK) ||
 +    (to->type == AOP_HL || to->type == AOP_STK) && (aopInReg(from, from_offset, L_IDX) || aopInReg(from, from_offset, H_IDX))))
 +    {
@@ -6735,38 +6612,6 @@ index 000000000..15d075b77
 +    {
 +      /* Do a long subtract of right from left. */
 +      size = max (AOP_SIZE (left), AOP_SIZE (right));
-+
-+      if (AOP_TYPE (right) == AOP_SFR)  /* Avoid overwriting A */
-+        {
-+          bool save_a, save_b, save_bc;
-+          wassertl (size == 1, "Right side sfr in comparison with more than 8 bits.");
-+
-+          save_b = bitVectBitValue (ic->rSurv, B_IDX);
-+          save_bc = (save_b && bitVectBitValue (ic->rSurv, C_IDX));
-+          save_a = (aopInReg (left->aop, 0, A_IDX) ||
-+                    aopInReg (left->aop, 0, B_IDX) && save_b ||
-+                    aopInReg (left->aop, 0, C_IDX) && !save_b && save_bc);
-+
-+          if (save_bc)
-+            _push (PAIR_BC);
-+          if (save_a)
-+            {
-+              cheapMove (ASMOP_A, 0, AOP (right), 0, true);
-+              _push (PAIR_AF);
-+            }
-+          else
-+            cheapMove (ASMOP_A, 0, AOP (right), 0, true);
-+          cheapMove (save_b ? ASMOP_C : ASMOP_B, 0, ASMOP_A, 0, true);
-+          if (save_a)
-+            _pop (PAIR_AF);
-+          else
-+            cheapMove (ASMOP_A, 0, AOP (left), 0, true);
-+          emit3_o (A_SUB, ASMOP_A, 0, save_b ? ASMOP_C : ASMOP_B, offset);
-+          if (save_bc)
-+            _pop (PAIR_BC);
-+          result_in_carry = TRUE;
-+          goto fix;
-+        }
 +
 +      // Preserve A if necessary
 +      if (ifx && size == 1 && !sign && aopInReg (left->aop, 0, A_IDX) && bitVectBitValue (ic->rSurv, A_IDX) &&
@@ -12275,10 +12120,10 @@ index 000000000..15d075b77
 +
 diff --git a/sdcc/src/mc6809/gen.h b/sdcc/src/mc6809/gen.h
 new file mode 100644
-index 000000000..ff0d200b4
+index 000000000..e38006e18
 --- /dev/null
 +++ b/sdcc/src/mc6809/gen.h
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,88 @@
 +/*-------------------------------------------------------------------------
 +  SDCCgen51.h - header file for code generation for 8051
 +
@@ -12311,8 +12156,6 @@ index 000000000..ff0d200b4
 +  AOP_REG,
 +  /* Is in direct space */
 +  AOP_DIR,
-+  /* SFR space ($FF00 and above) */
-+  AOP_SFR,
 +  /* Is on the stack */
 +  AOP_STK,
 +  /* Is an immediate value */
