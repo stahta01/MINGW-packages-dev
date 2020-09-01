@@ -1,4 +1,4 @@
-From ae9d050a684b171278c1dfd93fd653eba25d3976 Mon Sep 17 00:00:00 2001
+From aef47c733a8b9776540a6318f8fdc5977e517f93 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 13:51:10 -0400
 Subject: Add m6809 to SDCC build files
@@ -8,8 +8,9 @@ Subject: Add m6809 to SDCC build files
  sdcc/Makefile.in              |  5 +++++
  sdcc/configure                | 41 +++++++++++++++++++++++++++++++++++
  sdcc/configure.ac             |  8 +++++++
+ sdcc/sdas/linksrc/Makefile.in |  6 +++--
  sdcc/sdccconf_in.h            |  6 +++++
- sdcc/sdas/linksrc/Makefile.in |  6 ++++--
+ 6 files changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/sdcc/Makefile.common.in b/sdcc/Makefile.common.in
 index 412fd5a14..6a53e0242 100644
@@ -173,30 +174,6 @@ index 2185793dc..08dca9582 100644
      mcs51               ${enable_mcs51_port}
      pic14               ${enable_pic14_port}
      pic16               ${enable_pic16_port}
-diff --git a/sdcc/sdccconf_in.h b/sdcc/sdccconf_in.h
-index aeb272488..a5fd97620 100644
---- a/sdcc/sdccconf_in.h
-+++ b/sdcc/sdccconf_in.h
-@@ -88,6 +88,9 @@
- /* Define to 1 if you have the <treedec/combinations.hpp> header file. */
- #undef HAVE_TREEDEC_COMBINATIONS_HPP
- 
-+/* Define to 1 if you have the <uchar.h> header file. */
-+#undef HAVE_UCHAR_H
-+
- /* Define to 1 if you have the <unistd.h> header file. */
- #undef HAVE_UNISTD_H
- 
-@@ -124,6 +127,9 @@
- /* XXX */
- #undef OPT_DISABLE_HC08
- 
-+/* XXX */
-+#undef OPT_DISABLE_MC6809
-+
- /* XXX */
- #undef OPT_DISABLE_MCS51
- 
 diff --git a/sdcc/sdas/linksrc/Makefile.in b/sdcc/sdas/linksrc/Makefile.in
 index 43e16f54d..91460594e 100644
 --- a/sdcc/sdas/linksrc/Makefile.in
@@ -225,4 +202,28 @@ index 43e16f54d..91460594e 100644
  	cp -p $(ASLINK) $@
  
  $(ASLINK): $(LKOBJECTS)
+diff --git a/sdcc/sdccconf_in.h b/sdcc/sdccconf_in.h
+index aeb272488..a5fd97620 100644
+--- a/sdcc/sdccconf_in.h
++++ b/sdcc/sdccconf_in.h
+@@ -88,6 +88,9 @@
+ /* Define to 1 if you have the <treedec/combinations.hpp> header file. */
+ #undef HAVE_TREEDEC_COMBINATIONS_HPP
+ 
++/* Define to 1 if you have the <uchar.h> header file. */
++#undef HAVE_UCHAR_H
++
+ /* Define to 1 if you have the <unistd.h> header file. */
+ #undef HAVE_UNISTD_H
+ 
+@@ -124,6 +127,9 @@
+ /* XXX */
+ #undef OPT_DISABLE_HC08
+ 
++/* XXX */
++#undef OPT_DISABLE_MC6809
++
+ /* XXX */
+ #undef OPT_DISABLE_MCS51
+ 
 -- 
