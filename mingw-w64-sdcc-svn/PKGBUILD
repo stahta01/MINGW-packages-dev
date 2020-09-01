@@ -1,0 +1,149 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=sdcc
+pkgbase=mingw-w64-${_realname}-svn
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}-svn
+pkgver=4.0.3.r11848
+pkgrel=1
+pkgdesc="Retargettable ANSI C compiler [Intel 8051, Maxim 80DS390, Zilog Z80 and the Motorola 68HC08] (mingw-w64)"
+arch=('any')
+license=('GPL') # pic14 and pic16 has non free headers and likely other non free files
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs") # 'boost-libs'
+# Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
+makedepends=('flex' 'bison' 'diffutils' 'make' 'patch' 'perl' 'svn' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
+url="http://sdcc.sourceforge.net/"
+options=(!strip  staticlibs)
+
+_svntrunk=https://svn.code.sf.net/p/sdcc/code/trunk/sdcc
+
+source=(
+    '001-ucsim-comment-out-vsnprintf-prototype.patch'
+    '002-stm8-Fix-code-typos.patch'
+    '003-sdcc-Add-missing-include.patch'
+    '011-Add-as6809-files.patch'
+    '012-sdas-code-changes-to-m09pst.c.patch'
+    '021-Add-m6809-files-to-device-lib.patch'
+    '031-Add-m6809-compiler-files.patch'
+    '032-Add-m6809-to-SDCC-build-files.patch'
+    '033-Add-m6809-to-SDCC-sourcecode.patch'
+    '101-Add-m6809-sim-files.patch'
+    '102-Add-m6809-to-ucsim-build-files.patch'
+    '103-Add-m6809-to-ucsim-sourcecode.patch')
+sha256sums=('e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe'
+            '1212a18c9def0ab439744e75e822276f4899f1ea9df73f0f7b3084d08442d3fb'
+            '1db1e3c0f43b0dbb56e18dc2a238a3c3676174a0815f0d0b989326905d1d58f7'
+            '7e92e65a79279e5e4425d6a0aaa86f8c207d60a62420e78a7da64dc626dbc89d'
+            'e73d1cd49a0903b634544085174e4f05fde1b886e4410a51541ffdefc2503bd3'
+            '766c6e3de506453f7258d48fe6e98f3c0bdf8bee980b6236a31b9d86ed92667f'
+            'ff17346f3b3b49e5d560abef1c6463b2331a7b6b5658a177ad97953fef77bfd9'
+            '9a8944eff27759c0835ffb47cf2b1494b7fc12a57bafe99526b98d493a96b7aa'
+            '2da6856cd7818866029dad11f8d7dba32eacc4c8be0c2027513309fb5219a582'
+            '8e1e0e04531281d2dd19ad49c9a3cf53f7e6327c947d12af1416ac6c9369ea6c'
+            '2c414d574f4c814736be642976e429d2aaadff90eb3dd471e518c8f1f529b7b3'
+            'f58914804b1738060e2a322295bb79bf5004aa2dbf8c8d7f597e40d571eeb1c6')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp2 -i "${srcdir}/$_patch"
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# ======================================= #
+
+prepare() {
+  mkdir -p "$srcdir/svn"
+  msg "Connecting to $_svntrunk SVN server...."
+  if [[ -d ${_realname}-svn/.svn ]]; then
+    msg "Updating SVN ...."
+    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+  else
+    msg "Checking out SVN ...."
+    svn co --username anonsvn --password anonsvn $_svntrunk --config-dir ./svn ${_realname}-svn
+  fi
+
+  cd "$srcdir/${_realname}-svn"
+
+  # remove folders and files added by patch files
+  rm -fr sdas/as6809
+  rm -fr src/mc6809
+  rm -fr device/lib/mc6809
+  rm -fr sim/ucsim/mc6809.src
+
+  svn cleanup
+  svn revert -R .
+
+  apply_patch_with_msg \
+    001-ucsim-comment-out-vsnprintf-prototype.patch \
+    002-stm8-Fix-code-typos.patch \
+    003-sdcc-Add-missing-include.patch \
+    011-Add-as6809-files.patch \
+    012-sdas-code-changes-to-m09pst.c.patch \
+    021-Add-m6809-files-to-device-lib.patch \
+    031-Add-m6809-compiler-files.patch \
+    032-Add-m6809-to-SDCC-build-files.patch \
+    033-Add-m6809-to-SDCC-sourcecode.patch \
+    101-Add-m6809-sim-files.patch \
+    102-Add-m6809-to-ucsim-build-files.patch \
+    103-Add-m6809-to-ucsim-sourcecode.patch
+}
+
+pkgver() {
+  cd "$srcdir/${_realname}-svn"
+  local rev="$(svnversion -n | tr -d 'M')"
+  _sdcc_version=$(head -n 1 .version | sed -e 's/.* //' | tr -d '"\n')
+  printf "%s.r%s" "$_sdcc_version" "$rev"
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  ../${_realname}-svn/configure \
+    CPPLAGS="-D__USE_MINGW_ANSI_STDIO=1" \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --includedir=${MINGW_PREFIX}/include/sdcc \
+    --libdir=${MINGW_PREFIX}/lib/sdcc \
+    --disable-pic14-port \
+    --disable-pic16-port \
+    --disable-mcs51-port \
+    --disable-z180-port \
+    --disable-r2k-port \
+    --disable-r3ka-port \
+    --disable-gbz80-port \
+    --disable-tlcs90-port \
+    --disable-ez80_z80-port \
+    --disable-z80n-port  \
+    --disable-ds390-port \
+    --disable-ds400-port \
+    --disable-pdk13-port \
+    --disable-pdk14-port \
+    --disable-pdk15-port \
+    --disable-werror
+
+#  make -C sdas/as6809 --jobs=1
+#
+#  make -C sim/ucsim/mc6809.src --jobs=1
+
+  PATH="${srcdir}"/build-${CARCH}/bin:$PATH \
+  make --jobs=1
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make install DESTDIR="$pkgdir"
+}

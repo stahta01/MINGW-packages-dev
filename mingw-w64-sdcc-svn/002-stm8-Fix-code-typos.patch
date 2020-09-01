@@ -1,0 +1,49 @@
+From d236801289f2235c1d6df1dc91e93264c34b77ec Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 9 Sep 2020 11:12:14 -0400
+Subject: stm8: Fix code typos
+
+---
+ sdcc/src/stm8/gen.c    | 12 ++++++------
+ sdcc/src/stm8/ralloc.c |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/sdcc/src/stm8/gen.c b/sdcc/src/stm8/gen.c
+index 6932cfc6b..3bfb1b1a9 100644
+--- a/sdcc/src/stm8/gen.c
++++ b/sdcc/src/stm8/gen.c
+@@ -196,12 +196,12 @@ stm8_init_asmops (void)
+   asmop_xyl.aopu.bytes[1].byteu.reg = stm8_regs + XH_IDX;
+   asmop_xyl.aopu.bytes[2].in_reg = TRUE;
+   asmop_xyl.aopu.bytes[2].byteu.reg = stm8_regs + YL_IDX;
+-  asmop_xy.regs[A_IDX] = -1;
+-  asmop_xy.regs[XL_IDX] = 0;
+-  asmop_xy.regs[XH_IDX] = 1;
+-  asmop_xy.regs[YL_IDX] = 2;
+-  asmop_xy.regs[YH_IDX] = -1;
+-  asmop_xy.regs[C_IDX] = -1;
++  asmop_xyl.regs[A_IDX] = -1;
++  asmop_xyl.regs[XL_IDX] = 0;
++  asmop_xyl.regs[XH_IDX] = 1;
++  asmop_xyl.regs[YL_IDX] = 2;
++  asmop_xyl.regs[YH_IDX] = -1;
++  asmop_xyl.regs[C_IDX] = -1;
+ 
+   asmop_zero.type = AOP_LIT;
+   asmop_zero.size = 1;
+diff --git a/sdcc/src/stm8/ralloc.c b/sdcc/src/stm8/ralloc.c
+index 8d4ee625a..d4d56be50 100644
+--- a/sdcc/src/stm8/ralloc.c
++++ b/sdcc/src/stm8/ralloc.c
+@@ -3,7 +3,7 @@
+ 
+ #include "dbuf_string.h"
+ 
+-extern void genSTM08Code (iCode *);
++extern void genSTM8Code (iCode *);
+ 
+ reg_info stm8_regs[] =
+ {
+-- 
+2.28.0.windows.1
+
