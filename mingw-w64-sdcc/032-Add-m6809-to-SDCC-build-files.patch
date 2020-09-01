@@ -9,6 +9,7 @@ Subject: Add m6809 to SDCC build files
  sdcc/configure                | 41 +++++++++++++++++++++++++++++++++++
  sdcc/configure.ac             |  8 +++++++
  sdcc/sdccconf_in.h            |  6 +++++
+ sdcc/sdas/linksrc/Makefile.in |  6 ++++--
 
 diff --git a/sdcc/Makefile.common.in b/sdcc/Makefile.common.in
 index 412fd5a14..6a53e0242 100644
@@ -196,4 +197,32 @@ index aeb272488..a5fd97620 100644
  /* XXX */
  #undef OPT_DISABLE_MCS51
  
+diff --git a/sdcc/sdas/linksrc/Makefile.in b/sdcc/sdas/linksrc/Makefile.in
+index 43e16f54d..91460594e 100644
+--- a/sdcc/sdas/linksrc/Makefile.in
++++ b/sdcc/sdas/linksrc/Makefile.in
+@@ -63,7 +63,7 @@ transform       = @program_transform_name@
+ 
+ # Compiling entire program or any subproject
+ # ------------------------------------------
+-all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk
++all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk sdcc-ld6809
+ 
+ sdcc-ld8051: checkconf $(ASLINK)
+ 
+@@ -73,11 +73,13 @@ sdcc-ldgb: checkconf $(top_builddir)/bin/sdldgb$(EXEEXT)
+ 
+ sdcc-ld6808: checkconf $(top_builddir)/bin/sdld6808$(EXEEXT)
+ 
++sdcc-ld6809: checkconf $(top_builddir)/bin/sdld6809$(EXEEXT)
++
+ sdcc-ldstm8: checkconf $(top_builddir)/bin/sdldstm8$(EXEEXT)
+ 
+ sdcc-ldpdk: checkconf $(top_builddir)/bin/sdldpdk$(EXEEXT)
+ 
+-$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
++$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdld6809$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
+ 	cp -p $(ASLINK) $@
+ 
+ $(ASLINK): $(LKOBJECTS)
 -- 
