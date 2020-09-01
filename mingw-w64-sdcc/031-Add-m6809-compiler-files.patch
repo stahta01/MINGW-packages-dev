@@ -1,4 +1,4 @@
-From bb8d85cf755640496c6393b189560a90179bbb4b Mon Sep 17 00:00:00 2001
+From 8021b939a51fb657ad8d04212672a9ccb6fccf22 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 26 Aug 2020 10:22:40 -0400
 Subject: Add m6809 compiler files
@@ -11,7 +11,7 @@ Forked from z80 compiler files.
  sdcc/src/mc6809/m6809.h     |    43 +
  sdcc/src/mc6809/main.c      |   680 ++
  sdcc/src/mc6809/mappings.i  |   167 +
- sdcc/src/mc6809/peep.c      |  1471 +++++
+ sdcc/src/mc6809/peep.c      |  1452 ++++
  sdcc/src/mc6809/peep.h      |    31 +
  sdcc/src/mc6809/peeph.def   |   278 +
  sdcc/src/mc6809/ralloc.c    |  3194 +++++++++
@@ -19,7 +19,7 @@ Forked from z80 compiler files.
  sdcc/src/mc6809/ralloc2.cc  |  1705 +++++
  sdcc/src/mc6809/support.c   |    37 +
  sdcc/src/mc6809/support.h   |    20 +
- 14 files changed, 19879 insertions(+)
+ 14 files changed, 19860 insertions(+)
  create mode 100644 sdcc/src/mc6809/Makefile.in
  create mode 100644 sdcc/src/mc6809/gen.c
  create mode 100644 sdcc/src/mc6809/gen.h
@@ -13122,10 +13122,10 @@ index 000000000..5b30c7e0e
 +};
 diff --git a/sdcc/src/mc6809/peep.c b/sdcc/src/mc6809/peep.c
 new file mode 100644
-index 000000000..afd0f1504
+index 000000000..e2fcc4289
 --- /dev/null
 +++ b/sdcc/src/mc6809/peep.c
-@@ -0,0 +1,1471 @@
+@@ -0,0 +1,1452 @@
 +/*-------------------------------------------------------------------------
 +  peep.c - source file for peephole optimizer helper functions
 +
@@ -13436,8 +13436,6 @@ index 000000000..afd0f1504
 +     ISINST(pl->line, "scf") ||
 +     ISINST(pl->line, "cpd") ||
 +     ISINST(pl->line, "cpi") ||
-+     ISINST(pl->line, "ind") ||
-+     ISINST(pl->line, "ini") ||
 +     ISINST(pl->line, "ldd") ||
 +     ISINST(pl->line, "ldi") ||
 +     ISINST(pl->line, "neg") ||
@@ -13449,12 +13447,8 @@ index 000000000..afd0f1504
 +     ISINST(pl->line, "rrca") ||
 +     ISINST(pl->line, "cpdr") ||
 +     ISINST(pl->line, "cpir") ||
-+     ISINST(pl->line, "indr") ||
-+     ISINST(pl->line, "inir") ||
 +     ISINST(pl->line, "lddr") ||
 +     ISINST(pl->line, "ldir") ||
-+     ISINST(pl->line, "outd") ||
-+     ISINST(pl->line, "outi") ||
 +     ISINST(pl->line, "jdnz"))
 +    return false;
 +
@@ -13726,11 +13720,6 @@ index 000000000..afd0f1504
 +
 +  if(ISINST(pl->line, "ldh") || ISINST(pl->line, "in"))
 +    return(strstr(strchr(pl->line + 3, ','), what) != 0 || (!strcmp(what, "c") && strstr(pl->line + 3, "(c)")));
-+
-+  if(
-+    (ISINST(pl->line, "ini") || ISINST(pl->line, "ind") || ISINST(pl->line, "inir") || ISINST(pl->line, "indr") ||
-+    ISINST(pl->line, "outi") || ISINST(pl->line, "outd") || ISINST(pl->line, "otir") || ISINST(pl->line, "otdr")))
-+    return(strchr("bchl", *what));
 +    
 +  if(ISINST(pl->line, "lsdr") || ISINST(pl->line, "lidr") || ISINST(pl->line, "lsddr") || ISINST(pl->line, "lsidr"))
 +    return(strchr("bcdehl", *what));
@@ -13811,19 +13800,11 @@ index 000000000..afd0f1504
 +  if(ISINST(pl->line, "bit") ||
 +     ISINST(pl->line, "cpd") ||
 +     ISINST(pl->line, "cpi") ||
-+     ISINST(pl->line, "ind") ||
-+     ISINST(pl->line, "ini") ||
 +     ISINST(pl->line, "rrd"))
 +    return (!!strcmp(what, "cf"));
 +
 +  if(ISINST(pl->line, "cpdr") ||
-+     ISINST(pl->line, "cpir") ||
-+     ISINST(pl->line, "indr") ||
-+     ISINST(pl->line, "inir") ||
-+     ISINST(pl->line, "otdr") ||
-+     ISINST(pl->line, "otir") ||
-+     ISINST(pl->line, "outd") ||
-+     ISINST(pl->line, "outi"))
++     ISINST(pl->line, "cpir"))
 +    return (!!strcmp(what, "cf"));
 +
 +  if(ISINST(pl->line, "daa"))
