@@ -1,0 +1,58 @@
+From 943f49a140f5e507e8a23ea6674220c5e1297517 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 28 Aug 2020 11:12:31 -0400
+Subject: Add mc6809 to ucsim sourcecode
+
+---
+ sdcc/sim/ucsim/globals.cc | 7 +++++++
+ sdcc/sim/ucsim/globals.h  | 1 +
+ sdcc/sim/ucsim/stypes.h   | 3 +++
+ 3 files changed, 11 insertions(+)
+
+diff --git a/sdcc/sim/ucsim/globals.cc b/sdcc/sim/ucsim/globals.cc
+index 82d020d6f..6842b3d47 100644
+--- a/sdcc/sim/ucsim/globals.cc
++++ b/sdcc/sim/ucsim/globals.cc
+@@ -449,6 +449,13 @@ struct cpu_entry cpus_hc08[]=
+     {NULL, CPU_NONE, 0, "", ""}
+   };
+ 
++struct cpu_entry cpus_mc6809[]=
++  {
++    {"MC6809" , CPU_MC6809, 0			, ""		, ""},
++    
++    {NULL, CPU_NONE, 0, "", ""}
++  };
++
+ struct cpu_entry cpus_stm8[]=
+   {
+     {"S"		, CPU_STM8S, DEV_STM8S208	, "S"		, "208"},
+diff --git a/sdcc/sim/ucsim/globals.h b/sdcc/sim/ucsim/globals.h
+index 741593c8d..b18466d54 100644
+--- a/sdcc/sim/ucsim/globals.h
++++ b/sdcc/sim/ucsim/globals.h
+@@ -52,6 +52,7 @@ extern struct cpu_entry *cpus;
+ extern struct cpu_entry cpus_51[];
+ extern struct cpu_entry cpus_z80[];
+ extern struct cpu_entry cpus_hc08[];
++extern struct cpu_entry cpus_mc6809[];
+ extern struct cpu_entry cpus_stm8[];
+ extern struct cpu_entry cpus_pdk[];
+ 
+diff --git a/sdcc/sim/ucsim/stypes.h b/sdcc/sim/ucsim/stypes.h
+index e036a10d9..6e9c814ee 100644
+--- a/sdcc/sim/ucsim/stypes.h
++++ b/sdcc/sim/ucsim/stypes.h
+@@ -150,6 +150,9 @@ enum cpu_type {
+   CPU_HCS08     = 0x0002,
+   CPU_ALL_HC08  = (CPU_HC08|CPU_HCS08),
+ 
++  CPU_MC6809      = 0x0001,
++  CPU_ALL_MC6809  = (CPU_MC6809),
++
+   CPU_STM8S		= 0x0001,		// S and AF family
+   CPU_STM8AF		= 0x0001,
+   CPU_STM8SAF		= 0x0001,
+-- 
+2.28.0.windows.1
+

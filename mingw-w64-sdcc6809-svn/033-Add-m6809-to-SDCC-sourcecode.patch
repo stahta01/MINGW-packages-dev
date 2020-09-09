@@ -1,0 +1,65 @@
+From 4bd765efef20f668c7ec5dcf2948b5627dbc54d8 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 30 Aug 2020 14:37:17 -0400
+Subject: Add m6809 to SDCCmain.c and port.h
+
+---
+ sdcc/src/SDCCmain.c | 3 +++
+ sdcc/src/port.h     | 9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/sdcc/src/SDCCmain.c b/sdcc/src/SDCCmain.c
+index d4598a518..9b029f17c 100644
+--- a/sdcc/src/SDCCmain.c
++++ b/sdcc/src/SDCCmain.c
+@@ -366,6 +366,9 @@ static PORT *_ports[] = {
+ #if !OPT_DISABLE_PDK15
+   &pdk15_port,
+ #endif
++#if !OPT_DISABLE_MC6809
++  &mc6809_port,
++#endif
+ };
+ 
+ #define NUM_PORTS (sizeof(_ports)/sizeof(_ports[0]))
+diff --git a/sdcc/src/port.h b/sdcc/src/port.h
+index c1c9b4a77..f744dba17 100644
+--- a/sdcc/src/port.h
++++ b/sdcc/src/port.h
+@@ -30,6 +30,7 @@
+ #define TARGET_ID_PDK15    21
+ #define TARGET_ID_PDK16    22
+ #define TARGET_ID_Z80N     23
++#define TARGET_ID_MC6809   24
+ 
+ /* Macro to test the target we are compiling for.
+    Can only be used after SDCCmain has defined the port
+@@ -49,5 +51,6 @@
+ #define TARGET_IS_HC08     (port->id == TARGET_ID_HC08)
+ #define TARGET_IS_S08      (port->id == TARGET_ID_S08)
++#define TARGET_IS_MC6809   (port->id == TARGET_ID_MC6809)
+ #define TARGET_IS_STM8     (port->id == TARGET_ID_STM8)
+ #define TARGET_IS_PDK13    (port->id == TARGET_ID_PDK13)
+ #define TARGET_IS_PDK14    (port->id == TARGET_ID_PDK14)
+@@ -61,9 +64,10 @@
+ #define TARGET_HC08_LIKE   (TARGET_IS_HC08 || TARGET_IS_S08)
+ #define TARGET_PIC_LIKE    (TARGET_IS_PIC14 || TARGET_IS_PIC16)
+ #define TARGET_PDK_LIKE    (TARGET_IS_PDK13 || TARGET_IS_PDK14 || TARGET_IS_PDK15 || TARGET_IS_PDK16)
++#define TARGET_MC6809_LIKE (TARGET_IS_MC6809)
+ 
+ /* is using sdas / sdld assembler / linker */
+-#define IS_SDASLD          (TARGET_Z80_LIKE || TARGET_MCS51_LIKE || TARGET_HC08_LIKE)
++#define IS_SDASLD          (TARGET_Z80_LIKE || TARGET_MCS51_LIKE || TARGET_HC08_LIKE || TARGET_MC6809_LIKE)
+ 
+ #define MAX_BUILTIN_ARGS        16
+ /* definition of builtin functions */
+@@ -480,5 +484,8 @@ extern PORT pdk14_port;
+ #if !OPT_DISABLE_PDK15
+ extern PORT pdk15_port;
+ #endif
++#if !OPT_DISABLE_MC6809
++extern PORT mc6809_port;
++#endif
+ 
+ #endif /* PORT_INCLUDE */
+-- 
