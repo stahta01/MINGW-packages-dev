@@ -1,0 +1,159 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=sdcc
+_forksuffix=6809
+pkgbase=mingw-w64-${_realname}${_forksuffix}-svn
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}${_forksuffix}-svn
+pkgver=4.0.3.r11879
+pkgrel=1
+pkgdesc="Retargettable ANSI C compiler [Intel 8051, Maxim 80DS390, Zilog Z80 and the Motorola 68HC08] (mingw-w64)"
+arch=('any')
+license=('GPL') # pic14 and pic16 has non free headers and likely other non free files
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python")
+# Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
+makedepends=('flex' 'bison' 'diffutils' 'make' 'patch' 'perl' 'svn' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
+url="http://sdcc.sourceforge.net/"
+options=(!strip  staticlibs)
+
+_svn_sdcc_trunk=https://svn.code.sf.net/p/sdcc/code/trunk/sdcc
+
+source=(
+    '001-ucsim-comment-out-vsnprintf-prototype.patch'
+    '002-MSys2-MinGW-GCC-Warning-reduction.patch'
+    '011-Add-m6809-sdas-files.patch'
+    '012-sdas-code-changes-to-m09pst.c.patch'
+    '021-Add-m6809-files-to-device-lib.patch'
+    '031-Add-m6809-to-SDCCmain_c-sourcecode.patch'
+    '032-Add-m6809-to-SDCC-build-files.patch'
+    '033-Add-m6809-compiler-backend-based-on-STM8.patch'
+    '034-Add-m6809-to-port_h-sourcecode.patch')
+sha256sums=('e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe'
+            '567295a1647b49ad65b3f2d8e52e57e188813d2a82bd35c25fc165eea53f875a'
+            'bc468eb00bc6b2c8f4365de7613ce12fcd94aef8bc370e5f3d63590fe320e194'
+            'c6fd24fba2fe3fc79f41244fb345145b3a21ce56648a87df807aec003fd63d85'
+            '5009fce9d179b168ee38f4aaefa1732b32b97ce8fe48394d6ddbc6c5a9bfeca0'
+            'b954ed61e030c058ffd998a96ad647e3ec2156db4abf0a96f52afc651965d696'
+            '8cbf29eb2f6b98cb26b60e1e4fc8e6e8005c50abe7a84ebbd8077503b6eacef4'
+            'f794ec51ba91f49b726d1435f9ec7fb37fa3cf2e32a3a28d6d44c8693d3c1661'
+            '78da5311a7a945d4b45e203823989ae051b4e136487a914e3e11696f83f0f8bb')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp2 -i "${srcdir}/$_patch"
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# ======================================= #
+
+prepare() {
+  mkdir -p "$srcdir/svn"
+  msg "Connecting to $_svn_sdcc_trunk SVN server...."
+  if [[ -d ${_realname}-svn/.svn ]]; then
+    msg "Cleanup SVN ...."
+    (cd ${_realname}-svn && svn cleanup)
+    msg "Reverting SVN ...."
+    (cd ${_realname}-svn && svn revert -R .)
+    msg "Updating SVN ...."
+    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+  else
+    msg "Checking out SVN ...."
+    svn co --username anonsvn --password anonsvn $_svn_sdcc_trunk --config-dir ./svn ${_realname}-svn
+  fi
+
+  cd "$srcdir/${_realname}-svn"
+
+  # remove folders and files added by patch files
+  rm -fr src/m6809
+  rm -fr device/lib/m6809
+  rm -fr sdas/as6809
+
+  apply_patch_with_msg \
+    001-ucsim-comment-out-vsnprintf-prototype.patch \
+    002-MSys2-MinGW-GCC-Warning-reduction.patch \
+    011-Add-m6809-sdas-files.patch \
+    012-sdas-code-changes-to-m09pst.c.patch \
+    021-Add-m6809-files-to-device-lib.patch \
+    031-Add-m6809-to-SDCCmain_c-sourcecode.patch \
+    032-Add-m6809-to-SDCC-build-files.patch \
+    033-Add-m6809-compiler-backend-based-on-STM8.patch \
+    034-Add-m6809-to-port_h-sourcecode.patch
+}
+
+pkgver() {
+  cd "$srcdir/${_realname}-svn"
+  local rev="$(svnversion -n | tr -d 'M')"
+  _sdcc_version=$(head -n 1 .version | sed -e 's/.* //' | tr -d '"\n')
+  printf "%s.r%s" "$_sdcc_version" "$rev"
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  # CFLAGS="$CFLAGS -Wno-cast-function-type" \
+
+  ../${_realname}-svn/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --includedir=${MINGW_PREFIX}/include/sdcc \
+    --libdir=${MINGW_PREFIX}/lib/sdcc \
+    --enable-m6809-port \
+    --disable-mcs51-port \
+    --disable-pic14-port \
+    --disable-pic16-port \
+    --disable-r2k-port \
+    --disable-r3ka-port \
+    --disable-z180-port \
+    --disable-gbz80-port \
+    --disable-tlcs90-port \
+    --disable-ez80_z80-port \
+    --disable-z80n-port  \
+    --disable-ds390-port \
+    --disable-ds400-port \
+    --disable-werror
+
+#  make -C sdas/as6809 --jobs=1
+#
+#  make -C sim/ucsim/mc6809.src --jobs=1
+
+  PATH="${srcdir}"/build-${CARCH}/bin:$PATH \
+  make --jobs=1
+}
+
+check() {
+  export PATH="${srcdir}/build-${CARCH}/bin:$PATH"
+
+  cd "${srcdir}"/build-${CARCH}/support/regression
+#  make -k --jobs=1 all || true
+  make -k --jobs=1 test-host  || true
+#  make -k --jobs=1 test-hc08  || true
+#  make -k --jobs=1 test-s08   || true
+  make -k --jobs=1 test-stm8  || true
+  make -k --jobs=1 test-stm8-large || true
+  make -k --jobs=1 test-ucz80 || true
+#  make -k --jobs=1 test-ucr3ka || true
+#  make -k --jobs=1 test-mcs51 || true
+  make -k --jobs=1 test-pdk15 || true
+  make -k --jobs=1 test-pdk15-stack-auto || true
+  make -k --jobs=1 test-m6809 || true
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make install DESTDIR="$pkgdir"
+}

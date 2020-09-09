@@ -1,0 +1,503 @@
+From 8a85bfe8611e44e478b7aca88cbd898bc1ede893 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 26 Aug 2020 13:17:59 -0400
+Subject: Add m6809 files to device/lib
+
+Forked from hc08 files.
+---
+ sdcc/device/lib/m6809/Makefile.in            |  98 +++++++++++++
+ sdcc/device/lib/m6809/_mulint.c              | 138 ++++++++++++++++++
+ sdcc/device/lib/m6809/_ret.c                 |  37 +++++
+ sdcc/device/lib/m6809/_setjmp.c              | 135 +++++++++++++++++
+ .../lib/m6809/atomic_flag_test_and_set.c     |  45 ++++++
+ 5 files changed, 453 insertions(+)
+ create mode 100644 sdcc/device/lib/m6809/Makefile.in
+ create mode 100644 sdcc/device/lib/m6809/_mulint.c
+ create mode 100644 sdcc/device/lib/m6809/_ret.c
+ create mode 100644 sdcc/device/lib/m6809/_setjmp.c
+ create mode 100644 sdcc/device/lib/m6809/atomic_flag_test_and_set.c
+
+diff --git a/sdcc/device/lib/m6809/Makefile.in b/sdcc/device/lib/m6809/Makefile.in
+new file mode 100644
+index 000000000..af6d5fc63
+--- /dev/null
++++ b/sdcc/device/lib/m6809/Makefile.in
+@@ -0,0 +1,98 @@
++# libc/m6809 Makefile
++
++VPATH  = @srcdir@
++srcdir = @srcdir@
++top_builddir = @top_builddir@
++
++LIB_TYPE     = @LIB_TYPE@
++
++SCC = $(top_builddir)/bin/sdcc -mm6809 --max-allocs-per-node 25000
++SAS = $(top_builddir)/bin/sdas6809
++
++# override PORTDIR defined by super (parent) makefile
++override PORTDIR = ../build/m6809
++
++include $(srcdir)/../incl.mk
++
++M6809_FLOAT = $(COMMON_FLOAT)
++
++M6809_INT = $(COMMON_INT) \
++  _divsint.c \
++  _divuint.c \
++  _modsint.c \
++  _moduint.c
++
++M6809_LONG = $(COMMON_LONG) \
++  _mullong.c \
++  _divulong.c
++
++M6809_LONGLONG = $(COMMON_LONGLONG) \
++  _rrulonglong.c \
++  _rrslonglong.c \
++  _rlulonglong.c \
++  _rlslonglong.c \
++  _mullonglong.c \
++  _divslonglong.c \
++  _divulonglong.c \
++  _modslonglong.c \
++  _modulonglong.c
++
++M6809_SDCC = $(COMMON_SDCC) \
++  __itoa.c \
++  __ltoa.c \
++  _spx.c \
++  _startup.c \
++  _strcmp.c \
++  _strlen.c \
++  _strcpy.c \
++  __memcpy.c \
++  memcpy.c \
++  _memmove.c \
++  _heap.c \
++  sprintf.c \
++  vprintf.c \
++  atomic_flag_clear.c
++
++M6809SOURCES = $(addprefix ../,$(M6809_FLOAT) $(M6809_INT) $(M6809_LONG) $(M6809_LONGLONG) $(M6809_SDCC))
++M6809OBJECTS = $(patsubst %.c,%.rel,$(M6809_FLOAT) $(M6809_INT) $(M6809_LONG) $(M6809_LONGLONG) $(M6809_SDCC))
++
++OBJ = _ret.rel _mulint.rel _setjmp.rel atomic_flag_test_and_set.rel
++
++LIB = m6809.lib
++CC = $(SCC)
++AS = $(SAS)
++ASFLAGS = -plosgff
++
++CFLAGS = -I$(srcdir)/../../include -I. --std-c11
++
++all: $(PORTDIR)/$(LIB)
++
++$(PORTDIR)/$(LIB): $(OBJ) $(M6809OBJECTS) Makefile
++ifeq ($(LIB_TYPE), SDCCLIB)
++	rm -f $@; \
++	$(top_builddir)/bin/sdcclib -a $@ $(OBJ) $(M6809OBJECTS)
++else
++  ifeq ($(LIB_TYPE), AR)
++	$(top_builddir)/bin/sdar -rcSD $@ $(OBJ) $(M6809OBJECTS)
++  else
++    ifeq ($(LIB_TYPE), RANLIB)
++	$(top_builddir)/bin/sdar -rcD $@ $(OBJ) $(M6809OBJECTS)
++    else
++	rm -f $@
++	for i in $(basename $(OBJ) $(M6809OBJECTS)); do echo $$i >>$@; done
++	cp $(OBJ) $(M6809OBJECTS) $(PORTDIR)
++    endif
++  endif
++endif
++
++%.rel: %.c
++	$(CC) $(CFLAGS) -c $<
++
++%.rel: ../%.c
++	$(CC) $(CFLAGS) -c $<
++
++clean:
++	rm -f *.rel *.sym *.lst *~ $(CLEANSPEC) *.dump* *.asm *.lib
++
++distclean: clean
++	rm -f Makefile
+diff --git a/sdcc/device/lib/m6809/_mulint.c b/sdcc/device/lib/m6809/_mulint.c
+new file mode 100644
+index 000000000..0f7b370a5
+--- /dev/null
++++ b/sdcc/device/lib/m6809/_mulint.c
+@@ -0,0 +1,138 @@
++/*-------------------------------------------------------------------------
++   _mulint.c - routine for (unsigned) int (16 bit) multiplication
++
++   Copyright (C) 1999, Sandeep Dutta . sandeep.dutta@usa.net
++
++   This library is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published by the
++   Free Software Foundation; either version 2, or (at your option) any
++   later version.
++
++   This library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License 
++   along with this library; see the file COPYING. If not, write to the
++   Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
++   MA 02110-1301, USA.
++
++   As a special exception, if you link this library with other files,
++   some of which are compiled with SDCC, to produce an executable,
++   this library does not by itself cause the resulting executable to
++   be covered by the GNU General Public License. This exception does
++   not however invalidate any other reasons why the executable file
++   might be covered by the GNU General Public License.
++-------------------------------------------------------------------------*/
++
++/* Signed and unsigned multiplication are the same - as long as the output
++   has the same precision as the input.
++
++   Assembler-functions are provided for:
++     hc08
++     hc08 stack-auto
++*/
++
++
++#if !defined(_SDCC_NO_ASM_LIB_FUNCS)
++
++#pragma save
++#pragma less_pedantic
++int
++_mulint (int a, int b)
++{
++  a,b;	/* reference to make compiler happy */
++
++#if !defined(__SDCC_STACK_AUTO)
++    __asm
++   	ais #-2
++	psha
++	pshx
++
++	ldx __mulint_PARM_2+1
++	mul
++	sta 4,s
++	stx 3,s
++
++	lda 1,s
++	ldx __mulint_PARM_2+1
++	mul
++	add 3,s
++	sta 3,s
++
++	lda 2,s
++	ldx __mulint_PARM_2
++	mul
++	add 3,s
++	sta 3,s
++
++	ais #2
++	pulx
++	pula
++    __endasm;
++#else
++    __asm
++   	ais #-2
++	psha
++	pshx
++
++	ldx 8,s
++	mul
++	sta 4,s
++	stx 3,s
++
++	lda 1,s
++	ldx 8,s
++	mul
++	add 3,s
++	sta 3,s
++
++	lda 2,s
++	ldx 7,s
++	mul
++	add 3,s
++	sta 3,s
++
++	ais #2
++	pulx
++	pula
++    __endasm;
++#endif
++}
++#pragma restore
++
++#else
++
++union uu {
++	struct { unsigned char hi,lo ;} s;
++        unsigned int t;
++} ;
++
++int
++_mulint (int a, int b)
++{
++#if !defined(__SDCC_STACK_AUTO) && (defined(__SDCC_MODEL_LARGE) || defined(__SDCC_ds390))	// still needed for large
++	union uu __xdata *x;
++	union uu __xdata *y;
++	union uu t;
++        x = (union uu __xdata *)&a;
++        y = (union uu __xdata *)&b;
++#else
++	register union uu *x;
++	register union uu *y;
++	union uu t;
++        x = (union uu *)&a;
++        y = (union uu *)&b;
++#endif
++
++        t.t = x->s.lo * y->s.lo;
++        t.s.hi += (x->s.lo * y->s.hi) + (x->s.hi * y->s.lo);
++
++       return t.t;
++}
++#endif
++
++
++#undef _MULINT_ASM
++
+diff --git a/sdcc/device/lib/m6809/_ret.c b/sdcc/device/lib/m6809/_ret.c
+new file mode 100644
+index 000000000..9ae7bf608
+--- /dev/null
++++ b/sdcc/device/lib/m6809/_ret.c
+@@ -0,0 +1,37 @@
++/*-------------------------------------------------------------------------
++   _ret.c
++
++   Copyright (C) 2003, Erik Petrich
++   Copyright (C) 2012, Philipp Klaus Krause
++   Considering how short this file is, it is probably not copyrightable, though.
++
++   This library is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published by the
++   Free Software Foundation; either version 2, or (at your option) any
++   later version.
++
++   This library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License 
++   along with this library; see the file COPYING. If not, write to the
++   Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
++   MA 02110-1301, USA.
++
++   As a special exception, if you link this library with other files,
++   some of which are compiled with SDCC, to produce an executable,
++   this library does not by itself cause the resulting executable to
++   be covered by the GNU General Public License. This exception does
++   not however invalidate any other reasons why the executable file
++   might be covered by the GNU General Public License.
++-------------------------------------------------------------------------*/
++
++__data unsigned char __SDCC_m6809_ret2;
++__data unsigned char __SDCC_m6809_ret3;
++__data unsigned char __SDCC_m6809_ret4;
++__data unsigned char __SDCC_m6809_ret5;
++__data unsigned char __SDCC_m6809_ret6;
++__data unsigned char __SDCC_m6809_ret7;
++
+diff --git a/sdcc/device/lib/m6809/_setjmp.c b/sdcc/device/lib/m6809/_setjmp.c
+new file mode 100644
+index 000000000..f848d3aa5
+--- /dev/null
++++ b/sdcc/device/lib/m6809/_setjmp.c
+@@ -0,0 +1,135 @@
++/*-------------------------------------------------------------------------
++   setjmp.c - source file for ANSI routines setjmp & longjmp
++
++   Copyright (C) 2016, Maarten Brock. sourceforge.brock AT dse.nl
++
++   This library is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published by the
++   Free Software Foundation; either version 2, or (at your option) any
++   later version.
++
++   This library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this library; see the file COPYING. If not, write to the
++   Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
++   MA 02110-1301, USA.
++
++   As a special exception, if you link this library with other files,
++   some of which are compiled with SDCC, to produce an executable,
++   this library does not by itself cause the resulting executable to
++   be covered by the GNU General Public License. This exception does
++   not however invalidate any other reasons why the executable file
++   might be covered by the GNU General Public License.
++-------------------------------------------------------------------------*/
++
++#include <sdcc-lib.h>
++#define __SDCC_HIDE_LONGJMP
++#include <setjmp.h>
++
++static void dummy (void) __naked
++{
++        __asm
++
++;--------------------------------------------------------
++; overlayable items in ram
++;--------------------------------------------------------
++        .area   OSEG    (PAG, OVR)
++___setjmp_buf:
++        .ds 2
++        .area   OSEG    (PAG, OVR)
++_longjmp_buf:
++        .ds 2
++;--------------------------------------------------------
++; extended address mode data
++;--------------------------------------------------------
++        .area XSEG
++_longjmp_PARM_2:
++        .ds 2
++;--------------------------------------------------------
++; code
++;--------------------------------------------------------
++        .area CSEG    (CODE)
++;------------------------------------------------------------
++;Allocation info for local variables in function '__setjmp'
++;------------------------------------------------------------
++;buf                       Allocated with name '___setjmp_buf'
++;------------------------------------------------------------
++;_setjmp.c:205: int __setjmp (jmp_buf buf)
++;       -----------------------------------------
++;        function __setjmp
++;       -----------------------------------------
++;       Stack space usage: 1 bytes.
++        .globl ___setjmp
++___setjmp:
++        stx	(___setjmp_buf + 0)		; msb(buf)
++        sta	(___setjmp_buf + 1)		; lsb(buf)
++
++        ; save stack pointer
++        tsx
++        pshh
++        txa
++        ldhx	(___setjmp_buf)
++        sta	1,x
++        pula
++        sta	0,x
++
++        ; save return address
++        lda	1,s
++        sta	2,x
++        lda	2,s
++        sta	3,x
++
++        ; return 0
++        clra
++        tax
++        rts
++
++;------------------------------------------------------------
++;Allocation info for local variables in function 'longjmp'
++;------------------------------------------------------------
++;rv                        Allocated with name '_longjmp_PARM_2'
++;buf                       Allocated with name '_longjmp_buf'
++;------------------------------------------------------------
++;_setjmp.c:216: int longjmp (jmp_buf buf, int rv)
++;       -----------------------------------------
++;        function longjmp
++;       -----------------------------------------
++;       Stack space usage: 1 bytes.
++        .globl _longjmp
++        .globl _longjmp_PARM_2
++_longjmp:
++        stx	(_longjmp_buf + 0)		; msb(buf)
++        sta	(_longjmp_buf + 1)		; lsb(buf)
++
++        ; restore stack pointer
++        ldhx	(_longjmp_buf)
++        lda	0,x
++        psha
++        ldx	1,x
++        pulh
++        txs
++
++        ; set return address
++        ldhx	(_longjmp_buf)
++        lda	2,x
++        sta	1,s
++        lda	3,x
++        sta	2,s
++
++;_setjmp.c:224: return rv ? rv : 1;
++        ldx     (_longjmp_PARM_2 + 0)
++        txa
++        ora     (_longjmp_PARM_2 + 1)
++        beq     0001$
++        lda     (_longjmp_PARM_2 + 1)
++        rts
++0001$:
++        lda     #0x01
++        rts
++
++        __endasm;
++}
+diff --git a/sdcc/device/lib/m6809/atomic_flag_test_and_set.c b/sdcc/device/lib/m6809/atomic_flag_test_and_set.c
+new file mode 100644
+index 000000000..a132a3854
+--- /dev/null
++++ b/sdcc/device/lib/m6809/atomic_flag_test_and_set.c
+@@ -0,0 +1,45 @@
++/*
++;  atomic_flag_test_and_set.s
++;
++;  Copyright (C) 2020, Philipp Klaus Krause
++;
++;  This library is free software; you can redistribute it and/or modify it
++;  under the terms of the GNU General Public License as published by the
++;  Free Software Foundation; either version 2, or (at your option) any
++;  later version.
++;
++;  This library is distributed in the hope that it will be useful,
++;  but WITHOUT ANY WARRANTY; without even the implied warranty of
++;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++;  GNU General Public License for more details.
++;
++;  You should have received a copy of the GNU General Public License
++;  along with this library; see the file COPYING. If not, write to the
++;  Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
++;   MA 02110-1301, USA.
++;
++;  As a special exception, if you link this library with other files,
++;  some of which are compiled with SDCC, to produce an executable,
++;  this library does not by itself cause the resulting executable to
++;  be covered by the GNU General Public License. This exception does
++;  not however invalidate any other reasons why the executable file
++;   might be covered by the GNU General Public License.
++*/
++
++#include <stdatomic.h>
++
++_Bool atomic_flag_test_and_set(volatile atomic_flag *object) __naked
++{
++  object; // avoid warning 85 unreferenced function argument
++__asm
++	pshx
++	pulh
++	tax
++	clra
++	lsr	,x
++	rola
++	eor	#0x01
++	rts
++__endasm;
++}
++
+-- 
