@@ -64,9 +64,17 @@ build() {
 }
 
 check() {
-  cd "${srcdir}"/build-${CARCH}/support/regression
   export PATH="${srcdir}/build-${CARCH}/bin:$PATH"
-  make -k --jobs=1 all || true
+
+  cd "${srcdir}"/build-${CARCH}/sim/ucsim
+#  make -k --jobs=1 check || true
+  make -k --jobs=1 test || true
+
+  cd "${srcdir}"/build-${CARCH}/support/regression
+#  make -k --jobs=1 all || true
+  make -k --jobs=1 test-hc08  || true
+  make -k --jobs=1 test-stm8  || true
+  make -k --jobs=1 test-ucz80 || true
 }
 
 package() {
