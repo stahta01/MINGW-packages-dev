@@ -1,5 +1,7 @@
 # Contributer: Tim Stahlhut <stahta01@gmail.com>
 
+# WARNING 64 bit build fails check; 32 bit passes check
+
 _realname=sdcc
 pkgbase=mingw-w64-${_realname}
 pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
@@ -68,10 +70,10 @@ check() {
   export PATH="${srcdir}/build-${CARCH}/bin:$PATH"
 
   cd "${srcdir}"/build-${CARCH}/support/regression
-#  make -k --jobs=1 all || true
-  make -k --jobs=1 test-hc08  || true
-  make -k --jobs=1 test-stm8  || true
-  make -k --jobs=1 test-ucz80 || true
+  make -k --jobs=1 all || true
+#  make -k --jobs=1 test-hc08  || true
+#  make -k --jobs=1 test-stm8  || true
+#  make -k --jobs=1 test-ucz80 || true
 }
 
 package() {
