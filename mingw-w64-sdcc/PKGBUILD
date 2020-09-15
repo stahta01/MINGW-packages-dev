@@ -67,10 +67,6 @@ build() {
 check() {
   export PATH="${srcdir}/build-${CARCH}/bin:$PATH"
 
-  cd "${srcdir}"/build-${CARCH}/sim/ucsim
-#  make -k --jobs=1 check || true
-  make -k --jobs=1 test || true
-
   cd "${srcdir}"/build-${CARCH}/support/regression
 #  make -k --jobs=1 all || true
   make -k --jobs=1 test-hc08  || true
