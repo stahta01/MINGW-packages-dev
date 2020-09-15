@@ -10,6 +10,7 @@ arch=('any')
 license=('GPL' 'custom') # pic14 and pic16 has non free headers and likely other files
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-svn")
 depends=('bash' 'gcc-libs') # 'boost-libs'
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python")
 # Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
 makedepends=('flex' 'bison' 'diffutils' 'make' 'patch' 'perl' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
 #optdepends=('python')
