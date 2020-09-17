@@ -1,0 +1,93 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=sdcc-extra
+pkgbase=mingw-w64-${_realname}-svn
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}-svn
+pkgver=r11860
+pkgrel=1
+pkgdesc="Extra simulators for SDCC (mingw-w64)"
+arch=('any')
+license=('UKNOWN')
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+depends=()
+checkdepends=()
+makedepends=()
+url="http://sdcc.sourceforge.net/"
+options=(!strip  staticlibs)
+
+_svn_sdcc_extra_trunk=https://svn.code.sf.net/p/sdcc/code/trunk/sdcc-extra
+
+source=(
+  '001-sdcc-extra-endian.h-fix.patch'
+  '002-sdcc-extra-Disable-gameboy.patch')
+sha256sums=('5d010e7c73827d875a0ef0aedc7e76e92c462eb4fa4d98b107cbedd4fbbda3aa'
+            '73f8f3e95cbe94ac1d50b7521cebf868abe5d9cb14b0212a405c08bd709f8311')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp2 -i "${srcdir}/$_patch"
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# ======================================= #
+
+prepare() {
+  mkdir -p "$srcdir/svn"
+
+  msg "Connecting to $_svn_sdcc_extra_trunk SVN server...."
+  if [[ -d ${_realname}-svn/.svn ]]; then
+    msg "Cleanup SVN ...."
+    (cd ${_realname}-svn && svn cleanup)
+    msg "Reverting SVN ...."
+    (cd ${_realname}-svn && svn revert -R .)
+    msg "Updating SVN ...."
+    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+  else
+    msg "Checking out SVN ...."
+    svn co --username anonsvn --password anonsvn $_svn_sdcc_extra_trunk --config-dir ./svn ${_realname}-svn
+  fi
+
+  cd "$srcdir/${_realname}-svn"
+  
+  apply_patch_with_msg \
+    001-sdcc-extra-endian.h-fix.patch \
+    002-sdcc-extra-Disable-gameboy.patch
+
+}
+
+pkgver() {
+  cd "$srcdir/${_realname}-svn"
+  local rev="$(svnversion -n | tr -d 'M')"
+  printf "r%s" "$rev"
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  ../${_realname}-svn/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST}
+
+  make --jobs=1
+
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  mkdir -p "$pkgdir/${MINGW_PREFIX}/bin"
+  cp ./emu/rrz80/rrz80.exe "$pkgdir/${MINGW_PREFIX}/bin"
+}
