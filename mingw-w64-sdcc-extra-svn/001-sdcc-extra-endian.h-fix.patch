@@ -1,0 +1,25 @@
+From 6f02be0f59871ee73b5ef8bc03c853460f5a1c28 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 17 Sep 2020 10:01:49 -0400
+Subject: sdcc-extra: endian.h fix
+
+---
+ sdcc-extra/emu/rrz80/cpu/z80.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sdcc-extra/emu/rrz80/cpu/z80.h b/sdcc-extra/emu/rrz80/cpu/z80.h
+index 5851e5abd..0372fbf57 100644
+--- a/sdcc-extra/emu/rrz80/cpu/z80.h
++++ b/sdcc-extra/emu/rrz80/cpu/z80.h
+@@ -28,8 +28,8 @@
+ #  define WORDS_BIGENDIAN
+ #elif !defined(__LITTLE_ENDIAN__)
+    /* try with types.h and endian.h */
+-   /* Hack: GYGWIN doesn't have endian.h, but we know it is LITTLE ENDIAN */
+-#  ifndef __CYGWIN__
++   /* Hack: CYGWIN and Windows doesn't have endian.h, but we know it is LITTLE ENDIAN */
++#  if !(defined(__CYGWIN__) || defined(_WIN32))
+ #    include <sys/types.h>
+ #    if defined(_BIG_ENDIAN)
+ #      define WORDS_BIGENDIAN
+-- 
