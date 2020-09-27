@@ -1,0 +1,102 @@
+# Maintainer: Tim S <stahta01@gmail.com>
+
+_realname='codeblocks'
+_sourcedir=${_realname}-svn
+_cb_ver=20.03
+_wx_basever=3.1
+_wx_libname="wxmsw${_wx_basever}"
+pkgbase="mingw-w64-${_realname}-svn"
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-${_wx_libname}-svn"
+provides=(
+  "${MINGW_PACKAGE_PREFIX}-${_realname}"
+)
+conflicts=(
+  "${MINGW_PACKAGE_PREFIX}-${_realname}"
+)
+pkgver=20.03.r11979
+pkgrel=1
+url='http://codeblocks.org/'
+pkgdesc='Cross-platform C/C++ IDE (mingw-w64)'
+license=('GPL')
+arch=(any)
+depends=(
+  "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+  "${MINGW_PACKAGE_PREFIX}-hunspell"
+  "${MINGW_PACKAGE_PREFIX}-drmingw"
+  "${MINGW_PACKAGE_PREFIX}-${_wx_libname}"
+)
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-boost"
+  "zip"
+  "svn"
+  "make"
+  "patch"
+)
+
+
+_svn_host=svn.code.sf.net
+# _svn_uri=https://${_svn_host}/p/codeblocks/code/trunk
+_svn_uri=svn://${_svn_host}/p/codeblocks/code/trunk
+
+# Please use svn.code.sf.net _svn_uri because it works better when it is working
+#   this github.com _svn_uri is for testing when svn.code.sf.net is down
+# _svn_host=github.com
+# _svn_uri=https://${_svn_host}/stahta01/codeblocks_https_metadata/trunk
+
+source=(
+)
+# 010-019 Build changes that can be pushed to Code::Blocks upstream
+# 020-029 Build changes that can *not* be pushed to Code::Blocks upstream
+# 100-199 Code changes that might be safe to push to Code::Blocks upstream
+# 200-299 Code changes that can be pushed to Code::Blocks upstream
+# 300-399 Code changes that can *not* be pushed to Code::Blocks upstream
+# 400-499 Add CB Projects for use under MSys2
+# 990-999 Special patch files used to support patch file creation
+
+sha256sums=()
+
+options=('!strip')
+
+pkgver() {
+  cd "${srcdir}/${_sourcedir}"
+  if [[ ${_svn_host} == "github.com" ]] ; then
+    local _svnrev=`svn log -l 1 | grep "^git-svn-id: " | sed "s|.*\@\([0-9]\+\).*|\1|"`
+  else
+    local _svnrev=`svnversion | tr -d 'A-z[:blank:]'`
+  fi
+  printf "%s.%s" "${_cb_ver}" "r$_svnrev"
+}
+
+prepare() {
+
+  mkdir -p "$srcdir/svn"
+  msg "Connecting to $_svn_uri SVN server...."
+  if [[ -d ${_realname}-svn/.svn ]]; then
+    msg "Cleanup SVN ...."
+    (cd ${_realname}-svn && svn cleanup)
+    msg "Reverting SVN ...."
+    (cd ${_realname}-svn && svn revert -R .)
+    msg "Updating SVN ...."
+    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+  else
+    msg "Checking out SVN ...."
+    svn co --username anonsvn --password anonsvn $_svn_uri --config-dir ./svn ${_realname}-svn
+  fi
+
+  cd "$srcdir/${_realname}-svn"
+
+# Remove Folders that I think might cause MSys2 build issues
+  rm -fr src/exchndl
+
+# Remove Folders to cause issues
+#  rm -fr src/templates
+}
+
+build() {
+  cd "${srcdir}/${_sourcedir}"
+
+}
+
+package() {
+  cd "${srcdir}/${_sourcedir}"
+}
