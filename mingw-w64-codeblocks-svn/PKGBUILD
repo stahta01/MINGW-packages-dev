@@ -77,10 +77,10 @@ prepare() {
     msg "Reverting SVN ...."
     (cd ${_realname}-svn && svn revert -R .)
     msg "Updating SVN ...."
-    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+    (cd ${_realname}-svn && svn up --ignore-externals --username anonsvn --password anonsvn)
   else
     msg "Checking out SVN ...."
-    svn co --username anonsvn --password anonsvn $_svn_uri --config-dir ./svn ${_realname}-svn
+    svn co --ignore-externals --username anonsvn --password anonsvn $_svn_uri --config-dir ./svn ${_realname}-svn
   fi
 
   cd "$srcdir/${_realname}-svn"
