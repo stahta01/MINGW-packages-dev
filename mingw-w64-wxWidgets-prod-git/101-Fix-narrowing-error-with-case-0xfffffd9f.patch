@@ -1,0 +1,29 @@
+From cda38099da4f842aef8b736323d8a4594a72f997 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 2 Oct 2020 14:36:08 -0400
+Subject: Fix narrowing error with case 0xfffffd9f
+
+MSys2 MinGW64 GCC 10.2.0 has narrowing error in addition
+to clang noted as noted in git master.
+---
+ src/msw/mediactrl_am.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/msw/mediactrl_am.cpp b/src/msw/mediactrl_am.cpp
+index f5b9ed4a61..81af4da2b0 100644
+--- a/src/msw/mediactrl_am.cpp
++++ b/src/msw/mediactrl_am.cpp
+@@ -2179,7 +2179,9 @@ void wxAMMediaBackend::Move(int WXUNUSED(x), int WXUNUSED(y),
+ //---------------------------------------------------------------------------
+ void wxAMMediaEvtHandler::OnActiveX(wxActiveXEvent& event)
+ {
+-    switch(event.GetDispatchId())
++    // cast to unsigned long to fix narrowing error with case 0xfffffd9f
++    // when using clang or GCC
++    switch (static_cast<unsigned long>(event.GetDispatchId()))
+     {
+ #ifndef __WXWINCE__
+     case 0x00000001: // statechange in IActiveMovie
+-- 
+2.28.0.windows.1
+
