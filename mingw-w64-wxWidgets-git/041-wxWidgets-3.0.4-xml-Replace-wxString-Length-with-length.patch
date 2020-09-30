@@ -1,0 +1,27 @@
+From e88ce41e434409c2a304c247cf8ac6b392c51dd5 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 08:01:07 -0400
+Subject: xml: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/xml/xml.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/xml/xml.cpp b/src/xml/xml.cpp
+index 1413d75a64..87df23f196 100644
+--- a/src/xml/xml.cpp
++++ b/src/xml/xml.cpp
+@@ -1100,7 +1100,7 @@ bool OutputNode(wxOutputStream& stream,
+         case wxXML_TEXT_NODE:
+             if (node->GetNoConversion())
+             {
+-                stream.Write(node->GetContent().c_str(), node->GetContent().Length());
++                stream.Write(node->GetContent().c_str(), node->GetContent().length());
+                 rc = true;
+             }
+             else
+-- 
+2.26.0.windows.1
+

@@ -1,0 +1,36 @@
+From 4ed476e004876a9407fbcd99b0ea9705e552681f Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 08:05:38 -0400
+Subject: wxrc: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ utils/wxrc/wxrc.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/utils/wxrc/wxrc.cpp b/utils/wxrc/wxrc.cpp
+index 72bfd49738..655a043e8d 100644
+--- a/utils/wxrc/wxrc.cpp
++++ b/utils/wxrc/wxrc.cpp
+@@ -627,7 +627,7 @@ static wxString FileToCppArray(wxString filename, int num)
+             output << wxT("\n");
+         }
+         output << tmp;
+-        linelng += tmp.Length()+1;
++        linelng += tmp.length()+1;
+     }
+ 
+     delete[] buffer;
+@@ -789,7 +789,7 @@ static wxString FileToPythonArray(wxString filename, int num)
+             output << wxT("\\\n");
+         }
+         output << tmp;
+-        linelng += tmp.Length();
++        linelng += tmp.length();
+     }
+ 
+     delete[] buffer;
+-- 
+2.26.0.windows.1
+

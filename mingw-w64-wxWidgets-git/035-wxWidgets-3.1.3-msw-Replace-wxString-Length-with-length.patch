@@ -1,0 +1,41 @@
+From 932e8e481aeffeee788e2484432875dca41c989d Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 20:56:25 -0400
+Subject: msw: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/msw/graphicsd2d.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/msw/graphicsd2d.cpp b/src/msw/graphicsd2d.cpp
+index 6a74b3c0a1..f6a48da80b 100644
+--- a/src/msw/graphicsd2d.cpp
++++ b/src/msw/graphicsd2d.cpp
+@@ -3013,11 +3013,11 @@ wxD2DFontData::wxD2DFontData(wxGraphicsRenderer* renderer, const wxFont& font, c
+         // The length of the font name must not exceed LF_FACESIZE TCHARs,
+         // including the terminating NULL.
+         wxString name = font.GetFaceName().Mid(0, WXSIZEOF(logfont.lfFaceName)-1);
+-        for (unsigned int i = 0; i < name.Length(); ++i)
++        for (unsigned int i = 0; i < name.length(); ++i)
+         {
+             logfont.lfFaceName[i] = name.GetChar(i);
+         }
+-        logfont.lfFaceName[name.Length()] = L'\0';
++        logfont.lfFaceName[name.length()] = L'\0';
+     }
+ 
+     wxCOMPtr<IDWriteFontFamily> fontFamily;
+@@ -3757,7 +3757,7 @@ public:
+ 
+     static void GetPartialTextExtents(wxD2DFontData* fontData, const wxString& text, wxArrayDouble& widths)
+     {
+-        for (unsigned int i = 0; i < text.Length(); ++i)
++        for (unsigned int i = 0; i < text.length(); ++i)
+         {
+             wxDouble width;
+             GetTextExtent(fontData, text.SubString(0, i), &width, NULL, NULL, NULL);
+-- 
+2.26.0.windows.1
+

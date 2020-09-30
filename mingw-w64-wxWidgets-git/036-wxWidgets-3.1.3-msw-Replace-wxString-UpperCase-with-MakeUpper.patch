@@ -1,0 +1,41 @@
+From 863efb2ab9f73803c01735165f5e3ac1ea96b040 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 20:57:26 -0400
+Subject: msw: Replace wxString UpperCase() with MakeUpper()
+
+Per docs wxString::UpperCase() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/msw/nativdlg.cpp | 2 +-
+ src/msw/statbox.cpp  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/msw/nativdlg.cpp b/src/msw/nativdlg.cpp
+index cdd058fe5f..8ff51e82ba 100644
+--- a/src/msw/nativdlg.cpp
++++ b/src/msw/nativdlg.cpp
+@@ -164,7 +164,7 @@ wxWindow* wxWindow::CreateWindowFromHWND(wxWindow* parent, WXHWND hWnd)
+     wxCHECK_MSG( parent, NULL, wxT("must have valid parent for a control") );
+ 
+     wxString str(wxGetWindowClass(hWnd));
+-    str.UpperCase();
++    str.MakeUpper();
+ 
+     long id = wxGetWindowId(hWnd);
+     long style = GetWindowLong((HWND) hWnd, GWL_STYLE);
+diff --git a/src/msw/statbox.cpp b/src/msw/statbox.cpp
+index ff8ba89ed5..5757703aca 100644
+--- a/src/msw/statbox.cpp
++++ b/src/msw/statbox.cpp
+@@ -411,7 +411,7 @@ WXHRGN wxStaticBox::MSWGetRegionWithoutChildren()
+ 
+         wxMSWWinStyleUpdater updateStyle(child);
+         wxString str(wxGetWindowClass(child));
+-        str.UpperCase();
++        str.MakeUpper();
+         if ( str == wxT("BUTTON") && updateStyle.IsOn(BS_GROUPBOX) )
+         {
+             if ( child == GetHwnd() )
+-- 
+2.26.0.windows.1
+

@@ -1,0 +1,36 @@
+From e012793537e24e9733570409a539fe3ca6cab0a5 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 07:57:37 -0400
+Subject: html: Replace wxString LowerCase() with MakeLower()
+
+Per docs wxString::LowerCase() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/html/helpdata.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/html/helpdata.cpp b/src/html/helpdata.cpp
+index 6dcede915b..907db5f79e 100644
+--- a/src/html/helpdata.cpp
++++ b/src/html/helpdata.cpp
+@@ -894,7 +894,7 @@ void wxHtmlSearchEngine::LookFor(const wxString& keyword, bool case_sensitive, b
+     m_Keyword = keyword;
+ 
+     if (!m_CaseSensitive)
+-        m_Keyword.LowerCase();
++        m_Keyword.MakeLower();
+ }
+ 
+ 
+@@ -940,7 +940,7 @@ bool wxHtmlSearchEngine::Scan(const wxFSFile& file)
+     wxString bufStr = filter.ReadFile(file);
+ 
+     if (!m_CaseSensitive)
+-        bufStr.LowerCase();
++        bufStr.MakeLower();
+ 
+     {   // remove html tags
+         wxString bufStrCopy;
+-- 
+2.26.0.windows.1
+

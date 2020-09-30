@@ -1,0 +1,36 @@
+From 59844d671a1a02c9095aca247c383491c8396221 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 19:19:18 -0400
+Subject: generic: Replace wxString LowerCase() with MakeLower()
+
+Per docs wxString::LowerCase() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/generic/helpext.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/generic/helpext.cpp b/src/generic/helpext.cpp
+index a8928b63f3..9fae11de17 100644
+--- a/src/generic/helpext.cpp
++++ b/src/generic/helpext.cpp
+@@ -401,7 +401,7 @@ bool wxExtHelpController::KeywordSearch(const wxString& k,
+         if (! showAll)
+         {
+             compA = k;
+-            compA.LowerCase();
++            compA.MakeLower();
+         }
+ 
+         while (node)
+@@ -412,7 +412,7 @@ bool wxExtHelpController::KeywordSearch(const wxString& k,
+             bool testTarget = ! compB.empty();
+             if (testTarget && ! showAll)
+             {
+-                compB.LowerCase();
++                compB.MakeLower();
+                 testTarget = compB.Contains(compA);
+             }
+ 
+-- 
+2.26.0.windows.1
+

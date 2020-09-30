@@ -1,0 +1,81 @@
+From c5fb88eb7bbe7c151f4a7c9487caf1f2bae13485 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 2 Apr 2020 19:31:26 -0400
+Subject: tests: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ tests/controls/textctrltest.cpp | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/tests/controls/textctrltest.cpp b/tests/controls/textctrltest.cpp
+index 795adcd981..a98779b9e0 100644
+--- a/tests/controls/textctrltest.cpp
++++ b/tests/controls/textctrltest.cpp
+@@ -809,7 +809,7 @@ void TextCtrlTestCase::DoPositionToXYMultiLine(long style)
+     // empty field
+     m_text->Clear();
+     const long numChars_0 = 0;
+-    wxASSERT(numChars_0 == text.Length());
++    wxASSERT(numChars_0 == text.length());
+     XYPos coords_0[numChars_0+1] =
+         { { 0, 0 } };
+ 
+@@ -829,7 +829,7 @@ void TextCtrlTestCase::DoPositionToXYMultiLine(long style)
+     text = wxS("1234");
+     m_text->SetValue(text);
+     const long numChars_1 = 4;
+-    wxASSERT( numChars_1 == text.Length() );
++    wxASSERT( numChars_1 == text.length() );
+     XYPos coords_1[numChars_1+1] =
+         { { 0, 0 }, { 1, 0 }, { 2, 0}, { 3, 0 }, { 4, 0 } };
+ 
+@@ -861,7 +861,7 @@ void TextCtrlTestCase::DoPositionToXYMultiLine(long style)
+ #endif // WXMSW
+ 
+     const long numChars_2 = 8;
+-    wxASSERT(numChars_2 == text.Length());
++    wxASSERT(numChars_2 == text.length());
+     XYPos coords_2[numChars_2 + 1] =
+         { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 3, 0 },
+           { 0, 1 }, { 1, 1 }, { 2, 1 },
+@@ -910,7 +910,7 @@ void TextCtrlTestCase::DoPositionToXYMultiLine(long style)
+ #endif // WXMSW
+ 
+     const long numChars_3 = 3;
+-    wxASSERT(numChars_3 == text.Length());
++    wxASSERT(numChars_3 == text.length());
+     XYPos coords_3[numChars_3+1] =
+         { { 0, 0 },
+           { 0, 1 },
+@@ -962,7 +962,7 @@ void TextCtrlTestCase::DoPositionToXYMultiLine(long style)
+ #endif // WXMSW
+ 
+     const long numChars_4 = 10;
+-    wxASSERT(numChars_4 == text.Length());
++    wxASSERT(numChars_4 == text.length());
+     XYPos coords_4[numChars_4+1] =
+         { { 0, 0 }, { 1, 0 }, { 2, 0 }, { 3, 0 },
+           { 0, 1 }, { 1, 1 },
+@@ -1197,7 +1197,7 @@ void TextCtrlTestCase::PositionToXYSingleLine()
+     // pure one line
+     text = wxS("1234");
+     m_text->SetValue(text);
+-    const long numChars_1 = text.Length();
++    const long numChars_1 = text.length();
+     CPPUNIT_ASSERT_EQUAL( numChars_1, m_text->GetLastPosition() );
+     for ( long i = 0; i <= numChars_1; i++ )
+     {
+@@ -1213,7 +1213,7 @@ void TextCtrlTestCase::PositionToXYSingleLine()
+     // with new line characters
+     text = wxS("123\nab\nX");
+     m_text->SetValue(text);
+-    const long numChars_2 = text.Length();
++    const long numChars_2 = text.length();
+     CPPUNIT_ASSERT_EQUAL( numChars_2, m_text->GetLastPosition() );
+     for ( long i = 0; i <= numChars_2; i++ )
+     {
+-- 
+2.26.0.windows.1
+

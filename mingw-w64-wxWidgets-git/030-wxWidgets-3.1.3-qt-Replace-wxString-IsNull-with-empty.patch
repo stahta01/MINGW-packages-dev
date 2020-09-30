@@ -1,0 +1,27 @@
+From 042397dec76d4d9e6c49e669a296809951b331fa Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 18:39:03 -0400
+Subject: qt: Replace wxString IsNull() with empty()
+
+Per docs wxString::IsNull() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/qt/listctrl.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/qt/listctrl.cpp b/src/qt/listctrl.cpp
+index 8959517240..a0c87355c4 100644
+--- a/src/qt/listctrl.cpp
++++ b/src/qt/listctrl.cpp
+@@ -431,7 +431,7 @@ public:
+ 
+         QVector<int> roles;
+ 
+-        if ( (info.m_mask & wxLIST_MASK_TEXT) && !info.GetText().IsNull() )
++        if ( (info.m_mask & wxLIST_MASK_TEXT) && !info.GetText().empty() )
+         {
+             columnItem.m_label =  wxQtConvertString(info.GetText());
+             roles.push_back(Qt::DisplayRole);
+-- 
+2.26.0.windows.1
+

@@ -1,0 +1,1111 @@
+####
+#
+# Based on packages found at these URLs
+#     https://www.archlinux.org/packages/extra/i686/wxgtk-common/
+#     https://github.com/Alexpux/MINGW-packages/tree/master/mingw-w64-wxWidgets
+#
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+#
+####
+#
+# Normal 64 bit build command
+#   MINGW_INSTALLS=mingw64 makepkg-mingw -sLf
+
+_basename=wxWidgets
+_sourcedir=${_basename}-git
+_wx_basever=3.1
+_namesuffix="-git"
+pkgbase=mingw-w64-${_basename}${_namesuffix}
+_enable_mediactrl=yes     # Not yet used in building wxGTK/Win or wxQt/Win
+_enable_webview=yes       # Not used in building wxGTK/Win
+_build_msw=yes            # Set to yes for normal build
+_build_ANSI=no            # Set to no for normal build
+_build_gtk2=no            # Set to no for normal build
+_build_gtk3=no            # Set to no for normal build
+_build_qt=no              # Set to no for normal build
+pkgname=(
+  ${MINGW_PACKAGE_PREFIX}-wxconfig${_namesuffix}
+  ${MINGW_PACKAGE_PREFIX}-wxbase${_wx_basever}${_namesuffix}
+  $([[ "$_build_msw" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-wxmsw${_wx_basever}${_namesuffix}")
+  $([[ "$_build_ANSI" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-wxmsw${_wx_basever}-ANSI${_namesuffix}")
+  $([[ "$_build_gtk2" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-wxgtk${_wx_basever}-gtk2${_namesuffix}")
+  $([[ "$_build_gtk3" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-wxgtk${_wx_basever}-gtk3${_namesuffix}")
+  $([[ "$_build_qt" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-wxqt${_wx_basever}${_namesuffix}")
+)
+pkgver=3.1.5.0.v+522.c24.gcda21c8ddc
+pkgrel=1
+pkgdesc="A C++ library that lets developers create applications for Windows, Linux and UNIX (mingw-w64)"
+arch=('any')
+license=("custom:wxWindows")
+url="https://www.wxwidgets.org/"
+makedepends=(
+  "diffutils"
+  "git"
+  "make"
+  $([[ "$_build_gtk2" == "yes" || "$_build_gtk3" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-pkg-config")
+  $([[ "$_build_gtk2" == "yes" || "$_build_gtk3" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-libsecret")
+  $([[ "$_build_gtk2" == "yes" || "$_build_gtk3" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-libnotify")
+  $([[ "$_build_gtk2" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-gtk2")
+  $([[ "$_build_gtk3" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-gtk3")
+  $([[ "$_build_qt"   == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-qt5")
+  "${MINGW_PACKAGE_PREFIX}-libpng"
+  "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+  "${MINGW_PACKAGE_PREFIX}-libtiff"
+)
+checkdepends=()
+options=('strip' 'staticlibs' 'buildflags' '!debug')
+#options=('!strip' 'staticlibs' 'buildflags' 'debug')
+source=(
+  ${_sourcedir}::"git+https://github.com/wxWidgets/wxWidgets.git#branch=master"
+
+  001-wxWidgets-3.0.2-relocate-prefix-in-bin-wx-config.patch
+
+  021-wxWidgets-3.1.2-Disable-wxUSE_GRAPHICS_DIRECT2D.patch
+  022-wxWidgets-3.1.3-Add-wxHAS_XLOCALE_SUPPORT-to-mingw64.patch
+  023-wxWidgets-3.1.2-setup-wxUSE_GRAPHICS_DIRECT2D.patch
+  024-wxWidgets-3.0.4-Add-wxHAVE_DPI_INDEPENDENT_PIXELS-guard.patch
+
+  # When wx git master begins version 3.3 dev send these replacement patches to wxTeam
+  025-wxWidgets-3.1.3-samples-Replace-wxString-Length-with-length.patch
+  026-wxWidgets-3.1.3-tests-Replace-wxString-Length-with-length.patch
+  027-wxWidgets-3.1.3-stc-Replace-wxString-Length-with-length.patch
+  028-wxWidgets-3.1.3-common-Replace-wxString-Length-with-length.patch
+  029-wxWidgets-3.0.4-common-Replace-wxString-Remove-with-Truncate.patch
+  030-wxWidgets-3.1.3-qt-Replace-wxString-IsNull-with-empty.patch
+  031-wxWidgets-3.0.4-Add-deprecated-wxWidgets-1.xx-compatibility-message.patch
+  032-wxWidgets-3.1.3-generic-Replace-wxString-Length-with-length.patch
+  033-wxWidgets-3.0.4-generic-Replace-wxString-First-with-Find.patch
+  034-wxWidgets-3.0.4-generic-Replace-wxString-LowerCase-with-MakeLower.patch
+  035-wxWidgets-3.1.3-msw-Replace-wxString-Length-with-length.patch
+  036-wxWidgets-3.1.3-msw-Replace-wxString-UpperCase-with-MakeUpper.patch
+  037-wxWidgets-3.0.4-aui-Replace-wxString-Length-with-length.patch
+  038-wxWidgets-3.0.4-html-Replace-wxString-Length-with-length.patch
+  039-wxWidgets-3.0.4-html-Replace-wxString-LowerCase-with-MakeLower.patch
+  040-wxWidgets-3.1.3-propgrid-Replace-wxString-Length-with-length.patch
+  041-wxWidgets-3.0.4-xml-Replace-wxString-Length-with-length.patch
+  042-wxWidgets-3.1.3-richtext-Replace-wxString-Length-with-length.patch
+  043-wxWidgets-3.0.4-wxrc-Replace-wxString-Length-with-length.patch
+
+  # Consider sending this patch to wxTeam
+  044-wxWidgets-3.1.3-Warning-reductions.patch
+
+  # Patches rejected by wxWidgets team
+  051-wxWidgets-3.1.3-Remove-WX_LIBS_STATIC-from-m4.patch
+)
+sha256sums=('SKIP'
+            'ca0c2ddbf34654589c79dc859adf8fd9bf20388789bb098c7456cfe81b3ea805'
+            '99fb6781e9d0fcb3dc910a53245596c5b677c9df00214ff76ffece6bbc8779d9'
+            '94be2da4172c93331707979713d980f7f649dcf14add3d40b34e116549a23003'
+            '132a58955e8ed566b8d169a8ce97d6c361b0591f26c22a1a6d8307d22eafe999'
+            'c5ee3627b19530bf2509d6fc1fa2c6741ac9b7e121d55a29339d5c5dfbb67ccb'
+            '19d2f400f5608eb0e7dc5595124f3ece366e2ed13824b5ea6d11ea53ec77fde5'
+            'd31e6de888e85bfaf3f48da266d6de795628e32e22c0c8a7af09f6acd77242ec'
+            '457bccc66eed2e983247e0cdbbbe9ea209381453acab0661fa866d902bea0f11'
+            'd039158e396d75e9b9d613c1588b51ca1317fc8683a0a75bdd8c4de0d33c12c5'
+            '1142d0f21c077dbbdb0bc45d9ff1ac7f52b34c05af603620e7782456cf89464e'
+            '8424563e91e6718d65a918316042fa86c63e4bf298186f9a9a11b1841938f800'
+            '07c269b3b6ca863b03eed1f1115012005adf468dd3fcef3a3a8764a00d689da9'
+            '8eec18ec3a326b00bb333c8c385df52b381f47628d37bdd96e2777a3e12214c7'
+            '4ae8280621333394b8151aca714153f629cb1f1f94c9084bf4709d930d707793'
+            'b31bba06ee9e6d96a3688134cbc6fd6ca777bb98226b576ad522cbe57cf47ada'
+            '2206dc3f18ad9b0212f19642161a3368620b5a4286c1b2aa12c4b4429c212285'
+            'fe921b6f56250b7b5be3e7b055b03cb7b1191d757fc5e94af3776f78744805fb'
+            '38ccb94a80c02af370a50c17b5c6be74ccf10a092eeda917dc20a5ac9591a65b'
+            '1202c80ee0951557f3596b57ed0a430f2393fd2e4b1da1534677981a01de3d5a'
+            '72ab1dd9ea481845ff542f3463eeb3517b88bb1df1fe96818a93541fb7300485'
+            'ba96b08238985943b720a754b83b1fd48e975d7eb53f6db493a17e7b059abae3'
+            '570e1efd8cb7d6ae4d4b5e379d0684cebcc40a42c2da16d5bdec61aed0a4f0f8'
+            '7b5cefbc9040ea0a5b0d1b350cb14dee4ac0775d7dc18970868c71991eb99fd5'
+            'c8702416dc5640e262bac12663311910b6a5d9e1ae92b54e249d1c1af95af02d'
+            'b19c5c6ebb8bc04933aada99497fbc32e25071b4705dc05927e2c66bbf1111b4'
+            '4a4828f0c9cdc638cffde6a30b5dfb14283719acc9e89e19de8ec2d5a80a5aec')
+
+if [[ "$_enable_webview" == "yes" ]] ; then
+    _webview_option=--enable-webview
+else
+    _webview_option=--disable-webview
+fi
+
+if [[ "$_enable_mediactrl" == "yes" ]] ; then
+    _mediactrl_option=--enable-mediactrl
+else
+    _mediactrl_option=--disable-mediactrl
+fi
+
+# Declare global variables; begin with underscore to avoid name conflicts
+_git_base_commit=
+
+pkgver() {
+  cd ${srcdir}/${_sourcedir}
+  local _major=$(head -n 34 include/wx/version.h | grep 'wxMAJOR_VERSION' | sed -e 's/.* //' | tr '\n' '.' | sed 's/.$/\n/')
+  local _minor1=$(head -n 34 include/wx/version.h | grep 'wxMINOR_VERSION' | sed -e 's/.* //' | tr '\n' '.' | sed 's/.$/\n/')
+  local _minor2=$(head -n 34 include/wx/version.h | grep 'wxRELEASE_NUMBER' | sed -e 's/.* //' | tr '\n' '.' | sed 's/.$/\n/')
+  local _minor3=$(head -n 34 include/wx/version.h | grep 'wxSUBRELEASE_NUMBER' | sed -e 's/.* //' | tr '\n' '.' | sed 's/.$/\n/')
+  printf "%s.%s.%s.%s.v+%s.c%s.g%s" "$_major" "$_minor1" "$_minor2" "$_minor3" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} include/wx/version.h)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+}
+
+prepare() {
+  cd "${srcdir}/${_sourcedir}"
+
+  git submodule init
+  git submodule update
+
+  _git_base_commit=$(git rev-parse HEAD)
+  GIT_AM="git am --committer-date-is-author-date"
+
+  git config --local user.name  "nobody"
+  git config --local user.email "nobody@example.com"
+
+  # Fix Run-Time wx-config bug: MSys2 Mingw only patch; Do not try to submit upstream
+  ${GIT_AM} ${srcdir}/001-wxWidgets-3.0.2-relocate-prefix-in-bin-wx-config.patch
+
+  # These patches helps with building Code::Blocks IDE; since, it
+  #   wants wxUSE_GRAPHICS_DIRECT2D to be true
+  ${GIT_AM} ${srcdir}/021-wxWidgets-3.1.2-Disable-wxUSE_GRAPHICS_DIRECT2D.patch
+  ${GIT_AM} ${srcdir}/023-wxWidgets-3.1.2-setup-wxUSE_GRAPHICS_DIRECT2D.patch
+  # ${srcdir}/${_sourcedir}/build/update-setup-h
+
+  # Patch needs testing in building wxGTK/Win32
+  ${GIT_AM} ${srcdir}/024-wxWidgets-3.0.4-Add-wxHAVE_DPI_INDEPENDENT_PIXELS-guard.patch
+
+  ${GIT_AM} ${srcdir}/025-wxWidgets-3.1.3-samples-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/026-wxWidgets-3.1.3-tests-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/027-wxWidgets-3.1.3-stc-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/028-wxWidgets-3.1.3-common-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/029-wxWidgets-3.0.4-common-Replace-wxString-Remove-with-Truncate.patch
+  ${GIT_AM} ${srcdir}/030-wxWidgets-3.1.3-qt-Replace-wxString-IsNull-with-empty.patch
+#  ${GIT_AM} ${srcdir}/031-wxWidgets-3.0.4-Add-deprecated-wxWidgets-1.xx-compatibility-message.patch
+  ${GIT_AM} ${srcdir}/032-wxWidgets-3.1.3-generic-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/033-wxWidgets-3.0.4-generic-Replace-wxString-First-with-Find.patch
+  ${GIT_AM} ${srcdir}/034-wxWidgets-3.0.4-generic-Replace-wxString-LowerCase-with-MakeLower.patch
+  ${GIT_AM} ${srcdir}/035-wxWidgets-3.1.3-msw-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/036-wxWidgets-3.1.3-msw-Replace-wxString-UpperCase-with-MakeUpper.patch
+  ${GIT_AM} ${srcdir}/037-wxWidgets-3.0.4-aui-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/038-wxWidgets-3.0.4-html-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/039-wxWidgets-3.0.4-html-Replace-wxString-LowerCase-with-MakeLower.patch
+  ${GIT_AM} ${srcdir}/040-wxWidgets-3.1.3-propgrid-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/041-wxWidgets-3.0.4-xml-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/042-wxWidgets-3.1.3-richtext-Replace-wxString-Length-with-length.patch
+  ${GIT_AM} ${srcdir}/043-wxWidgets-3.0.4-wxrc-Replace-wxString-Length-with-length.patch
+
+  ${GIT_AM} ${srcdir}/044-wxWidgets-3.1.3-Warning-reductions.patch
+
+  # MinGW64 GCC stdlib is missing library functions 2019-11-26
+  #${GIT_AM} ${srcdir}/022-wxWidgets-3.1.3-Add-wxHAS_XLOCALE_SUPPORT-to-mingw64.patch
+
+  # MSys2 fails to set WX_LIBS_STATIC correctly; removed to see if something breaks.
+  ${GIT_AM} ${srcdir}/051-wxWidgets-3.1.3-Remove-WX_LIBS_STATIC-from-m4.patch
+}
+
+build() {
+  ####
+  # Configure options added to support other software:
+  #   --enable-graphics_ctx     codelite
+  #
+  # Configure options added to check for build issues
+  #   --disable-precomp-headers
+  #
+  # Configure options added to avoid possible future issues
+  #   --with-cxx=14             # Not sure this was a good idea to add
+  #   --enable-std_string
+  #   --enable-std_iostreams
+  #   --enable-std_containers_compat
+  #
+  # Configure options added to avoid warnings under wxGTK/Win:
+  #   --without-xtest
+  #   --disable-mediactrl
+  #   --disable-webview
+  #   --without-gtkprint
+  #   --enable-dynamicloader    # Did not seem to make a difference
+  #
+  # Configure options added to avoid errors under wxQT/Win:
+  #   --disable-wxdib           # dnd sample build error
+  #                             #   and other run-time errors
+  #
+  # Configure options added to avoid warnings:
+  #   --with-regex=builtin
+  #
+  # Configure options known to cause build errors:
+  #   --disable-regkey                                compile error
+  #
+  # Configure options known to cause build errors under wxGTK/Win:
+  #   --with-opengl                                   configure error
+  #   --enable-accessibility                          compile error
+  #     "wxUSE_ACCESSIBILITY is currently only supported under wxMSW"
+  #
+  ####
+
+case ${MINGW_CHOST} in
+  i686*)
+    _march=i686
+  ;;
+  x86_64*)
+    _march=x86-64
+  ;;
+esac
+
+if check_option "buildflags" "y"; then
+# Remove the -O and -ggdb options to avoid configuration warnings
+# from the normal settings found in /etc/makepkg_mingw??.conf
+
+CXXFLAGS=${CXXFLAGS/-Og }
+CXXFLAGS=${CXXFLAGS/-O2 }
+CXXFLAGS=${CXXFLAGS/-ggdb }
+
+CFLAGS=${CFLAGS/-Og }
+CFLAGS=${CFLAGS/-O2 }
+CFLAGS=${CFLAGS/-ggdb }
+fi
+
+
+local -a _debug_options=()
+
+if check_option "debug" "y"; then
+    _debug_options+=("--enable-debug_gdb")
+    _debug_options+=("--enable-debug_info")
+    _debug_options+=("--enable-debug=max")
+else
+    _debug_options+=("--enable-optimise")
+    _debug_options+=("--enable-debug=yes")
+fi
+
+echo "CXXFLAGS := ${CXXFLAGS}"
+echo "_debug_options := ${_debug_options[@]}"
+
+  [[ -d "${srcdir}"/build-base-${CARCH}-static ]] && rm -rf "${srcdir}"/build-base-${CARCH}-static
+  mkdir -p "${srcdir}"/build-base-${CARCH}-static && cd "${srcdir}"/build-base-${CARCH}-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --disable-gui \
+      --with-cxx=14 \
+      --enable-std_string \
+      --enable-std_iostreams \
+      --enable-std_containers_compat \
+      --with-zlib=builtin \
+      --with-expat=builtin \
+      --with-regex=builtin \
+      --disable-shared \
+      --disable-precomp-headers \
+      --enable-iff \
+      --enable-permissive \
+      --enable-unicode \
+      --enable-accessibility \
+      "${_debug_options[@]}"
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-base-${CARCH}-static ]] && rm -rf "${srcdir}"/install-base-${CARCH}-static
+  make -j1 DESTDIR="${srcdir}"/install-base-${CARCH}-static install
+
+  [[ -d "${srcdir}"/build-base-${CARCH} ]] && rm -rf "${srcdir}"/build-base-${CARCH}
+  mkdir -p "${srcdir}"/build-base-${CARCH} && cd "${srcdir}"/build-base-${CARCH}
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --disable-gui \
+      --with-cxx=14 \
+      --enable-std_string \
+      --enable-std_iostreams \
+      --enable-std_containers_compat \
+      --with-regex=builtin \
+      --enable-shared \
+      --enable-iff \
+      --enable-permissive \
+      --enable-unicode \
+      --enable-accessibility \
+      "${_debug_options[@]}"
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-base-${CARCH} ]] && rm -rf "${srcdir}"/install-base-${CARCH}
+  make -j1 DESTDIR="${srcdir}"/install-base-${CARCH} install
+
+if [[ "$_build_qt" == "yes" ]] ; then
+  [[ -d "${srcdir}"/build-qt-${CARCH}-static ]] && rm -rf "${srcdir}"/build-qt-${CARCH}-static
+  mkdir -p "${srcdir}"/build-qt-${CARCH}-static && cd "${srcdir}"/build-qt-${CARCH}-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-qt \
+    --disable-wxdib \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-libpng=builtin \
+    --with-libjpeg=builtin \
+    --with-libtiff=builtin \
+    --with-zlib=builtin \
+    --with-expat=builtin \
+    --with-regex=builtin \
+    --without-xtest \
+    --disable-shared \
+    --disable-precomp-headers \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    "${_webview_option}" \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/qt-unicode-static-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-qt-${CARCH}-static ]] && rm -rf "${srcdir}"/install-qt-${CARCH}-static
+  make -j1 DESTDIR="${srcdir}"/install-qt-${CARCH}-static install
+
+  [[ -d "${srcdir}"/build-qt-${CARCH} ]] && rm -rf "${srcdir}"/build-qt-${CARCH}
+  mkdir -p "${srcdir}"/build-qt-${CARCH} && cd "${srcdir}"/build-qt-${CARCH}
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-qt \
+    --disable-wxdib \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-regex=builtin \
+    --with-libpng=sys \
+    --with-libjpeg=sys \
+    --with-libtiff=sys \
+    --without-xtest \
+    --enable-shared \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    "${_webview_option}" \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/qt-unicode-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-qt-${CARCH} ]] && rm -rf "${srcdir}"/install-qt-${CARCH}
+  make -j1 DESTDIR="${srcdir}"/install-qt-${CARCH} install
+fi
+
+if [[ "$_build_gtk2" == "yes" ]] ; then
+  [[ -d "${srcdir}"/build-gtk2-${CARCH}-static ]] && rm -rf "${srcdir}"/build-gtk2-${CARCH}-static
+  mkdir -p "${srcdir}"/build-gtk2-${CARCH}-static && cd "${srcdir}"/build-gtk2-${CARCH}-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-gtk=2 \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-libpng=builtin \
+    --with-libjpeg=builtin \
+    --with-libtiff=builtin \
+    --with-zlib=builtin \
+    --with-expat=builtin \
+    --with-regex=builtin \
+    --without-xtest \
+    --disable-shared \
+    --disable-precomp-headers \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    --disable-webview \
+    --without-gtkprint \
+    --enable-dynamicloader \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/gtk2-unicode-static-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-gtk2-${CARCH}-static ]] && rm -rf "${srcdir}"/install-gtk2-${CARCH}-static
+  make -j1 DESTDIR="${srcdir}"/install-gtk2-${CARCH}-static install
+
+  [[ -d "${srcdir}"/build-gtk2-${CARCH} ]] && rm -rf "${srcdir}"/build-gtk2-${CARCH}
+  mkdir -p "${srcdir}"/build-gtk2-${CARCH} && cd "${srcdir}"/build-gtk2-${CARCH}
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-gtk=2 \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-regex=builtin \
+    --with-libpng=sys \
+    --with-libjpeg=sys \
+    --with-libtiff=sys \
+    --without-xtest \
+    --enable-shared \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    --disable-webview \
+    --without-gtkprint \
+    --enable-dynamicloader \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/gtk2-unicode-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-gtk2-${CARCH} ]] && rm -rf "${srcdir}"/install-gtk2-${CARCH}
+  make -j1 DESTDIR="${srcdir}"/install-gtk2-${CARCH} install
+fi
+
+if [[ "$_build_gtk3" == "yes" ]] ; then
+  [[ -d "${srcdir}"/build-gtk3-${CARCH}-static ]] && rm -rf "${srcdir}"/build-gtk3-${CARCH}-static
+  mkdir -p "${srcdir}"/build-gtk3-${CARCH}-static && cd "${srcdir}"/build-gtk3-${CARCH}-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-gtk=3 \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-libpng=builtin \
+    --with-libjpeg=builtin \
+    --with-libtiff=builtin \
+    --with-zlib=builtin \
+    --with-expat=builtin \
+    --with-regex=builtin \
+    --without-xtest \
+    --disable-shared \
+    --disable-precomp-headers \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    --disable-webview \
+    --without-gtkprint \
+    --enable-dynamicloader \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/gtk3-unicode-static-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-gtk3-${CARCH}-static ]] && rm -rf "${srcdir}"/install-gtk3-${CARCH}-static
+  make -j1 DESTDIR="${srcdir}"/install-gtk3-${CARCH}-static install
+
+  [[ -d "${srcdir}"/build-gtk3-${CARCH} ]] && rm -rf "${srcdir}"/build-gtk3-${CARCH}
+  mkdir -p "${srcdir}"/build-gtk3-${CARCH} && cd "${srcdir}"/build-gtk3-${CARCH}
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-gtk=3 \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-regex=builtin \
+    --with-libpng=sys \
+    --with-libjpeg=sys \
+    --with-libtiff=sys \
+    --without-xtest \
+    --enable-shared \
+    --enable-textfile \
+    --enable-iff \
+    --enable-permissive \
+    --enable-unicode \
+    --enable-graphics_ctx \
+    --enable-regkey \
+    --disable-mediactrl \
+    --disable-webview \
+    --without-gtkprint \
+    --enable-dynamicloader \
+    "${_debug_options[@]}" \
+    --without-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/gtk3-unicode-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-gtk3-${CARCH} ]] && rm -rf "${srcdir}"/install-gtk3-${CARCH}
+  make -j1 DESTDIR="${srcdir}"/install-gtk3-${CARCH} install
+fi
+
+if [[ "$_build_msw" == "yes" ]] ; then
+  [[ -d "${srcdir}"/build-msw-${CARCH}-static ]] && rm -rf "${srcdir}"/build-msw-${CARCH}-static
+  mkdir -p "${srcdir}"/build-msw-${CARCH}-static && cd "${srcdir}"/build-msw-${CARCH}-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --with-msw \
+      --with-cxx=14 \
+      --enable-std_string \
+      --enable-std_iostreams \
+      --enable-std_containers_compat \
+      --with-libpng=builtin \
+      --with-libjpeg=builtin \
+      --with-libtiff=builtin \
+      --with-zlib=builtin \
+      --with-expat=builtin \
+      --with-regex=builtin \
+      --disable-shared \
+      --disable-precomp-headers \
+      --enable-iff \
+      --enable-permissive \
+      --enable-unicode \
+      --enable-graphics_ctx \
+      --enable-accessibility \
+      "${_mediactrl_option}" \
+      "${_webview_option}" \
+      "${_debug_options[@]}" \
+      --with-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/msw-unicode-static-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-msw-${CARCH}-static ]] && rm -rf "${srcdir}"/install-msw-${CARCH}-static
+  make -j1 DESTDIR="${srcdir}"/install-msw-${CARCH}-static install
+
+  [[ -d "${srcdir}"/build-msw-${CARCH} ]] && rm -rf "${srcdir}"/build-msw-${CARCH}
+  mkdir -p "${srcdir}"/build-msw-${CARCH} && cd "${srcdir}"/build-msw-${CARCH}
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --with-msw \
+      --with-cxx=14 \
+      --enable-std_string \
+      --enable-std_iostreams \
+      --enable-std_containers_compat \
+      --with-regex=builtin \
+      --with-libpng=sys \
+      --with-libjpeg=sys \
+      --with-libtiff=sys \
+      --enable-shared \
+      --enable-iff \
+      --enable-permissive \
+      --enable-unicode \
+      --enable-graphics_ctx \
+      --enable-accessibility \
+      "${_mediactrl_option}" \
+      "${_webview_option}" \
+      "${_debug_options[@]}" \
+      --with-opengl
+
+  sed -i 's/#define wxUSE_XLOCALE       0/#define wxUSE_XLOCALE       1/' lib/wx/include/msw-unicode-${_wx_basever}/wx/setup.h
+
+  make -j1 #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-msw-${CARCH} ]] && rm -rf "${srcdir}"/install-msw-${CARCH}
+  make -j1 DESTDIR="${srcdir}"/install-msw-${CARCH} install
+fi
+
+if [[ "$_build_ANSI" == "yes" ]] ; then
+  [[ -d "${srcdir}"/build-msw-${CARCH}-ANSI-static ]] && rm -rf "${srcdir}"/build-msw-${CARCH}-ANSI-static
+  mkdir -p "${srcdir}"/build-msw-${CARCH}-ANSI-static && cd "${srcdir}"/build-msw-${CARCH}-ANSI-static
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-msw \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-libpng=builtin \
+    --with-libjpeg=builtin \
+    --with-libtiff=builtin \
+    --with-zlib=builtin \
+    --with-expat=builtin \
+    --with-regex=builtin \
+    --disable-shared \
+    --enable-iff \
+    --disable-permissive \
+    --enable-graphics_ctx \
+    --enable-accessibility \
+    --disable-unicode \
+    --disable-precomp-headers \
+    "${_debug_options[@]}" \
+    --with-opengl
+
+  make #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-msw-${CARCH}-ANSI-static ]] && rm -rf "${srcdir}"/install-msw-${CARCH}-ANSI-static
+  make DESTDIR="${srcdir}"/install-msw-${CARCH}-ANSI-static install
+
+  [[ -d "${srcdir}"/build-msw-${CARCH}-ANSI ]] && rm -rf "${srcdir}"/build-msw-${CARCH}-ANSI
+  mkdir -p "${srcdir}"/build-msw-${CARCH}-ANSI && cd "${srcdir}"/build-msw-${CARCH}-ANSI
+
+  CFLAGS="$CFLAGS" \
+  CXXFLAGS="$CXXFLAGS" \
+  ../${_sourcedir}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --with-msw \
+    --with-cxx=14 \
+    --enable-std_string \
+    --enable-std_iostreams \
+    --enable-std_containers_compat \
+    --with-regex=builtin \
+    --with-libpng=sys \
+    --with-libjpeg=sys \
+    --with-libtiff=sys \
+    --enable-shared \
+    --enable-iff \
+    --disable-permissive \
+    --enable-graphics_ctx \
+    --enable-accessibility \
+    --disable-unicode \
+    "${_debug_options[@]}" \
+    --with-opengl
+
+  make #VERBOSE=1
+
+  [[ -d "${srcdir}"/install-msw-${CARCH}-ANSI ]] && rm -rf "${srcdir}"/install-msw-${CARCH}-ANSI
+  make DESTDIR="${srcdir}"/install-msw-${CARCH}-ANSI install
+fi
+}
+
+check() {
+    cd "${srcdir}"/build-base-${CARCH}/samples    && make -k --jobs=1 || true
+    cd "${srcdir}"/build-base-${CARCH}/tests      && make -k --jobs=1 || true
+
+    if [[ "$_build_msw" == "yes" ]] ; then
+      cd "${srcdir}"/build-msw-${CARCH}/demos     && make -k --jobs=1 || true
+      cd "${srcdir}"/build-msw-${CARCH}/samples   && make -k --jobs=1 || true
+      cd "${srcdir}"/build-msw-${CARCH}/tests     && make -k --jobs=1 || true
+    fi
+    if [[ "$_build_ANSI" == "yes" ]] ; then
+      cd "${srcdir}"/build-msw-${CARCH}-ANSI/samples  && make -k --jobs=1 || true
+      cd "${srcdir}"/build-msw-${CARCH}-ANSI/tests    && make -k --jobs=1 || true
+    fi
+    if [[ "$_build_gtk2" == "yes" ]] ; then
+      cd "${srcdir}"/build-gtk2-${CARCH}/samples  && make -k --jobs=1 || true
+      cd "${srcdir}"/build-gtk2-${CARCH}/tests    && make -k --jobs=1 || true
+    fi
+    if [[ "$_build_gtk3" == "yes" ]] ; then
+      cd "${srcdir}"/build-gtk3-${CARCH}/samples  && make -k --jobs=1 || true
+      cd "${srcdir}"/build-gtk3-${CARCH}/tests    && make -k --jobs=1 || true
+    fi
+    if [[ "$_build_qt" == "yes" ]] ; then
+      cd "${srcdir}"/build-qt-${CARCH}/samples    && make -k --jobs=1 || true
+      cd "${srcdir}"/build-qt-${CARCH}/tests      && make -k --jobs=1 || true
+    fi
+}
+
+_package_wxconfig() {
+  pkgdesc="config script for wxWidgets library (mingw-w64)"
+  groups=("${MINGW_PACKAGE_PREFIX}-wxWidgets")
+  provides=("${MINGW_PACKAGE_PREFIX}-wxconfig")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxconfig")
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  if [[ "$_build_msw" == "yes" ]] ; then
+    cp ${srcdir}/install-msw-${CARCH}${MINGW_PREFIX}/bin/wx-config ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+  elif [[ "$_build_ANSI" == "yes" ]] ; then
+    cp ${srcdir}/install-msw-${CARCH}-ANSI${MINGW_PREFIX}/bin/wx-config ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+  elif [[ "$_build_gtk3" == "yes" ]] ; then
+    cp ${srcdir}/install-gtk3-${CARCH}${MINGW_PREFIX}/bin/wx-config ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+  fi
+}
+
+_package_wxbase() {
+  pkgdesc="A C++ library that lets developers create applications for Windows, Linux and UNIX (mingw-w64)"
+  provides=("${MINGW_PACKAGE_PREFIX}-wxbase${_wx_basever}" "${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+
+  cp --recursive "${srcdir}"/install-base-${CARCH}-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-base-${CARCH}/${MINGW_PREFIX}/ ${pkgdir}/
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Rename files
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wx-config{,-${_wx_basever}}
+  mv ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin.m4 ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin${_wx_basever}.m4
+
+  # Remove conflicting files; that I have no idea how to rename
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/bakefile
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/locale
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+_package_wxmsw() {
+  pkgdesc="A C++ library that lets developers create applications for Windows, Linux and UNIX (mingw-w64)"
+  provides=("${MINGW_PACKAGE_PREFIX}-wxmsw${_wx_basever}" "${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+    "${MINGW_PACKAGE_PREFIX}-libpng"
+    "${MINGW_PACKAGE_PREFIX}-libtiff"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+
+  cp --recursive "${srcdir}"/install-msw-${CARCH}-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-msw-${CARCH}/${MINGW_PREFIX}/ ${pkgdir}/
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Rename files
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wx-config{,-${_wx_basever}}
+  mv ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin.m4 ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin${_wx_basever}.m4
+
+  # Add missing exe file extension (Likely bug in wxWidgets makefile)
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever} ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever}.exe
+
+  # Remove conflicting files; that do not need to be renamed
+  rm -f ${pkgdir}${MINGW_PREFIX}/bin/wxrc.exe
+
+  # Remove conflicting files; that I have no idea how to rename
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/bakefile
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/locale
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+_package_wxgtk2() {
+  pkgdesc="GTK+ 3.x implementation of wxWidgets API for GUI (mingw-w64)"
+  provides=("${MINGW_PACKAGE_PREFIX}-wxgtk${_wx_basever}-gtk2" "${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-libnotify"
+    "${MINGW_PACKAGE_PREFIX}-gtk2"
+    "${MINGW_PACKAGE_PREFIX}-gdk-pixbuf2"
+    #$([[ "$_enable_mediactrl" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-gstreamer")
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+    "${MINGW_PACKAGE_PREFIX}-libpng"
+    "${MINGW_PACKAGE_PREFIX}-libtiff"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+  local MINGW_PREFIX_WIN=$(cygpath -am ${MINGW_PREFIX})
+
+  cp --recursive "${srcdir}"/install-gtk2-${CARCH}-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-gtk2-${CARCH}/${MINGW_PREFIX}/ ${pkgdir}/
+
+  # Copy files missing from wxGTK install; not sure if all these files are needed by wxGTK/win
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/wx.rc      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/wx.rc
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/rcdefs.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/rcdefs.h
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.cur      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.ico      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.bmp      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.manifest ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+
+  # Need to create patch for wxWidgets to add "wx/msw/init.h" to wxGTK/win build
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/init.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/init.h
+
+
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/gtk2-unicode-${_wx_basever}
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/gtk2-unicode-static-${_wx_basever}
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Rename files
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wx-config{,-${_wx_basever}}
+  mv ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin.m4 ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin${_wx_basever}.m4
+
+  # Add missing exe file extension (Likely bug in wxWidgets makefile)
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever} ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever}.exe
+
+  # Remove conflicting files; that do not need to be renamed
+  rm -f ${pkgdir}${MINGW_PREFIX}/bin/wxrc.exe
+
+  # Remove conflicting files; that I have no idea how to rename
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/bakefile
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/locale
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+_package_wxgtk3() {
+  pkgdesc="GTK+ 3.x implementation of wxWidgets API for GUI (mingw-w64)"
+  provides=("${MINGW_PACKAGE_PREFIX}-wxgtk${_wx_basever}-gtk3" "${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-libnotify"
+    "${MINGW_PACKAGE_PREFIX}-gtk3"
+    "${MINGW_PACKAGE_PREFIX}-gdk-pixbuf2"
+    #$([[ "$_enable_mediactrl" == "yes" ]] && echo "${MINGW_PACKAGE_PREFIX}-gstreamer")
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+    "${MINGW_PACKAGE_PREFIX}-libpng"
+    "${MINGW_PACKAGE_PREFIX}-libtiff"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+  local MINGW_PREFIX_WIN=$(cygpath -am ${MINGW_PREFIX})
+
+  cp --recursive "${srcdir}"/install-gtk3-${CARCH}-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-gtk3-${CARCH}/${MINGW_PREFIX}/ ${pkgdir}/
+
+  # Copy files missing from wxGTK install; not sure if all these files are needed by wxGTK/win
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/wx.rc      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/wx.rc
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/rcdefs.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/rcdefs.h
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.cur      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.ico      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.bmp      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.manifest ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+
+  # Need to create patch for wxWidgets to add "wx/msw/init.h" to wxGTK/win build
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/init.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/init.h
+
+
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/gtk3-unicode-${_wx_basever}
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/gtk3-unicode-static-${_wx_basever}
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Rename files
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wx-config{,-${_wx_basever}}
+  mv ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin.m4 ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin${_wx_basever}.m4
+
+  # Add missing exe file extension (Likely bug in wxWidgets makefile)
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever} ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever}.exe
+
+  # Remove conflicting files; that do not need to be renamed
+  rm -f ${pkgdir}${MINGW_PREFIX}/bin/wxrc.exe
+
+  # Remove conflicting files; that I have no idea how to rename
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/bakefile
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/locale
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+_package_wxqt() {
+  pkgdesc="Qt 5.x implementation of wxWidgets API for GUI (mingw-w64)"
+  provides=("${MINGW_PACKAGE_PREFIX}-wxqt${_wx_basever}" "${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-wxWidgets${_wx_basever}")
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-qt5"
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+    "${MINGW_PACKAGE_PREFIX}-libpng"
+    "${MINGW_PACKAGE_PREFIX}-libtiff"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+  local MINGW_PREFIX_WIN=$(cygpath -am ${MINGW_PREFIX})
+
+  cp --recursive "${srcdir}"/install-qt-${CARCH}-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-qt-${CARCH}/${MINGW_PREFIX}/ ${pkgdir}/
+
+  # Copy files missing from wxQt install; not sure if all these files are needed by wxQt/win
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/wx.rc      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/wx.rc
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/rcdefs.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/rcdefs.h
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.cur      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.ico      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.bmp      ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/*.manifest ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/
+
+  # Need to create patch for wxWidgets to add "wx/msw/init.h" to wxQt/win build
+  cp "${srcdir}"/${_sourcedir}/include/wx/msw/init.h   ${pkgdir}${MINGW_PREFIX}/include/wx-${_wx_basever}/wx/msw/init.h
+
+
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/qt-unicode-${_wx_basever}
+  sed -s "s|-L${MINGW_PREFIX_WIN}/lib||g" -i "${pkgdir}"${MINGW_PREFIX}/lib/wx/config/qt-unicode-static-${_wx_basever}
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Rename files
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wx-config{,-${_wx_basever}}
+  mv ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin.m4 ${pkgdir}${MINGW_PREFIX}/share/aclocal/wxwin${_wx_basever}.m4
+
+  # Add missing exe file extension (Likely bug in wxWidgets makefile)
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever} ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever}.exe
+
+  # Remove conflicting files; that do not need to be renamed
+  rm -f ${pkgdir}${MINGW_PREFIX}/bin/wxrc.exe
+
+  # Remove conflicting files; that I have no idea how to rename
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/bakefile
+  rm -fr ${pkgdir}${MINGW_PREFIX}/share/locale
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+_package_wxmsw_ANSI() {
+  pkgdesc="A C++ library that lets developers create applications for Windows, Linux and UNIX (mingw-w64)"
+  depends=(
+    "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+    "${MINGW_PACKAGE_PREFIX}-expat"
+    "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+    "${MINGW_PACKAGE_PREFIX}-libpng"
+    "${MINGW_PACKAGE_PREFIX}-libtiff"
+    "${MINGW_PACKAGE_PREFIX}-xz"
+    "${MINGW_PACKAGE_PREFIX}-zlib"
+  )
+
+  mkdir -p ${pkgdir}${MINGW_PREFIX}
+  cp --recursive "${srcdir}"/install-msw-${CARCH}-ANSI-static/${MINGW_PREFIX}/ ${pkgdir}/
+  cp --recursive "${srcdir}"/install-msw-${CARCH}-ANSI/${MINGW_PREFIX}/ ${pkgdir}/
+
+  mv ${pkgdir}${MINGW_PREFIX}/lib/*.dll ${pkgdir}${MINGW_PREFIX}/bin
+
+  # Add missing exe file extension (Likely bug in wxWidgets makefile)
+  mv ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever} ${pkgdir}${MINGW_PREFIX}/bin/wxrc-${_wx_basever}.exe
+
+  # Remove files
+  rm -fr ${pkgdir}${MINGW_PREFIX}/bin/wx-config
+
+  # License files
+  cd "${srcdir}"/${_sourcedir}/docs
+  install -Dm644 preamble.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/preamble.txt"
+  install -Dm644 licence.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licence.txt"
+  install -Dm644 licendoc.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/licendoc.txt"
+  install -Dm644 lgpl.txt     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/lgpl.txt"
+  install -Dm644 gpl.txt      "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/gpl.txt"
+  install -Dm644 xserver.txt  "${pkgdir}${MINGW_PREFIX}/share/licenses/${_basename}${_wx_basever}/xserver.txt"
+}
+
+package_mingw-w64-i686-wxbase3.1-git() { _package_wxbase; }
+package_mingw-w64-x86_64-wxbase3.1-git() { _package_wxbase; }
+package_mingw-w64-i686-wxmsw3.1-git() { _package_wxmsw; }
+package_mingw-w64-x86_64-wxmsw3.1-git() { _package_wxmsw; }
+package_mingw-w64-i686-wxgtk3.1-gtk2-git() { _package_wxgtk2; }
+package_mingw-w64-x86_64-wxgtk3.1-gtk2-git() { _package_wxgtk2; }
+package_mingw-w64-i686-wxgtk3.1-gtk3-git() { _package_wxgtk3; }
+package_mingw-w64-x86_64-wxgtk3.1-gtk3-git() { _package_wxgtk3; }
+package_mingw-w64-i686-wxqt3.1-git() { _package_wxqt; }
+package_mingw-w64-x86_64-wxqt3.1-git() { _package_wxqt; }
+package_mingw-w64-i686-wxmsw3.1-ANSI-git() { _package_wxmsw_ANSI; }
+package_mingw-w64-x86_64-wxmsw3.1-ANSI-git() { _package_wxmsw_ANSI; }
+package_mingw-w64-i686-wxconfig-git() { _package_wxconfig; }
+package_mingw-w64-x86_64-wxconfig-git() { _package_wxconfig; }

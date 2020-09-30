@@ -1,0 +1,121 @@
+From fe55e678fd73da9763f2afebfa77b9884588386d Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 08:18:04 -0400
+Subject: richtext: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/richtext/richtextbuffer.cpp   | 16 ++++++++--------
+ src/richtext/richtextfontpage.cpp |  2 +-
+ src/richtext/richtextxml.cpp      |  4 ++--
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/src/richtext/richtextbuffer.cpp b/src/richtext/richtextbuffer.cpp
+index de5e1c982b..a809ca0527 100644
+--- a/src/richtext/richtextbuffer.cpp
++++ b/src/richtext/richtextbuffer.cpp
+@@ -4754,7 +4754,7 @@ bool wxRichTextParagraphLayoutBox::FindNextParagraphNumber(wxRichTextParagraph*
+                     int pos = text.Find(wxT('.'), true);
+                     if (pos != wxNOT_FOUND)
+                     {
+-                        text = text.Mid(0, text.Length() - pos - 1);
++                        text = text.Mid(0, text.length() - pos - 1);
+                     }
+                     else
+                         text.clear();
+@@ -6821,7 +6821,7 @@ bool wxRichTextPlainText::Draw(wxDC& dc, wxRichTextDrawingContext& context, cons
+     wxString str = m_text;
+     if (context.HasVirtualText(this))
+     {
+-        if (!context.GetVirtualText(this, str) || str.Length() != m_text.Length())
++        if (!context.GetVirtualText(this, str) || str.length() != m_text.length())
+             str = m_text;
+     }
+ 
+@@ -7223,7 +7223,7 @@ bool wxRichTextPlainText::GetRangeSize(const wxRichTextRange& range, wxSize& siz
+     wxString str(m_text);
+     if (context.HasVirtualText(this))
+     {
+-        if (!context.GetVirtualText(this, str) || str.Length() != m_text.Length())
++        if (!context.GetVirtualText(this, str) || str.length() != m_text.length())
+             str = m_text;
+     }
+ 
+@@ -7489,7 +7489,7 @@ bool wxRichTextPlainText::CanSplit(wxRichTextDrawingContext& context) const
+     // If this object has any virtual attributes at all, whether for the whole object
+     // or individual ones, we should try splitting it by calling Split.
+     // Must be more than one character in order to be able to split.
+-    return m_text.Length() > 1 && context.HasVirtualAttributes(const_cast<wxRichTextPlainText*>(this));
++    return m_text.length() > 1 && context.HasVirtualAttributes(const_cast<wxRichTextPlainText*>(this));
+ }
+ 
+ wxRichTextObject* wxRichTextPlainText::Split(wxRichTextDrawingContext& context)
+@@ -7512,7 +7512,7 @@ wxRichTextObject* wxRichTextPlainText::Split(wxRichTextDrawingContext& context)
+ 
+                 // We will gather up runs of text with the same virtual attributes
+ 
+-                int len = m_text.Length();
++                int len = m_text.length();
+                 int i = 0;
+ 
+                 // runStart and runEnd represent the accumulated run with a consistent attribute
+@@ -8909,9 +8909,9 @@ bool wxRichTextBuffer::PasteFromClipboard(long position)
+                 wxString text(data.GetText());
+ #ifdef __WXMSW__
+                 wxString text2;
+-                text2.Alloc(text.Length()+1);
++                text2.Alloc(text.length()+1);
+                 size_t i;
+-                for (i = 0; i < text.Length(); i++)
++                for (i = 0; i < text.length(); i++)
+                 {
+                     wxChar ch = text[i];
+                     if (ch != wxT('\r'))
+@@ -8923,7 +8923,7 @@ bool wxRichTextBuffer::PasteFromClipboard(long position)
+                 container->InsertTextWithUndo(this, position+1, text2, GetRichTextCtrl(), wxRICHTEXT_INSERT_WITH_PREVIOUS_PARAGRAPH_STYLE);
+ 
+                 if (GetRichTextCtrl())
+-                    GetRichTextCtrl()->ShowPosition(position + text2.Length());
++                    GetRichTextCtrl()->ShowPosition(position + text2.length());
+ 
+                 success = true;
+             }
+diff --git a/src/richtext/richtextfontpage.cpp b/src/richtext/richtextfontpage.cpp
+index c93a8a8f79..2951b64698 100644
+--- a/src/richtext/richtextfontpage.cpp
++++ b/src/richtext/richtextfontpage.cpp
+@@ -934,7 +934,7 @@ void wxRichTextFontPage::OnFaceTextCtrlUpdated( wxCommandEvent& WXUNUSED(event)
+             size_t i;
+             for (i = 0; i < arr.GetCount(); i++)
+             {
+-                if (arr[i].Mid(0, facename.Length()).Lower() == facename.Lower())
++                if (arr[i].Mid(0, facename.length()).Lower() == facename.Lower())
+                 {
+                     m_faceListBox->ScrollToRow(i);
+                     break;
+diff --git a/src/richtext/richtextxml.cpp b/src/richtext/richtextxml.cpp
+index c05e13790c..5c44f02206 100644
+--- a/src/richtext/richtextxml.cpp
++++ b/src/richtext/richtextxml.cpp
+@@ -513,7 +513,7 @@ bool wxRichTextPlainText::ExportXML(wxOutputStream& stream, int indent, wxRichTe
+     int i;
+     int last = 0;
+     const wxString& text = GetText();
+-    int len = (int) text.Length();
++    int len = (int) text.length();
+ 
+     if (len == 0)
+     {
+@@ -627,7 +627,7 @@ bool wxRichTextPlainText::ExportXML(wxXmlNode* parent, wxRichTextXMLHandler* han
+     int i;
+     int last = 0;
+     const wxString& text = GetText();
+-    int len = (int) text.Length();
++    int len = (int) text.length();
+ 
+     if (len == 0)
+     {
+-- 
+2.26.0.windows.1
+

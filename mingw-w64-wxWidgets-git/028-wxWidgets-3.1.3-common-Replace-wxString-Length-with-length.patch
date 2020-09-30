@@ -1,0 +1,41 @@
+From 9352150010bcefbff858ae90871d02e8889ed619 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 15:33:01 -0400
+Subject: common: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/common/dcgraph.cpp  | 2 +-
+ src/common/utilscmn.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/dcgraph.cpp b/src/common/dcgraph.cpp
+index fa5a7558be..d2a3083cda 100644
+--- a/src/common/dcgraph.cpp
++++ b/src/common/dcgraph.cpp
+@@ -1257,7 +1257,7 @@ bool wxGCDCImpl::DoGetPartialTextExtents(const wxString& text, wxArrayInt& width
+ {
+     wxCHECK_MSG( m_graphicContext, false, wxT("wxGCDC(cg)::DoGetPartialTextExtents - invalid DC") );
+     widths.Clear();
+-    widths.Add(0,text.Length());
++    widths.Add(0,text.length());
+     if ( text.IsEmpty() )
+         return true;
+ 
+diff --git a/src/common/utilscmn.cpp b/src/common/utilscmn.cpp
+index 12fc75761c..3421542930 100644
+--- a/src/common/utilscmn.cpp
++++ b/src/common/utilscmn.cpp
+@@ -129,7 +129,7 @@ static const char hexArray[] = "0123456789ABCDEF";
+ // Convert 2-digit hex number to decimal
+ int wxHexToDec(const wxString& str)
+ {
+-    wxCHECK_MSG( str.Length() >= 2, -1, wxS("Invalid argument") );
++    wxCHECK_MSG( str.length() >= 2, -1, wxS("Invalid argument") );
+ 
+     char buf[2];
+     buf[0] = str.GetChar(0);
+-- 
+2.26.0.windows.1
+

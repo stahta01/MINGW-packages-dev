@@ -1,0 +1,41 @@
+From 8bc83d30080e6e4c7e6dce80ecb7e125e8717940 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 2 Apr 2020 17:19:14 -0400
+Subject: samples: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ samples/ipc/baseserver.cpp | 2 +-
+ samples/splash/splash.cpp  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/samples/ipc/baseserver.cpp b/samples/ipc/baseserver.cpp
+index 8c58305f9f..72a3307e66 100644
+--- a/samples/ipc/baseserver.cpp
++++ b/samples/ipc/baseserver.cpp
+@@ -258,7 +258,7 @@ MyConnection::OnRequest(const wxString& topic,
+         m_sRequestDate = wxDateTime::Now().FormatTime() +
+                             " " + wxDateTime::Now().FormatDate();
+         data = m_sRequestDate.c_str();
+-        *size = m_sRequestDate.Length() + 1;
++        *size = m_sRequestDate.length() + 1;
+     }
+     else if (item == "bytes[3]")
+     {
+diff --git a/samples/splash/splash.cpp b/samples/splash/splash.cpp
+index af7036446e..297d4039e8 100644
+--- a/samples/splash/splash.cpp
++++ b/samples/splash/splash.cpp
+@@ -187,7 +187,7 @@ void MyApp::DecorateSplashScreen(wxBitmap& bmp)
+     // create a copyright notice that uses the year that this file was compiled
+     wxString year(__DATE__);
+     wxString copyrightLabel = wxString::Format("%s%s wxWidgets. %s",
+-        wxString::FromUTF8("\xc2\xa9"), year.Mid(year.Length() - 4),
++        wxString::FromUTF8("\xc2\xa9"), year.Mid(year.length() - 4),
+         "All rights reserved.");
+ 
+     // draw the (white) labels inside of our orange box (at the bottom of the splashscreen)
+-- 
+2.26.0.windows.1
+

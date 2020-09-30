@@ -1,0 +1,45 @@
+From 318f238cdf255c8be0ca3caf9b46db949d9847b8 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 15:41:33 -0400
+Subject: common: Replace wxString Remove() with Truncate()
+
+Per docs wxString::Remove(size_t) is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/common/filesys.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/common/filesys.cpp b/src/common/filesys.cpp
+index 6b687d96e7..2e08878903 100644
+--- a/src/common/filesys.cpp
++++ b/src/common/filesys.cpp
+@@ -370,7 +370,7 @@ static wxString MakeCorrectPath(const wxString& path)
+             if (j >= 0 && r.GetChar(j) != wxT(':'))
+             {
+                 for (j = j - 1; j >= 0 && r.GetChar(j) != wxT('/') && r.GetChar(j) != wxT(':'); j--) {}
+-                r.Remove(j + 1);
++                r.Truncate(j + 1);
+             }
+         }
+     }
+@@ -420,7 +420,7 @@ void wxFileSystem::ChangePathTo(const wxString& location, bool is_dir)
+             {
+                 if (m_Path[(unsigned int) i] == wxT(':'))
+                 {
+-                    m_Path.Remove(i+1);
++                    m_Path.Truncate(i+1);
+                     break;
+                 }
+             }
+@@ -429,7 +429,7 @@ void wxFileSystem::ChangePathTo(const wxString& location, bool is_dir)
+         }
+         else
+         {
+-            m_Path.Remove(pathpos+1);
++            m_Path.Truncate(pathpos+1);
+         }
+     }
+ }
+-- 
+2.26.0.windows.1
+

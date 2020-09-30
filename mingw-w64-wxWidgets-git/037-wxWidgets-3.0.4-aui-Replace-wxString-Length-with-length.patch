@@ -1,0 +1,27 @@
+From 0ee96ef9d922a0307b78091e6f6756f78f17df08 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 08:01:29 -0400
+Subject: aui: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/aui/dockart.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/aui/dockart.cpp b/src/aui/dockart.cpp
+index ab31a7ab60..39b81bdac6 100644
+--- a/src/aui/dockart.cpp
++++ b/src/aui/dockart.cpp
+@@ -167,7 +167,7 @@ wxString wxAuiChopText(wxDC& dc, const wxString& text, int max_size)
+     if (x <= max_size)
+         return text;
+ 
+-    size_t i, len = text.Length();
++    size_t i, len = text.length();
+     size_t last_good_length = 0;
+     for (i = 0; i < len; ++i)
+     {
+-- 
+2.26.0.windows.1
+

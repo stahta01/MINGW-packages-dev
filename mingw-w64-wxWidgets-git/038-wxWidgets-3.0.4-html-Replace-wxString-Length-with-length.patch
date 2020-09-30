@@ -1,0 +1,50 @@
+From 0bd736d2e5302aca38d2e83d1447d3ff536ead84 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 07:56:03 -0400
+Subject: html: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/html/htmlcell.cpp    | 4 ++--
+ src/html/styleparams.cpp | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/html/htmlcell.cpp b/src/html/htmlcell.cpp
+index 1318a5fb0a..19e95f828f 100644
+--- a/src/html/htmlcell.cpp
++++ b/src/html/htmlcell.cpp
+@@ -482,7 +482,7 @@ void wxHtmlWordCell::Draw(wxDC& dc, int x, int y,
+         }
+ 
+         int part1 = s->GetFromCell()==this ? s->GetFromCharacterPos() : 0;
+-        int part2 = s->GetToCell()==this   ? s->GetToCharacterPos()   : m_Word.Length();
++        int part2 = s->GetToCell()==this   ? s->GetToCharacterPos()   : m_Word.length();
+ 
+         if ( part1 > 0 )
+         {
+@@ -584,7 +584,7 @@ wxString wxHtmlWordCell::ConvertToText(wxHtmlSelection *s) const
+         if ( s->AreFromToCharacterPosSet() )
+         {
+             const int part1 = s->GetFromCell()==this ? s->GetFromCharacterPos() : 0;
+-            const int part2 = s->GetToCell()==this   ? s->GetToCharacterPos()   : m_Word.Length();
++            const int part2 = s->GetToCell()==this   ? s->GetToCharacterPos()   : m_Word.length();
+             if ( part1 == part2 )
+                 return wxEmptyString;
+             return GetPartAsText(part1, part2);
+diff --git a/src/html/styleparams.cpp b/src/html/styleparams.cpp
+index 929eb98d43..ce10051db3 100644
+--- a/src/html/styleparams.cpp
++++ b/src/html/styleparams.cpp
+@@ -66,7 +66,7 @@ wxHtmlStyleParams::wxHtmlStyleParams(const wxHtmlTag& tag)
+             m_names.Add(tempString);
+ 
+             // Extract and trim values
+-            tempString = token.SubString(colonIndex + 1, token.Length() - 1);
++            tempString = token.SubString(colonIndex + 1, token.length() - 1);
+             tempString.Trim(true).Trim(false);
+             // Add to values list
+             m_values.Add(tempString);
+-- 
+2.26.0.windows.1
+

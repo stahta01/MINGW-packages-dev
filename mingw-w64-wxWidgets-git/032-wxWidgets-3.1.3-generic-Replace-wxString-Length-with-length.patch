@@ -1,0 +1,27 @@
+From a89f05307254991911f6f320c18eaee622fd40ec Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 19:15:01 -0400
+Subject: generic: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/generic/graphicc.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/generic/graphicc.cpp b/src/generic/graphicc.cpp
+index a5c6f74ca0..d983b3013a 100644
+--- a/src/generic/graphicc.cpp
++++ b/src/generic/graphicc.cpp
+@@ -2901,7 +2901,7 @@ void wxCairoContext::GetPartialTextExtents(const wxString& text, wxArrayDouble&
+     while (i++ < len)
+         widths.Add(PANGO_PIXELS(w));
+ #else
+-    for (size_t i = 0; i < text.Length(); i++)
++    for (size_t i = 0; i < text.length(); i++)
+     {
+         const wxCharBuffer data = text.SubString(0, i).utf8_str();
+ 
+-- 
+2.26.0.windows.1
+

@@ -1,0 +1,27 @@
+From a2449ccc57915a2c1e01d1d4803b048003d46ca1 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 5 Apr 2020 19:16:36 -0400
+Subject: generic: Replace wxString First() with Find()
+
+Per docs wxString::First(wchar_t) is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/generic/filectrlg.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/generic/filectrlg.cpp b/src/generic/filectrlg.cpp
+index 711397fe2d..55d551b8b3 100644
+--- a/src/generic/filectrlg.cpp
++++ b/src/generic/filectrlg.cpp
+@@ -751,7 +751,7 @@ void wxFileListCtrl::OnListEndLabelEdit( wxListEvent &event )
+     if ((event.GetLabel().empty()) ||
+         (event.GetLabel() == wxT(".")) ||
+         (event.GetLabel() == wxT("..")) ||
+-        (event.GetLabel().First( wxFILE_SEP_PATH ) != wxNOT_FOUND))
++        (event.GetLabel().Find( wxFILE_SEP_PATH ) != wxNOT_FOUND))
+     {
+         wxMessageDialog dialog(this, _("Illegal directory name."), _("Error"), wxOK | wxICON_ERROR );
+         dialog.ShowModal();
+-- 
+2.26.0.windows.1
+

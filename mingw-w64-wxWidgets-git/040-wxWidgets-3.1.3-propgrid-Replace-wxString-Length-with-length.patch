@@ -1,0 +1,27 @@
+From 7eb03548956a4fa3bb91b5ec3241639d75e84c82 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 6 Apr 2020 08:01:49 -0400
+Subject: propgrid: Replace wxString Length() with length()
+
+Per docs wxString::Length() is a wxWidgets 1.xx compatibility function;
+you should not use it in new code.
+---
+ src/propgrid/props.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/propgrid/props.cpp b/src/propgrid/props.cpp
+index 21dfeab21d..752d0dab73 100644
+--- a/src/propgrid/props.cpp
++++ b/src/propgrid/props.cpp
+@@ -95,7 +95,7 @@ wxString wxStringProperty::ValueToString( wxVariant& value,
+     // If string is password and value is for visual purposes,
+     // then return asterisks instead the actual string.
+     if ( (m_flags & wxPG_PROP_PASSWORD) && !(argFlags & (wxPG_FULL_VALUE|wxPG_EDITABLE_VALUE)) )
+-        return wxString(wxS('*'), s.Length());
++        return wxString(wxS('*'), s.length());
+ 
+     return s;
+ }
+-- 
+2.26.0.windows.1
+
