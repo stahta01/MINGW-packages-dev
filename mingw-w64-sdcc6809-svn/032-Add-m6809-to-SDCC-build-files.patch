@@ -1,0 +1,240 @@
+From b9c991a50cb58499d0b98aad759e7f6484f6b645 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 26 Aug 2020 13:51:10 -0400
+Subject: Add m6809 to SDCC build files
+
+---
+ sdcc/Makefile.common.in       |  1 +
+ sdcc/Makefile.in              |  5 +++++
+ sdcc/configure                | 41 +++++++++++++++++++++++++++++++++++
+ sdcc/configure.ac             |  8 +++++++
+ sdcc/sdas/linksrc/Makefile.in | 13 ++++++++---
+ sdcc/sdccconf_in.h            |  3 +++
+ 6 files changed, 68 insertions(+), 3 deletions(-)
+
+diff --git a/sdcc/Makefile.common.in b/sdcc/Makefile.common.in
+index e7f1092f0..88beb83e0 100644
+--- a/sdcc/Makefile.common.in
++++ b/sdcc/Makefile.common.in
+@@ -62,6 +62,7 @@ OPT_DISABLE_PDK13       = @OPT_DISABLE_PDK13@
+ OPT_DISABLE_PDK14       = @OPT_DISABLE_PDK14@
+ OPT_DISABLE_PDK15       = @OPT_DISABLE_PDK15@
+ OPT_DISABLE_PDK16       = @OPT_DISABLE_PDK16@
++OPT_DISABLE_M6809       = @OPT_DISABLE_M6809@
+ 
+ OPT_ENABLE_DOC          = @OPT_ENABLE_DOC@
+ 
+diff --git a/sdcc/Makefile.in b/sdcc/Makefile.in
+index 6333bb5eb..c5d65cd1a 100644
+--- a/sdcc/Makefile.in
++++ b/sdcc/Makefile.in
+@@ -28,6 +28,11 @@ SDCC_AS        += sdas/as6808
+ SDCC_LD        += sdcc-ld6808
+ endif
+ 
++ifneq ($(OPT_DISABLE_M6809), 1)
++SDCC_AS        += sdas/as6809
++SDCC_LD        += sdcc-ld6809
++endif
++
+ ifeq ($(OPT_DISABLE_STM8), 0)
+ SDCC_AS        += sdas/asstm8
+ SDCC_LD        += sdcc-ldstm8
+diff --git a/sdcc/configure b/sdcc/configure
+index 140aea8df..bc057f019 100755
+--- a/sdcc/configure
++++ b/sdcc/configure
+@@ -640,6 +640,7 @@ OPT_DISABLE_PACKIHX
+ OPT_DISABLE_DEVICE_LIB
+ OPT_DISABLE_UCSIM
+ OPT_DISABLE_AVR
++OPT_DISABLE_M6809
+ OPT_DISABLE_PDK16
+ OPT_DISABLE_PDK15
+ OPT_DISABLE_PDK14
+@@ -777,6 +778,7 @@ enable_pdk13_port
+ enable_pdk14_port
+ enable_pdk15_port
+ enable_pdk16_port
++enable_m6809_port
+ enable_ucsim
+ enable_device_lib
+ enable_packihx
+@@ -1464,6 +1466,7 @@ Optional Features:
+   --disable-pdk14-port    Excludes the PDK14 port
+   --disable-pdk15-port    Excludes the PDK15 port
+   --enable-pdk16-port     Includes the PDK16 port
++  --disable-m6809-port    Excludes the M6809 port
+   --disable-ucsim         Disables configuring and building of ucsim
+   --disable-device-lib    Disables building device libraries
+   --disable-packihx       Disables building packihx
+@@ -8337,6 +8340,32 @@ _ACEOF
+   fi
+ 
+ 
++  # Check whether --enable-m6809-port was given.
++if test "${enable_m6809_port+set}" = set; then :
++  enableval=$enable_m6809_port;
++fi
++
++
++  if test "$enable_m6809_port" = "no"; then
++    OPT_DISABLE_M6809=1
++  else
++    enable_m6809_port="yes"
++    OPT_DISABLE_M6809=0
++  fi
++
++
++cat >>confdefs.h <<_ACEOF
++#define OPT_DISABLE_M6809 $OPT_DISABLE_M6809
++_ACEOF
++
++
++
++  echo m6809 >>ports.all
++  if test $OPT_DISABLE_M6809 = 0; then
++    echo m6809 >>ports.build
++  fi
++
++
+ # Unsupported targets
+ ####AC_DO_PORT_ENABLER(avr,   avr,   AVR,   [Includes the AVR port (disabled by default)])
+ OPT_DISABLE_AVR=1
+@@ -8884,6 +8913,13 @@ if test $OPT_DISABLE_HC08 = 0 || test $OPT_DISABLE_S08 = 0; then
+ 
+ fi
+ 
++if test $OPT_DISABLE_M6809 = 0; then
++  ac_config_files="$ac_config_files src/m6809/Makefile sdas/as6809/Makefile"
++
++  test $OPT_DISABLE_DEVICE_LIB = 0 && ac_config_files="$ac_config_files device/lib/m6809/Makefile"
++
++fi
++
+ if test $OPT_DISABLE_MCS51 = 0; then
+   ac_config_files="$ac_config_files src/mcs51/Makefile sdas/as8051/Makefile"
+ 
+@@ -9698,6 +9734,9 @@ do
+     "sdas/as6808/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as6808/Makefile" ;;
+     "device/lib/hc08/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/hc08/Makefile" ;;
+     "device/lib/s08/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/s08/Makefile" ;;
++    "src/m6809/Makefile") CONFIG_FILES="$CONFIG_FILES src/m6809/Makefile" ;;
++    "sdas/as6809/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as6809/Makefile" ;;
++    "device/lib/m6809/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/m6809/Makefile" ;;
+     "src/mcs51/Makefile") CONFIG_FILES="$CONFIG_FILES src/mcs51/Makefile" ;;
+     "sdas/as8051/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/as8051/Makefile" ;;
+     "device/lib/mcs51/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/mcs51/Makefile" ;;
+@@ -10720,6 +10759,7 @@ sdcc ${VERSION} is now configured for
+     ds400               ${enable_ds400_port}
+     hc08                ${enable_hc08_port}
+     s08                 ${enable_s08_port}
++    m6809               ${enable_m6809_port}
+     mcs51               ${enable_mcs51_port}
+     pic14               ${enable_pic14_port}
+     pic16               ${enable_pic16_port}
+@@ -10796,6 +10836,7 @@ sdcc ${VERSION} is now configured for
+     ds400               ${enable_ds400_port}
+     hc08                ${enable_hc08_port}
+     s08                 ${enable_s08_port}
++    m6809               ${enable_m6809_port}
+     mcs51               ${enable_mcs51_port}
+     pic14               ${enable_pic14_port}
+     pic16               ${enable_pic16_port}
+diff --git a/sdcc/configure.ac b/sdcc/configure.ac
+index 922ae2841..48850c4d7 100644
+--- a/sdcc/configure.ac
++++ b/sdcc/configure.ac
+@@ -785,6 +785,7 @@ AC_DO_PORT(pdk13,    pdk,    PDK13,    [Excludes the PDK13 port])
+ AC_DO_PORT(pdk14,    pdk,    PDK14,    [Excludes the PDK14 port])
+ AC_DO_PORT(pdk15,    pdk,    PDK15,    [Excludes the PDK15 port])
+ AC_DO_PORT_ENABLER(pdk16,    pdk,    PDK16,    [Includes the PDK16 port])
++AC_DO_PORT(m6809,   m6809, M6809,   [Excludes the M6809 port])
+ 
+ # Unsupported targets
+ ####AC_DO_PORT_ENABLER(avr,   avr,   AVR,   [Includes the AVR port (disabled by default)])
+@@ -855,6 +856,12 @@ if test $OPT_DISABLE_HC08 = 0 || test $OPT_DISABLE_S08 = 0; then
+                                                        device/lib/s08/Makefile])
+ fi
+ 
++if test $OPT_DISABLE_M6809 = 0; then
++  AC_CONFIG_FILES([src/m6809/Makefile
++                   sdas/as6809/Makefile])
++  test $OPT_DISABLE_DEVICE_LIB = 0 && AC_CONFIG_FILES([device/lib/m6809/Makefile])
++fi
++
+ if test $OPT_DISABLE_MCS51 = 0; then
+   AC_CONFIG_FILES([src/mcs51/Makefile
+                    sdas/as8051/Makefile])
+@@ -1006,6 +1013,7 @@ sdcc ${VERSION} is now configured for
+     ds400               ${enable_ds400_port}
+     hc08                ${enable_hc08_port}
+     s08                 ${enable_s08_port}
++    m6809               ${enable_m6809_port}
+     mcs51               ${enable_mcs51_port}
+     pic14               ${enable_pic14_port}
+     pic16               ${enable_pic16_port}
+diff --git a/sdcc/sdas/linksrc/Makefile.in b/sdcc/sdas/linksrc/Makefile.in
+index 43e16f54d..de85f4758 100644
+--- a/sdcc/sdas/linksrc/Makefile.in
++++ b/sdcc/sdas/linksrc/Makefile.in
+@@ -63,7 +63,7 @@ transform       = @program_transform_name@
+ 
+ # Compiling entire program or any subproject
+ # ------------------------------------------
+-all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk
++all: sdcc-ld8051 sdcc-ldz80 sdcc-ldgb sdcc-ld6808 sdcc-ldstm8 sdcc-ldpdk sdcc-ld6809
+ 
+ sdcc-ld8051: checkconf $(ASLINK)
+ 
+@@ -73,11 +73,13 @@ sdcc-ldgb: checkconf $(top_builddir)/bin/sdldgb$(EXEEXT)
+ 
+ sdcc-ld6808: checkconf $(top_builddir)/bin/sdld6808$(EXEEXT)
+ 
++sdcc-ld6809: checkconf $(top_builddir)/bin/sdld6809$(EXEEXT)
++
+ sdcc-ldstm8: checkconf $(top_builddir)/bin/sdldstm8$(EXEEXT)
+ 
+ sdcc-ldpdk: checkconf $(top_builddir)/bin/sdldpdk$(EXEEXT)
+ 
+-$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
++$(top_builddir)/bin/sdldz80$(EXEEXT) $(top_builddir)/bin/sdldgb$(EXEEXT) $(top_builddir)/bin/sdldstm8$(EXEEXT) $(top_builddir)/bin/sdld6808$(EXEEXT) $(top_builddir)/bin/sdld6809$(EXEEXT) $(top_builddir)/bin/sdldpdk$(EXEEXT): $(ASLINK)
+ 	cp -p $(ASLINK) $@
+ 
+ $(ASLINK): $(LKOBJECTS)
+@@ -98,6 +100,11 @@ install: all installdirs
+ 	  $(INSTALL) $(top_builddir)/bin/sdld6808$(EXEEXT) $(DESTDIR)$(bindir)/`echo 'sdld6808' | sed '$(transform)'`$(EXEEXT); \
+ 	  $(STRIP) $(DESTDIR)$(bindir)/`echo 'sdld6808' | sed '$(transform)'`$(EXEEXT); \
+ 	fi
++	if [ "`grep m6809 $(top_builddir)/ports.build`" = "m6809" ]; \
++	then \
++	  $(INSTALL) $(top_builddir)/bin/sdld6809$(EXEEXT) $(DESTDIR)$(bindir)/`echo 'sdld6809' | sed '$(transform)'`$(EXEEXT); \
++	  $(STRIP) $(DESTDIR)$(bindir)/`echo 'sdld6809' | sed '$(transform)'`$(EXEEXT); \
++	fi
+ 	if [ "`grep z80 $(top_builddir)/ports.build`" = "z80" ]; \
+ 	then \
+ 	  $(INSTALL) $(top_builddir)/bin/sdldz80$(EXEEXT) $(DESTDIR)$(bindir)/`echo 'sdldz80' | sed '$(transform)'`$(EXEEXT); \
+@@ -114,7 +121,7 @@ install: all installdirs
+ # Deleting all the installed files
+ # --------------------------------
+ uninstall:
+-	for ld in $(top_builddir)/bin/sdld $(top_builddir)/bin/sdldz80 $(top_builddir)/bin/sdldgb $(top_builddir)/bin/sdldstm8 $(top_builddir)/bin/sdld6808 $(top_builddir)/bin/sdldpdk; \
++	for ld in $(top_builddir)/bin/sdld $(top_builddir)/bin/sdldz80 $(top_builddir)/bin/sdldgb $(top_builddir)/bin/sdldstm8 $(top_builddir)/bin/sdld6808 $(top_builddir)/bin/sdld6809 $(top_builddir)/bin/sdldpdk; \
+ 	do \
+ 	  rm -f $(DESTDIR)$(bindir)/`echo \`basename $$ld\` | sed '$(transform)'`$(EXEEXT); \
+ 	done
+diff --git a/sdcc/sdccconf_in.h b/sdcc/sdccconf_in.h
+index cff71c492..eb499cf65 100644
+--- a/sdcc/sdccconf_in.h
++++ b/sdcc/sdccconf_in.h
+@@ -127,6 +127,9 @@
+ /* XXX */
+ #undef OPT_DISABLE_HC08
+ 
++/* XXX */
++#undef OPT_DISABLE_M6809
++
+ /* XXX */
+ #undef OPT_DISABLE_MCS51
+ 
+-- 

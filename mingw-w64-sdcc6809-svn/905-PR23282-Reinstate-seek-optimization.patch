@@ -1,0 +1,29 @@
+From 0057aec5f03a66ca47619db2689d9f5379e929c2 Mon Sep 17 00:00:00 2001
+From: Alan Modra <amodra@gmail.com>
+Date: Wed, 13 Jun 2018 23:57:17 +0930
+Subject: PR23282, Reinstate seek optimization
+
+	PR 23282
+	* bfdio.c (bfd_seek): Optimize away seeks to current position.
+---
+ sdcc/support/sdbinutils/bfd/bfdio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/sdcc/support/sdbinutils/bfd/bfdio.c b/sdcc/support/sdbinutils/bfd/bfdio.c
+index 136fa8b1d..1f4caca4e 100644
+--- a/sdcc/support/sdbinutils/bfd/bfdio.c
++++ b/sdcc/support/sdbinutils/bfd/bfdio.c
+@@ -330,6 +330,10 @@ bfd_seek (bfd *abfd, file_ptr position, int direction)
+   if (direction != SEEK_CUR)
+     position += offset;
+ 
++  if ((direction == SEEK_CUR && position == 0)
++      || (direction == SEEK_SET && (ufile_ptr) position == abfd->where))
++    return 0;
++
+   result = abfd->iovec->bseek (abfd, position, direction);
+   if (result != 0)
+     {
+-- 
+2.28.0.windows.1
+

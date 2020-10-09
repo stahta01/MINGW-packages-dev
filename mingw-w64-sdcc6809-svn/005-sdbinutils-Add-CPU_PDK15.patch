@@ -1,0 +1,30 @@
+From e68750d338b7eb80d6f2727a1989f33b20df6bd7 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 5 Nov 2020 19:12:00 -0500
+Subject: sdbinutils: Add CPU_PDK15
+
+---
+ sdcc/support/sdbinutils/bfd/asxxxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/sdcc/support/sdbinutils/bfd/asxxxx.c b/sdcc/support/sdbinutils/bfd/asxxxx.c
+index 9fcc6a881..5ec3c4ad2 100644
+--- a/sdcc/support/sdbinutils/bfd/asxxxx.c
++++ b/sdcc/support/sdbinutils/bfd/asxxxx.c
+@@ -195,6 +195,7 @@ enum asxxxx_cpu_type_e
+     CPU_Z80,
+     CPU_GBZ80,
+     CPU_R2K,
++    CPU_PDK15,
+   };
+ 
+ enum asxxxx_rel_version_e
+@@ -618,6 +619,7 @@ asxxxx_set_cpu_type(bfd *abfd, const char *cpu_type)
+       { "-mz80",   CPU_Z80   },
+       { "-mgbz80", CPU_GBZ80 },
+       { "-mr2K",   CPU_R2K   },
++      { "-mpdk15",  CPU_PDK15 },
+     };
+   size_t i;
+ 
+-- 

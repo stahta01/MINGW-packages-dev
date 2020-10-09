@@ -1,0 +1,31 @@
+From 1f15c6e5284359e05a476c3e7dbfc8ed1700551b Mon Sep 17 00:00:00 2001
+From: Nick Clifton <nickc@redhat.com>
+Date: Wed, 20 Jun 2018 16:30:05 +0100
+Subject: Fix potential illegal memroy access when using a build-id note with a
+ negative size.
+
+	PR 23316
+	* opncls.c (get_build_id): Check for a negative or excessive data
+	size in the build-id note.
+---
+ sdcc/support/sdbinutils/bfd/opncls.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/sdcc/support/sdbinutils/bfd/opncls.c b/sdcc/support/sdbinutils/bfd/opncls.c
+index 16b568c8a..e27504545 100644
+--- a/sdcc/support/sdbinutils/bfd/opncls.c
++++ b/sdcc/support/sdbinutils/bfd/opncls.c
+@@ -1877,10 +1877,11 @@ get_build_id (bfd *abfd)
+   inote.descdata = inote.namedata + BFD_ALIGN (inote.namesz, 4);
+   /* FIXME: Should we check for extra notes in this section ?  */
+ 
+-  if (inote.descsz == 0
++  if (inote.descsz <= 0
+       || inote.type != NT_GNU_BUILD_ID
+       || inote.namesz != 4 /* sizeof "GNU"  */
+       || strncmp (inote.namedata, "GNU", 4) != 0
++      || inote.descsz > 0x7ffffffe
+       || size < (12 + BFD_ALIGN (inote.namesz, 4) + inote.descsz))
+     {
+       free (contents);
+-- 

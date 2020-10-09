@@ -1,0 +1,230 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+
+# Search for "Segmentation fault" and "error:" in all of build, check, package logs
+
+_realname=sdcc
+_forksuffix=6809
+pkgbase=mingw-w64-${_realname}${_forksuffix}-svn
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}${_forksuffix}-svn
+pkgver=4.0.4.r11952
+pkgrel=1
+pkgdesc="Retargettable ANSI C compiler [Intel 8051, Maxim 80DS390, Zilog Z80 and the Motorola 68HC08] (mingw-w64)"
+arch=('any')
+license=('GPL') # pic14 and pic16 has non free headers and likely other non free files
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python")
+# Since latest gputils release is about 4 years old, decided to disable pic14 and pic16 support.
+makedepends=('flex' 'bison' 'diffutils' 'make' 'patch' 'perl' 'svn' 'texinfo' "${MINGW_PACKAGE_PREFIX}-boost") # "${MINGW_PACKAGE_PREFIX}-gputils"
+url="http://sdcc.sourceforge.net/"
+options=('!strip' '!debug' 'staticlibs' '!buildflags')
+
+_svn_sdcc_trunk=https://svn.code.sf.net/p/sdcc/code/trunk/sdcc
+
+source=(
+    '001-ucsim-comment-out-vsnprintf-prototype.patch'
+    '002-MinGW-util-Add-include-ansidecl_h.patch'
+    '003-MSys2-sdbinutils-add-USE_MINGW_ANSI_STDIO-guard.patch'
+    '004-MSys2-sdbinutils-use-gnu_printf-format.patch'
+    '005-sdbinutils-Add-CPU_PDK15.patch'
+    '011-Add-m6809-sdas-files.patch'
+    '012-sdas-code-changes-to-m09pst.c.patch'
+    '021-Add-m6809-files-to-device-lib.patch'
+    '031-Add-m6809-to-SDCCmain_c-sourcecode.patch'
+    '032-Add-m6809-to-SDCC-build-files.patch'
+    '033-Add-m6809-compiler-backend-based-on-STM8.patch'
+    '034-Add-m6809-to-port_h.patch'
+    '903-Bug-23142-SIGSEGV-in-is_strip_section.patch')
+sha256sums=('e2aca7855ad6a0db55e8a4b6f7a6490d12d80ae3aed4e0f254c0e0a5a6fd7abe'
+            '2a8a2fd9351213f9335cae9d81fb6303515a4f16ae69b3abda933f1a301dda00'
+            'dae365730f708830256a9f64966521bc96bfec565c244f5a5c0492fea3a24185'
+            '18a7d0b990ad062e6b507e386827b562db32f31e1f5e7c6b586aaf628e82ab94'
+            '7f31c0bd40afa4f7714b0c4f76d72d3fce128106a5d29dc474fa1904248787c1'
+            'bc468eb00bc6b2c8f4365de7613ce12fcd94aef8bc370e5f3d63590fe320e194'
+            'c6fd24fba2fe3fc79f41244fb345145b3a21ce56648a87df807aec003fd63d85'
+            '5009fce9d179b168ee38f4aaefa1732b32b97ce8fe48394d6ddbc6c5a9bfeca0'
+            'b954ed61e030c058ffd998a96ad647e3ec2156db4abf0a96f52afc651965d696'
+            '8cbf29eb2f6b98cb26b60e1e4fc8e6e8005c50abe7a84ebbd8077503b6eacef4'
+            'f794ec51ba91f49b726d1435f9ec7fb37fa3cf2e32a3a28d6d44c8693d3c1661'
+            '234a366ef740edd2d859740149da54fc72f344e04c7e9a30c9a40837843e8233'
+            'ee4b8da038bc7ecb71fc9f0f129136e6720719093f7faef1a72ee85fa506a618')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp2 -i "${srcdir}/$_patch"
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# ======================================= #
+
+prepare() {
+  mkdir -p "$srcdir/svn"
+  msg "Connecting to $_svn_sdcc_trunk SVN server...."
+  if [[ -d ${_realname}-svn/.svn ]]; then
+    msg "Cleanup SVN ...."
+    (cd ${_realname}-svn && svn cleanup)
+    msg "Reverting SVN ...."
+    (cd ${_realname}-svn && svn revert -R .)
+#    msg "Updating SVN ...."
+#    (cd ${_realname}-svn && svn up --username anonsvn --password anonsvn)
+  else
+    msg "Checking out SVN ...."
+    svn co --username anonsvn --password anonsvn $_svn_sdcc_trunk --config-dir ./svn ${_realname}-svn
+  fi
+
+  cd "$srcdir/${_realname}-svn"
+
+  # remove folders added by patch files
+  rm -fr src/m6809
+  rm -fr device/lib/m6809
+  rm -fr sdas/as6809
+
+#  # remove files added by patch files
+#  del_file_exists \
+
+  apply_patch_with_msg \
+    001-ucsim-comment-out-vsnprintf-prototype.patch
+
+#  apply_patch_with_msg \
+#    005-sdbinutils-Add-CPU_PDK15.patch
+
+#    903-Bug-23142-SIGSEGV-in-is_strip_section.patch \
+#    002-MinGW-util-Add-include-ansidecl_h.patch \
+
+#  apply_patch_with_msg \
+#    003-MSys2-sdbinutils-add-USE_MINGW_ANSI_STDIO-guard.patch
+
+#    004-MSys2-sdbinutils-use-gnu_printf-format.patch
+
+#  apply_patch_with_msg \
+#    011-Add-m6809-sdas-files.patch \
+#    012-sdas-code-changes-to-m09pst.c.patch \
+#    021-Add-m6809-files-to-device-lib.patch \
+#    031-Add-m6809-to-SDCCmain_c-sourcecode.patch \
+#    032-Add-m6809-to-SDCC-build-files.patch \
+#    033-Add-m6809-compiler-backend-based-on-STM8.patch \
+#    034-Add-m6809-to-port_h.patch
+}
+
+pkgver() {
+  cd "$srcdir/${_realname}-svn"
+  local rev="$(svnversion -n | tr -d 'M')"
+  _sdcc_version=$(head -n 1 .version | sed -e 's/.* //' | tr -d '"\n')
+  printf "%s.r%s" "$_sdcc_version" "$rev"
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  if check_option "buildflags" "n"; then
+    CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1"
+    CFLAGS=""
+    CXXFLAGS=""
+    LDFLAGS="-pipe -Wl,--dynamicbase,--nxcompat"
+  fi
+
+  if [ "${CARCH}" = "x86_64" ]; then
+    local _conf='--enable-64-bit-bfd'
+    if check_option "buildflags" "n"; then
+      CFLAGS+=" -march=x86-64 -mtune=generic"
+      CXXFLAGS+=" -march=x86-64 -mtune=generic"
+      LDFLAGS+=" -Wl,--high-entropy-va,--default-image-base-high"
+    fi
+  else
+    local _conf=''
+    if check_option "buildflags" "n"; then
+      CFLAGS+=" -march=i686 -mtune=generic"
+      CXXFLAGS+=" -march=i686 -mtune=generic"
+      LDFLAGS+=" -Wl,--no-seh"
+    fi
+    LDFLAGS+=" -Wl,--large-address-aware"
+  fi
+
+  if check_option "debug" "y"; then
+    local opt_flags=" -Og -fcaller-saves"
+    CFLAGS+=${opt_flags}
+    CXXFLAGS+=${opt_flags}
+  else
+    local opt_flags=" -Og"
+    opt_flags+=" -ftree-ccp"
+    opt_flags+=" -ftree-bit-ccp"
+    opt_flags+=" -ftree-pta"
+    opt_flags+=" -fif-conversion2"
+    opt_flags+=" -finline-functions-called-once"
+    opt_flags+=" -fcaller-saves"
+    CFLAGS+=${opt_flags}
+    CXXFLAGS+=${opt_flags}
+  fi
+
+  ../${_realname}-svn/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --includedir=${MINGW_PREFIX}/include/sdcc \
+    --libdir=${MINGW_PREFIX}/lib/sdcc \
+    ${_conf} \
+    --enable-m6809-port \
+    --disable-pic14-port \
+    --disable-pic16-port \
+    --disable-r2k-port \
+    --disable-r2ka-port \
+    --disable-r3ka-port \
+    --disable-z180-port \
+    --disable-tlcs90-port \
+    --disable-z80n-port  \
+    --disable-z80-port  \
+    --disable-ez80_z80-port \
+    --disable-stm8-port \
+    --disable-ds390-port \
+    --disable-ds400-port \
+    --disable-s08-port \
+    --disable-pdk13-port \
+    --disable-pdk14-port \
+    --disable-mcs51-port \
+    --disable-werror
+
+#    --disable-hc08-port \
+#    --disable-pdk15-port \
+#    --disable-gbz80-port \
+
+#  make -C sdas/as6809 --jobs=1
+#
+#  make -C sim/ucsim/mc6809.src --jobs=1
+
+  export PATH="${srcdir}/build-${CARCH}/bin:$PATH"
+
+  make --jobs=1
+}
+
+check() {
+  cd "${srcdir}"/build-${CARCH}/support/regression
+
+#  make --jobs=1 test-host || true                 # Test Failures in both 32 and 64 bit
+#  make --jobs=1 test-ez80-z80 || true             # Test Failures in 64 bit
+  make --jobs=1 test-ucgbz80 || true              # 32 and/or 64 bit error in gcc-torture-execute-p18298
+#  make --jobs=1 test-stm8 || true                 #
+#  make --jobs=1 test-stm8-large || true           # Test Failures in 64 bit
+  make --jobs=1 test-m6809 || true
+# make -k --jobs=1 all || true
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make install DESTDIR="$pkgdir"
+
+#  # Delete build folder to save space needed when doing check builds
+#  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+}

@@ -1,0 +1,23 @@
+From 4bd765efef20f668c7ec5dcf2948b5627dbc54d8 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 30 Aug 2020 14:37:17 -0400
+Subject: Add m6809 to SDCCmain.c
+
+---
+ sdcc/src/SDCCmain.c | 3 +++
+
+diff --git a/sdcc/src/SDCCmain.c b/sdcc/src/SDCCmain.c
+index d4598a518..9b029f17c 100644
+--- a/sdcc/src/SDCCmain.c
++++ b/sdcc/src/SDCCmain.c
+@@ -366,6 +366,9 @@ static PORT *_ports[] = {
+ #if !OPT_DISABLE_PDK15
+   &pdk15_port,
+ #endif
++#if !OPT_DISABLE_M6809
++  &m6809_port,
++#endif
+ };
+ 
+ #define NUM_PORTS (sizeof(_ports)/sizeof(_ports[0]))
+-- 
