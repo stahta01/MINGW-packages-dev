@@ -185,7 +185,6 @@ build() {
     --disable-tlcs90-port \
     --disable-z80n-port  \
     --disable-z80-port  \
-    --disable-ez80_z80-port \
     --disable-stm8-port \
     --disable-ds390-port \
     --disable-ds400-port \
@@ -195,6 +194,7 @@ build() {
     --disable-mcs51-port \
     --disable-werror
 
+#    --disable-ez80_z80-port \
 #    --disable-hc08-port \
 #    --disable-pdk15-port \
 #    --disable-gbz80-port \
@@ -212,7 +212,8 @@ check() {
   cd "${srcdir}"/build-${CARCH}/support/regression
 
 #  make --jobs=1 test-host || true                 # Test Failures in both 32 and 64 bit
-#  make --jobs=1 test-ez80-z80 || true             # Test Failures in 64 bit
+  make --jobs=1 test-hc08 || true                 #
+  make --jobs=1 test-ez80-z80 || true             # Test Failures in 64 bit
   make --jobs=1 test-ucgbz80 || true              # 32 and/or 64 bit error in gcc-torture-execute-p18298
 #  make --jobs=1 test-stm8 || true                 #
 #  make --jobs=1 test-stm8-large || true           # Test Failures in 64 bit
