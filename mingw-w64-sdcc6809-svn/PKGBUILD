@@ -184,7 +184,6 @@ build() {
     --disable-z180-port \
     --disable-tlcs90-port \
     --disable-z80n-port  \
-    --disable-z80-port  \
     --disable-stm8-port \
     --disable-ds390-port \
     --disable-ds400-port \
@@ -194,6 +193,7 @@ build() {
     --disable-mcs51-port \
     --disable-werror
 
+#    --disable-z80-port  \
 #    --disable-ez80_z80-port \
 #    --disable-hc08-port \
 #    --disable-pdk15-port \
