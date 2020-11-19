@@ -163,7 +163,7 @@ build() {
     opt_flags+=" -ftree-bit-ccp"
     opt_flags+=" -ftree-pta"
     opt_flags+=" -fif-conversion2"
-    opt_flags+=" -finline-functions-called-once"
+#    opt_flags+=" -finline-functions-called-once"
     opt_flags+=" -fcaller-saves"
     CFLAGS+=${opt_flags}
     CXXFLAGS+=${opt_flags}
