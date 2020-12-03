@@ -1,0 +1,187 @@
+# Contributor: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=goffice
+_sourcedir=${_realname}-git
+pkgbase=mingw-w64-${_realname}
+pkgname=(
+  "${MINGW_PACKAGE_PREFIX}-${_realname}-git" 
+#  "${MINGW_PACKAGE_PREFIX}-${_realname}-static-git"
+)
+pkgver=0.10.48.v+4.c2.gf3f7d440
+pkgrel=1
+pkgdesc="A GLib/GTK+ set of document-centric objects and utilities (mingw-w64)"
+arch=('any')
+url="https://git.gnome.org/browse/goffice"
+license=(GPL)
+options=('!strip' 'debug' ) # 'staticlibs')
+#options=('strip' '!debug' ) # 'staticlibs')
+depends=()
+makedepends=(
+  ${MINGW_PACKAGE_PREFIX}-librsvg
+  ${MINGW_PACKAGE_PREFIX}-gtk3
+  ${MINGW_PACKAGE_PREFIX}-libgsf
+  ${MINGW_PACKAGE_PREFIX}-libspectre
+  ${MINGW_PACKAGE_PREFIX}-libxslt
+  ${MINGW_PACKAGE_PREFIX}-lasem
+  ${MINGW_PACKAGE_PREFIX}-gtk-doc
+  ${MINGW_PACKAGE_PREFIX}-gobject-introspection
+  intltool
+  autoconf-archive
+  automake-wrapper
+  git
+)
+_git_commit=
+_git_tag=
+#_git_tag=GOFFICE_0_10_23
+#_git_tag=GOFFICE_0_10_46
+ _git_tag=GOFFICE_0_10_48
+#_git_commit=f3f7d440abeefd13ce97e32ba39a994cd41058cf # matches GOFFICE_0_10_48
+
+_git_repo_url="git+https://gitlab.gnome.org/GNOME/goffice.git"
+if [ -n "$_git_tag" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#tag=$_git_tag")
+elif [ -n "$_git_commit" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#commit=$_git_commit")
+else
+  source=(${_sourcedir}::"${_git_repo_url}")
+fi
+source+=(
+  001-GO-0.10.1-Autogen-drop-gnome-common-dependency.patch # back-port from version 0.10.32
+  002-GO-0.10.8-win32-fix-export-def.patch
+  004-GO-0.10.0-win32-Add-extern-prefix-to-GO_VAR_DECL.patch)
+sha256sums=('SKIP'
+            '578f2abc9ef7f9233f5a545ac44adcc9211a02612d42660f09af240e994c7063'
+            '85100096ff509bfc465561403ea4aa478026552b008637313e000a773a31186a'
+            '4532ba6d4e4996babd2850b5f2ea740f6899c621e949b986a80eeb7331b6a8c1')
+
+# Declare global variables; begin with underscore to avoid name conflicts
+_git_base_commit=
+_git_nearest_tag=
+
+pkgver() {
+  cd ${srcdir}/${_sourcedir}
+
+  local _epoch=$(head -n 34 configure.ac | grep 'm4_define(\[goffice_version_epoch\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _major=$(head -n 34 configure.ac | grep 'm4_define(\[goffice_version_major\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _minor=$(head -n 34 configure.ac | grep 'm4_define(\[goffice_version_minor\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _extra=$(head -n 34 configure.ac | grep 'm4_define(\[goffice_version_extra\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  if [ -z "$_extra" ]; then
+    printf "%s.%s.%s.v+%s.c%s.g%s" "$_epoch" "$_major" "$_minor" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} configure.ac)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+  else
+    printf "%s.%s.%s.%s.v+%s.c%s.g%s" "$_epoch" "$_major" "$_minor" "$_extra" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} configure.ac)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+  fi
+}
+
+prepare() {
+  cd ${srcdir}/${_sourcedir}
+
+  _git_base_commit=$(git rev-parse HEAD)
+  _git_nearest_tag=$( git describe --abbrev=0 --tags )
+  echo "_git_nearest_tag := $_git_nearest_tag"
+
+  GIT_AM="git am --committer-date-is-author-date"
+
+  if [[ "$_git_nearest_tag" < "GOFFICE_0_10_32" ]] ; then
+    ${GIT_AM} ${srcdir}/001-GO-0.10.1-Autogen-drop-gnome-common-dependency.patch
+  fi
+  ${GIT_AM} ${srcdir}/002-GO-0.10.8-win32-fix-export-def.patch
+  ${GIT_AM} ${srcdir}/004-GO-0.10.0-win32-Add-extern-prefix-to-GO_VAR_DECL.patch
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  CPPFLAGS+=" -Wno-deprecated-declarations"
+
+#  [[ -d "${srcdir}"/build-${CARCH}-static ]] && rm -rf "${srcdir}"/build-${CARCH}-static
+#  mkdir -p "${srcdir}"/build-${CARCH}-static && cd "${srcdir}"/build-${CARCH}-static
+#
+#  # configure option --disable-silent-rules useful to aid in debugging
+#  # Added without-long-double to stop build errors
+#  # Added enable-gtk-doc-html=no to stop build errors
+#
+#  CFLAGS+=" -DGO_VAR_DECL=extern" \
+#  ../${_sourcedir}/configure \
+#      --prefix=${MINGW_PREFIX} \
+#      --host=${MINGW_CHOST} \
+#      --target=${MINGW_CHOST} \
+#      --build=${MINGW_CHOST} \
+#      --without-long-double \
+#      --disable-shared \
+#      --enable-static \
+#      --enable-gtk-doc-html=no \
+#      --enable-gtk-doc
+#
+#  make # -j1 V=1
+
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  # configure option --disable-silent-rules useful to aid in debugging
+  # Added without-long-double to stop build errors
+  # Added enable-gtk-doc-html=no to stop build errors
+
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --without-long-double \
+      --enable-shared \
+      --disable-static \
+      --enable-gtk-doc-html=no \
+      --enable-gtk-doc
+
+  make # -j1 V=1
+}
+
+#check() {
+#  cd "${srcdir}"/build-${CARCH}
+#
+#  local WINPREFIX=$(cygpath -m ${MINGW_PREFIX})
+#  local UNIXPREFIX=$(cygpath -u ${MINGW_PREFIX})
+#
+#  # the local project libtool is having problems with linker search path
+#  sed -i "s|-L${WINPREFIX}|-L${UNIXPREFIX}|g" "${srcdir}/build-${CARCH}/tests/Makefile"
+#
+#  make V=1 -j1 -k check || true
+#}
+
+_package_shared() {
+  provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-static")
+  depends=(
+    ${MINGW_PACKAGE_PREFIX}-librsvg
+    ${MINGW_PACKAGE_PREFIX}-gtk3
+    ${MINGW_PACKAGE_PREFIX}-libgsf
+    ${MINGW_PACKAGE_PREFIX}-libspectre
+    ${MINGW_PACKAGE_PREFIX}-libxslt
+    ${MINGW_PACKAGE_PREFIX}-lasem
+  )
+
+  cd "${srcdir}"/build-${CARCH}
+  make install DESTDIR="${pkgdir}"
+
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl2 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl2
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl3 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl3
+}
+
+_package_static() {
+  provides=("${MINGW_PACKAGE_PREFIX}-${_realname}-static")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-static")
+
+  cd "${srcdir}"/build-${CARCH}-static
+  make install DESTDIR="${pkgdir}"
+
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl2 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl2
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl3 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl3
+}
+
+package_mingw-w64-i686-goffice-git() { _package_shared; }
+package_mingw-w64-x86_64-goffice-git() { _package_shared; }
+package_mingw-w64-i686-goffice-static-git() { _package_static; }
+package_mingw-w64-x86_64-goffice-static-git() { _package_static; }

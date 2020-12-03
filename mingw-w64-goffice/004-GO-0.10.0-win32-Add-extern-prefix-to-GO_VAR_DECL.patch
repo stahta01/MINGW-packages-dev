@@ -1,0 +1,25 @@
+From d205851ba4297e23da6081902f937d3ab7ea45ce Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sat, 19 Dec 2020 07:33:32 -0500
+Subject: Add extern prefix to GO_VAR_DECL
+
+---
+ goffice/goffice.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/goffice/goffice.h b/goffice/goffice.h
+index 8f536a5b..71d81254 100644
+--- a/goffice/goffice.h
++++ b/goffice/goffice.h
+@@ -35,7 +35,7 @@
+ #ifndef GO_VAR_DECL
+ #  ifdef WIN32
+ #    ifdef GOFFICE_COMPILATION
+-#      define GO_VAR_DECL __declspec(dllexport)
++#      define GO_VAR_DECL extern __declspec(dllexport)
+ #    else
+ #      define GO_VAR_DECL extern __declspec(dllimport)
+ #    endif
+-- 
+2.29.2.windows.3
+

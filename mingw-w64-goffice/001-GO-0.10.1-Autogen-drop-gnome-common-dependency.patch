@@ -1,0 +1,150 @@
+From 4ba26f2ffbec102ac5b9a56ead728371d9762b14 Mon Sep 17 00:00:00 2001
+From: Morten Welinder <terra@gnome.org>
+Date: Thu, 4 Aug 2016 20:07:34 -0400
+Subject: [PATCH] Autogen: avoid gnome-common dependency
+
+Backport from version 0.10.32
+
+---
+ autogen.sh   | 77 ++++++++++++++--------------------------------------
+ configure.ac | 10 +++----
+ 2 files changed, 25 insertions(+), 62 deletions(-)
+
+diff --git a/autogen.sh b/autogen.sh
+index ed9aae54..1030e6fa 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -1,37 +1,12 @@
+ #!/bin/sh
+ # Run this to generate all the initial makefiles, etc.
+ 
+-PKG_NAME="goffice"
++PKG_NAME="Goffice"
+ 
+-REQUIRED_AUTOMAKE_VERSION=1.9.0
+-REQUIRED_LIBTOOL_VERSION=1.4.3
++test -n "$srcdir" || srcdir=$(dirname "$0")
++test -n "$srcdir" || srcdir=.
+ 
+-# We need intltool >= 0.27.2 to extract the UTF-8 chars from source code:
+-REQUIRED_INTLTOOL_VERSION=0.27.2
+-
+-# We require Automake 1.7.2, which requires Autoconf 2.54.
+-# (It needs _AC_AM_CONFIG_HEADER_HOOK, for example.)
+-REQUIRED_AUTOCONF_VERSION=2.54
+-
+-# This enforces the version for the machine where the tarball is built
+-# from CVS.  This requirement might be stronger than the one in configure.in.
+-#
+-# An example: we might require pkg-config binary >= 0.18, because it
+-# implements Libs.private.  But we might require macro PKG_PROG_PKG_CONFIG
+-# from pkg-config >= 0.29 because this macro is able to detect old versions
+-# of pkg-config conrrectly and reports a sane error message.
+-#
+-# In other words, the distribution tarball can be created only with 0.29 or
+-# later, but it can be then compiled on any host with pkg-config >= 0.18.
+-#
+-# We would then use REQUIRED_PKG_CONFIG_VERSION=0.29 here and
+-# PKG_PROG_PKG_CONFIG([0.18]) in configure.in.
+-
+-USE_GNOME2_MACROS=1
+-USE_COMMON_DOC_BUILD=yes
+-
+-srcdir=`dirname $0`
+-test -z "$srcdir" && srcdir=.
++olddir=$(pwd)
+ 
+ (test -f $srcdir/configure.ac	\
+   && test -d $srcdir/goffice	\
+@@ -41,32 +16,20 @@ test -z "$srcdir" && srcdir=.
+     exit 1
+ }
+ 
+-ifs_save="$IFS"; IFS=":"
+-for dir in $PATH ; do
+-  IFS="$ifs_save"
+-  test -z "$dir" && dir=.
+-  if test -f "$dir/gnome-autogen.sh" ; then
+-    gnome_autogen="$dir/gnome-autogen.sh"
+-    gnome_datadir=`echo $dir | sed -e 's,/bin$,/share,'`
+-    break
+-  fi
+-done
+-
+-if test -z "$gnome_autogen" ; then
+-  echo "You need to install the gnome-common module and make" 1>&2
+-  echo "sure the gnome-autogen.sh script is in your \$PATH." 1>&2
+-  exit 1
+-fi
+-
+-GNOME_DATADIR="$gnome_datadir"
+-
+-. $gnome_autogen
+-
+-if grep 'which gtkdoc-rebase >/dev/null &&' $srcdir/gtk-doc.make >/dev/null 2>&1 &&	\
+-   grep '[^-]installfiles=`echo $(srcdir)/html/*`;' $srcdir/gtk-doc.make >/dev/null 2>&1; then
+-    echo '----------------------------------------------------' 1>&2
+-    echo "Your gtk-doc has a dependency problem.  Upgrade." 1>&2
+-    echo "See http://bugzilla.gnome.org/show_bug.cgi?id=506506" 1>&2
+-    echo '----------------------------------------------------' 1>&2
+-    exit 1
++cd $srcdir
++aclocal --install || exit 1
++glib-gettextize --force --copy || exit 1
++gtkdocize --copy || exit 1
++intltoolize --force --copy --automake || exit 1
++autoreconf --verbose --force --install || exit 1
++cd $olddir
++
++if [ "$NOCONFIGURE" = "" ]; then
++        $srcdir/configure "$@" || exit 1
++
++        if [ "$1" = "--help" ]; then exit 0 else
++                echo "Now type 'make' to compile $PKG_NAME" || exit 1
++        fi
++else
++        echo "Skipping configure process."
+ fi
+diff --git a/configure.ac b/configure.ac
+index d5bab58b..978a1fdd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2,6 +2,8 @@
+ dnl We require Automake 1.7.2, which requires Autoconf 2.54.
+ dnl (It needs _AC_AM_CONFIG_HEADER_HOOK, for example.)
+ AC_PREREQ(2.54)
++AC_CONFIG_MACRO_DIR([m4])
++AX_IS_RELEASE([git-directory])
+ 
+ m4_define([goffice_version_epoch], [0])
+ m4_define([goffice_version_major], [10])
+@@ -434,10 +436,6 @@ AC_ARG_VAR(PERL, [The Perl executable.])
+ AC_CHECK_PROG(PERL, perl, perl)
+ 
+ ## this should come after `AC_PROG_CC'
+-ifdef([GNOME_COMPILE_WARNINGS],
+-	[GNOME_COMPILE_WARNINGS] CFLAGS="$CFLAGS $WARN_CFLAGS",
+-	[]
+-)
+ set_more_warnings=yes
+ if test "$GCC" = yes -a "x$set_more_warnings" != xno; then
+ 	dnl Clang needs this option, or else it will appear to support any
+@@ -453,7 +451,8 @@ if test "$GCC" = yes -a "x$set_more_warnings" != xno; then
+ 	AC_MSG_RESULT($has_unknown_warning_option)
+ 	CFLAGS="$SAVE_CFLAGS"
+ 
+-	warning_options="-Wsign-compare -Wpointer-arith \
++	warning_options="-Wall -Werror=init-self -Werror=missing-include-dirs \
++			 -Wsign-compare -Werror=pointer-arith \
+ 			 -Wchar-subscripts -Wwrite-strings \
+ 			 -Wdeclaration-after-statement -Wnested-externs \
+ 			 -Wmissing-noreturn \
+@@ -806,6 +805,7 @@ AC_DEFINE(GO_VERSION_MINOR, goffice_version_minor,
+ AC_DEFINE(GO_VERSION_EXTRA, "goffice_version_extra",
+ 	[Extra, possibly empty tag for this release])
+ 
++dnl AX_REQUIRE_DEFINED([GTK_DOC_CHECK])
+ GTK_DOC_CHECK([1.12])
+ if test "x$with_gtk" = "xno" -a "x$enable_gtk_doc" = "xyes"; then
+ 	AC_MSG_ERROR([Building documentation is not allowed for a without Gtk+ build])
+-- 
