@@ -1,0 +1,159 @@
+From 3c476b2fe1581cecf0ff7a485116805d5879f7e6 Mon Sep 17 00:00:00 2001
+From: Morten Welinder <terra@gnome.org>
+Date: Sun, 31 Jul 2016 15:21:20 -0400
+Subject: Autogen: drop gnome-common dependency
+
+And, printbold is gone and we don't really care
+---
+ autogen.sh   | 64 +++++++++++++++++-----------------------------------
+ configure.ac | 12 ++++++----
+ 2 files changed, 28 insertions(+), 48 deletions(-)
+
+diff --git a/autogen.sh b/autogen.sh
+index c21194ff6..abb553371 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -3,21 +3,10 @@
+ 
+ PKG_NAME="Gnumeric"
+ 
+-REQUIRED_AUTOMAKE_VERSION=1.9.0
+-REQUIRED_LIBTOOL_VERSION=1.4.3
++test -n "$srcdir" || srcdir=$(dirname "$0")
++test -n "$srcdir" || srcdir=.
+ 
+-# We use the XGETTEXT_KEYWORDS variable, thus we require:
+-REQUIRED_INTLTOOL_VERSION=0.29
+-
+-# We require Automake 1.7.2, which requires Autoconf 2.54.
+-# (It needs _AC_AM_CONFIG_HEADER_HOOK, for example.)
+-REQUIRED_AUTOCONF_VERSION=2.54
+-
+-USE_GNOME2_MACROS=1
+-USE_COMMON_DOC_BUILD=yes
+-
+-srcdir=`dirname $0`
+-test -z "$srcdir" && srcdir=.
++olddir=$(pwd)
+ 
+ (test -f $srcdir/configure.ac \
+   && test -d $srcdir/src \
+@@ -27,29 +16,14 @@ test -z "$srcdir" && srcdir=.
+     exit 1
+ }
+ 
+-ifs_save="$IFS"; IFS=":"
+-for dir in $PATH ; do
+-  IFS="$ifs_save"
+-  test -z "$dir" && dir=.
+-  if test -f "$dir/gnome-autogen.sh" ; then
+-    gnome_autogen="$dir/gnome-autogen.sh"
+-    gnome_datadir=`echo $dir | sed -e 's,/bin$,/share,'`
+-    break
+-  fi
+-done
+-
+-if test -z "$gnome_autogen" ; then
+-  echo "You need to install the gnome-common module and make"
+-  echo "sure the gnome-autogen.sh script is in your \$PATH."
+-  exit 1
+-fi
+-
+-GNOME_DATADIR="$gnome_datadir"
++cd $srcdir
++aclocal --install || exit 1
++glib-gettextize --force --copy || exit 1
++gtkdocize --copy || exit 1
++intltoolize --force --copy --automake || exit 1
++autoreconf --verbose --force --install || exit 1
++cd $olddir
+ 
+-# Dont't run configure yet, ...
+-GNM_NOCONFIGURE=$NOCONFIGURE
+-NOCONFIGURE=1
+-. $gnome_autogen
+ 
+ # We have our own copy of Makefile.in.in generated October 2008.
+ # One of the reasons why we need a local copy is that
+@@ -57,7 +31,7 @@ NOCONFIGURE=1
+ # SVN, so this file cannot depend on the versions of the tools which the
+ # developers have installed.
+ #
+-printbold "Creating po/Makefile.in.in and po-functions/Makefile.in.in."
++echo "Creating po/Makefile.in.in and po-functions/Makefile.in.in."
+ rm -f $srcdir/po/Makefile.in.in $srcdir/po-functions/Makefile.in.in
+ cp $srcdir/po/Makefile.in.in.own $srcdir/po/Makefile.in.in
+ sed '/^\(GETTEXT_PACKAGE\|subdir\) =/s/[ 	]*$/-functions/
+@@ -67,7 +41,7 @@ XGETTEXT_KEYWORDS = --keyword --keyword=F_
+ /^EXTRA_DISTFILES/s/ LINGUAS//
+ ' $srcdir/po/Makefile.in.in >$srcdir/po-functions/Makefile.in.in
+ 
+-printbold "Creating po-functions/POTFILES.{in,skip}."
++echo "Creating po-functions/POTFILES.{in,skip}."
+ rm -f $srcdir/po-functions/POTFILES.in $srcdir/po-functions/POTFILES.skip
+ # This regex matches names of XML files:
+ xml_file_name='^((schemas|templates)/.+|[^/]+)\.in$|\.(glade|xml)(\.in)?$'
+@@ -79,9 +53,13 @@ xml_file_name='^((schemas|templates)/.+|[^/]+)\.in$|\.(glade|xml)(\.in)?$'
+   egrep "$xml_file_name" $srcdir/po/POTFILES.in
+ ) >$srcdir/po-functions/POTFILES.skip
+ 
+-# ... and then proceed.
+-if test "x$GNM_NOCONFIGURE" = x; then
+-    printbold Running $srcdir/configure $conf_flags "$@" ...
+-    $srcdir/configure $conf_flags "$@" \
+-        && echo Now type \`make\' to compile $PKG_NAME || exit 1
++
++if [ "$NOCONFIGURE" = "" ]; then
++        $srcdir/configure "$@" || exit 1
++
++        if [ "$1" = "--help" ]; then exit 0 else
++                echo "Now type 'make' to compile $PKG_NAME" || exit 1
++        fi
++else
++        echo "Skipping configure process."
+ fi
+diff --git a/configure.ac b/configure.ac
+index ce95f1c99..3ba51cf21 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2,6 +2,8 @@
+ dnl We require Automake 1.7.2, which requires Autoconf 2.54.
+ dnl (It needs _AC_AM_CONFIG_HEADER_HOOK, for example.)
+ AC_PREREQ(2.54)
++AC_CONFIG_MACRO_DIR([m4])
++AX_IS_RELEASE([git-directory])
+ 
+ m4_define([gnumeric_version_epoch], [1])
+ m4_define([gnumeric_version_major], [12])
+@@ -70,6 +72,9 @@ AM_MAINTAINER_MODE([enable])
+ 
+ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+ 
++dnl AX_REQUIRE_DEFINED([GTK_DOC_CHECK])
++GTK_DOC_CHECK
++
+ dnl We use a LINGUAS file, so we need intltool >= 0.35:
+ IT_PROG_INTLTOOL([0.35.0])
+ IT_PO_SUBDIR(po-functions)
+@@ -266,10 +271,6 @@ AC_ARG_VAR(GDK_PIXBUF_CSOURCE, [The gdk-pixbuf-csource executable.])
+ AC_CHECK_PROG(GDK_PIXBUF_CSOURCE, gdk-pixbuf-csource$ac_exeext, gdk-pixbuf-csource$ac_exeext)
+ 
+ ## this should come after `AC_PROG_CC'
+-ifdef([GNOME_COMPILE_WARNINGS],
+-	[GNOME_COMPILE_WARNINGS] CFLAGS="$CFLAGS $WARN_CFLAGS",
+-	[]
+-)
+ set_more_warnings=yes
+ if test "$GCC" = yes -a "x$set_more_warnings" != xno; then
+ 	dnl Clang needs this option, or else it will appear to support any
+@@ -285,7 +286,8 @@ if test "$GCC" = yes -a "x$set_more_warnings" != xno; then
+ 	AC_MSG_RESULT($has_unknown_warning_option)
+ 	CFLAGS="$SAVE_CFLAGS"
+ 
+-	warning_options="-Wsign-compare -Wpointer-arith \
++	warning_options="-Wall -Werror=init-self -Werror=missing-include-dirs \
++			 -Wsign-compare -Werror=pointer-arith \
+ 			 -Wchar-subscripts -Wwrite-strings \
+ 			 -Wdeclaration-after-statement -Wnested-externs \
+ 			 -Wmissing-noreturn \
+-- 

@@ -1,0 +1,27 @@
+From 0a10e25dd145c792494141c15056b7b06916c0df Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 6 Dec 2020 04:00:10 -0500
+Subject: msys install fix fake-index-theme
+
+---
+ icons/Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/icons/Makefile.am b/icons/Makefile.am
+index bea6e1d68..446f5ac01 100644
+--- a/icons/Makefile.am
++++ b/icons/Makefile.am
+@@ -8,8 +8,8 @@ fake_index_theme_target =
+ if WITH_WIN32
+ fake_index_theme_target += install-fake-index-theme
+ 
+-install-fake-index-theme: fake-index-theme
+-	install -D -m 0644 fake-index-theme $(datadir)/icons/hicolor/index.theme
++install-fake-index-theme: $(top_srcdir)/icons/fake-index-theme
++	install -D -m 0644 $(top_srcdir)/icons/fake-index-theme $(datadir)/icons/hicolor/index.theme
+ 
+ winicondir = $(datadir)/pixmaps
+ winicon_DATA = win32-gnumeric.ico
+-- 
+2.29.2.windows.2
+

@@ -1,0 +1,217 @@
+# Contributor: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=gnumeric
+_sourcedir=${_realname}-git
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=1.12.49.v+18.c7.g02f0059ef
+pkgrel=1
+pkgdesc="Spreadsheet Program (mingw-w64)"
+arch=('any')
+url="http://www.gnumeric.org/"
+license=('GPL')
+options=('!strip' 'debug') # Debug
+#options=('strip' '!debug') # Release
+depends=( ${MINGW_PACKAGE_PREFIX}-goffice ${MINGW_PACKAGE_PREFIX}-drmingw )
+makedepends=(
+  ${MINGW_PACKAGE_PREFIX}-itstool
+  ${MINGW_PACKAGE_PREFIX}-pkgconf
+  ${MINGW_PACKAGE_PREFIX}-libtool
+  ${MINGW_PACKAGE_PREFIX}-pygobject-devel
+  ${MINGW_PACKAGE_PREFIX}-docbook-xml              # May or May not be needed; since, I have tried to disable doc building
+#  ${MINGW_PACKAGE_PREFIX}-gobject-introspection   # Should not be needed since the configure option is disabled
+  ${MINGW_PACKAGE_PREFIX}-python-gobject
+  ${MINGW_PACKAGE_PREFIX}-gtk-doc                  # Was needed by autogen.sh
+  ${MINGW_PACKAGE_PREFIX}-yelp-tools               # May or May not be needed; since, I have tried to disable doc building
+  autoconf-archive
+  autoconf
+  automake-wrapper
+  bison
+  make
+  patch
+  git
+  intltool
+)
+optdepends=("${MINGW_PACKAGE_PREFIX}-python-gobject: for python plugin support"
+            "${MINGW_PACKAGE_PREFIX}-perl: for perl plugin support"
+            "${MINGW_PACKAGE_PREFIX}-yelp: for viewing the help manual")
+_git_commit=
+_git_tag=
+# libgoffice-0.10 version 0.10.14 gives Build error: implicit declaration of function 'go_gtk_widget_render_icon_pixbuf'
+# Access Violation in libgoffice 0.10.16,17 looks like version 0.10.22 or 23 should fix it
+#_git_tag=GNUMERIC_1_12_10 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_11 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_12 #
+#_git_tag=GNUMERIC_1_12_13 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_14 # needs libgoffice-0.10 >= 0.10.14
+#_git_tag=GNUMERIC_1_12_15 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_16 # using libgoffice-0.10 = 0.10.23
+#_git_tag=GNUMERIC_1_12_17 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_18 # using libgoffice-0.10 = 0.10.23
+#_git_tag=GNUMERIC_1_12_19 # using libgoffice-0.10 = 0.10.23
+#_git_tag=GNUMERIC_1_12_20 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#
+#_git_tag=GNUMERIC_1_12_31 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_32 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_33 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_37 # needs libgoffice-0.10 >= 0.10.28 build error: 'GnmFunc' {aka 'const struct _GnmFunc'} has no member named 'libintl_textdomain' 
+#_git_tag=GNUMERIC_1_12_40 # using libgoffice-0.10 = 0.10.46  Logs have "Can't locate GnumericTest.pm"; but, Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_46 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran
+#_git_tag=GNUMERIC_1_12_47 # needs libgoffice-0.10 >= 0.10.46
+#_git_tag=GNUMERIC_1_12_48 # needs libgoffice-0.10 >= 0.10.48
+#_git_commit=4d3bb014941abb18f6e5236b6ea76ffe3b39a26e # Same as GNUMERIC_1_12_48
+# pkgver 1.12.49.v+16.c7.g0c1661ccd using libgoffice-0.10 = 0.10.48 Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+
+_git_repo_url="git+https://gitlab.gnome.org/GNOME/gnumeric.git"
+if [ -n "$_git_tag" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#tag=$_git_tag")
+elif [ -n "$_git_commit" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#commit=$_git_commit")
+else
+  source=(${_sourcedir}::"${_git_repo_url}")
+fi
+source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
+          001-GNM-1.12.37-msys-remove-no-longer-needed-code.patch
+          002-GNM-1.12.0-msys-allow-multiple-definition.patch
+          003-GNM-1.12.0-msys-sheet_style_apply_border.patch
+          004-GNM-1.12.x-msys-remove-doc-from-building.patch
+          004-GNM-1.12.17-msys-remove-doc-from-building.patch
+          004-GNM-1.12.40-msys-remove-doc-from-building.patch
+          005-GNM-1.12.x-patch-icon-Makefile.diff
+          006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
+          007-GNM-1.12.x-gcc-asm-comment-out-asm-code.patch
+          008-GNM-1.12.x-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
+          009-GNM-1.12.x-Remove-most-doc-Makefiles-from-configure.ac.patch
+          010-GNM-1.12.x-msys-add-ExcHndlInit.patch
+          011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
+          011-GNM-1.12.x-Add-second-null-pointer-test.patch)
+sha256sums=('SKIP'
+            '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
+            '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
+            '9d98b30c172062df20adf2a727367964c0e8c74ff0be6a40d7086f74112ae033'
+            '76c4a80211efc4d3ff0c05e20a297014e8c6d70de604aa90a13a33ce42aafead'
+            '1efb88f1353622882e9b57a996c750343033c467c4f4bf72f7fe9f85daad459e'
+            '7d61968379e92940694c52a9ac5abfaf647699c81dff194a723322232dc31ad9'
+            'f00e22d029b10a38538da7f6818595d189b48ef06b59efb2323e60ac2e97eda3'
+            'def9444424a85af6ba377e39c6277c327135a537680cf23487e1c831427809a8'
+            '43239a4079a831fe93e788dd01373ca5ece3d6c0cd7701f4fe35364a1f956763'
+            'ac16af48e839bd69f9ac873ef5113c990a8008a53c371d6009751b85b6d16f12'
+            '36ded1df0c6bf81448d1f8377c23f84bc39f32a2df36340e59800d2d0912c008'
+            'e1749e1c2d4238888877269f855adbdcace98b466eeb5789f774d06b9afd1211'
+            '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441'
+            '0129c56c716d494808454076f4a7c4592656115f372c924367ffc82f0592ecbb'
+            '937048bc15edf0042d2475525b6870b9d4d9f371bb6fbc5b987993fe25750582')
+
+# Declare global variables; begin with underscore to avoid name conflicts
+_git_base_commit=
+_git_nearest_tag=
+
+pkgver() {
+  cd ${srcdir}/${_sourcedir}
+
+  local _epoch=$(head -n 34 configure.ac | grep 'm4_define(\[gnumeric_version_epoch\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _major=$(head -n 34 configure.ac | grep 'm4_define(\[gnumeric_version_major\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _minor=$(head -n 34 configure.ac | grep 'm4_define(\[gnumeric_version_minor\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  local _extra=$(head -n 34 configure.ac | grep 'm4_define(\[gnumeric_version_extra\]' | sed -e 's/.* //' | tr '\n' '.' | tr -d '\[\])' | sed 's/.$/\n/')
+  if [ -z "$_extra" ]; then
+    printf "%s.%s.%s.v+%s.c%s.g%s" "$_epoch" "$_major" "$_minor" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} configure.ac)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+  else
+    printf "%s.%s.%s.%s.v+%s.c%s.g%s" "$_epoch" "$_major" "$_minor" "$_extra" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} configure.ac)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+  fi
+}
+
+prepare() {
+  cd ${srcdir}/${_sourcedir}
+
+  _git_base_commit=$( git rev-parse HEAD )
+  _git_nearest_tag=$( git describe --abbrev=0 --tags )
+  echo "_git_nearest_tag := $_git_nearest_tag"
+
+  GIT_AM="git am --committer-date-is-author-date"
+
+  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_37" ]] ; then
+    ${GIT_AM} ${srcdir}/001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
+  else
+    ${GIT_AM} ${srcdir}/001-GNM-1.12.37-msys-remove-no-longer-needed-code.patch
+  fi
+  ${GIT_AM} ${srcdir}/002-GNM-1.12.0-msys-allow-multiple-definition.patch
+  ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
+
+  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
+    ${GIT_AM} ${srcdir}/004-GNM-1.12.x-msys-remove-doc-from-building.patch
+  elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
+    ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
+  else
+    ${GIT_AM} ${srcdir}/004-GNM-1.12.40-msys-remove-doc-from-building.patch
+  fi
+  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_32" ]] ; then
+    ${GIT_AM} ${srcdir}/006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
+  fi
+  ${GIT_AM} ${srcdir}/007-GNM-1.12.x-gcc-asm-comment-out-asm-code.patch
+
+  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_33" ]] ; then
+    ${GIT_AM} ${srcdir}/008-GNM-1.12.x-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
+    ${GIT_AM} ${srcdir}/009-GNM-1.12.x-Remove-most-doc-Makefiles-from-configure.ac.patch
+  fi
+
+  ${GIT_AM} ${srcdir}/010-GNM-1.12.x-msys-add-ExcHndlInit.patch
+
+  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
+    ${GIT_AM} ${srcdir}/011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
+  else
+    ${GIT_AM} ${srcdir}/011-GNM-1.12.x-Add-second-null-pointer-test.patch
+  fi
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  CPPFLAGS+=" -Wno-deprecated-declarations"
+  LDFLAGS+=" -lexchndl"
+
+  # configure option --disable-silent-rules useful to aid in debugging
+  # configure option --without-perl may be needed to run useful make check
+
+  ../${_sourcedir}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} \
+      --build=${MINGW_CHOST} \
+      --without-perl \
+      --without-psiconv \
+      --disable-schemas-compile \
+      --disable-introspection \
+      --disable-silent-rules
+
+  local WINPREFIX=$(cygpath -m ${MINGW_PREFIX})
+  local UNIXPREFIX=$(cygpath -u ${MINGW_PREFIX})
+
+  # the local project libtool is having problems with linker search path
+  # libtool:   error: Could not determine the host path corresponding to
+  sed -i "s|-L${WINPREFIX}|-L${UNIXPREFIX}|g" "${srcdir}/build-${CARCH}/src/Makefile"
+
+  make -j1 V=1
+}
+
+check() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make V=1 -j1 -k check || true
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+
+  patch --forward -p0 -i ${srcdir}/005-GNM-1.12.x-patch-icon-Makefile.diff # 1.12.10 patched okay
+
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl2 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl2
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl3 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl3
+}

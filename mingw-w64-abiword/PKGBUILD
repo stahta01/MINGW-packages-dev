@@ -1,13 +1,13 @@
 # Contributor: Tim Stahlhut <stahta01@gmail.com>
 
 _realname=abiword
-_sourcedir=${_realname}
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 #provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 #conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 pkgver=3.0.4
 pkgrel=1
+_sourcedir=${_realname}-$pkgver
 pkgdesc="Word Processor (mingw-w64)"
 arch=('any')
 url="https://www.abisource.com"
@@ -15,40 +15,42 @@ license=('GPL')
 options=('!strip' 'debug' '!makeflags')
 #options=('strip' '!debug' '!makeflags')
 depends=(
+#Package 'wv-1.0', required by 'virtual:world', not found
   ${MINGW_PACKAGE_PREFIX}-goffice
   ${MINGW_PACKAGE_PREFIX}-fribidi
-  ${MINGW_PACKAGE_PREFIX}-wv
+#  ${MINGW_PACKAGE_PREFIX}-wv           # needs very little
   ${MINGW_PACKAGE_PREFIX}-librsvg
   ${MINGW_PACKAGE_PREFIX}-enchant
   ${MINGW_PACKAGE_PREFIX}-desktop-file-utils
-  ${MINGW_PACKAGE_PREFIX}-redland
+#  ${MINGW_PACKAGE_PREFIX}-redland      # needs a several packages
   ${MINGW_PACKAGE_PREFIX}-libical
   ${MINGW_PACKAGE_PREFIX}-gtk-update-icon-cache
-  ${MINGW_PACKAGE_PREFIX}-loudmouth
+#  ${MINGW_PACKAGE_PREFIX}-loudmouth    # needs a several packages
   ${MINGW_PACKAGE_PREFIX}-libwpg
-  ${MINGW_PACKAGE_PREFIX}-libwps
+#  ${MINGW_PACKAGE_PREFIX}-libwps       # needs very little
   ${MINGW_PACKAGE_PREFIX}-libwmf
-  ${MINGW_PACKAGE_PREFIX}-link-grammar
-  ${MINGW_PACKAGE_PREFIX}-gtkmathview
-  ${MINGW_PACKAGE_PREFIX}-aiksaurus
+#  ${MINGW_PACKAGE_PREFIX}-link-grammar # needs a several packages
+#  ${MINGW_PACKAGE_PREFIX}-gtkmathview  # needs very little
+#  ${MINGW_PACKAGE_PREFIX}-aiksaurus    # needs only gtk2 or higher
   ${MINGW_PACKAGE_PREFIX}-libxslt
   ${MINGW_PACKAGE_PREFIX}-libsoup
-  ${MINGW_PACKAGE_PREFIX}-libots
+#  ${MINGW_PACKAGE_PREFIX}-libots       # needs very little
   ${MINGW_PACKAGE_PREFIX}-libgsf
-  ${MINGW_PACKAGE_PREFIX}-psiconv )
+#  ${MINGW_PACKAGE_PREFIX}-psiconv      # needs very little
+)
 makedepends=(
   ${MINGW_PACKAGE_PREFIX}-boost
   ${MINGW_PACKAGE_PREFIX}-gobject-introspection
   ${MINGW_PACKAGE_PREFIX}-python-gobject
-  ${MINGW_PACKAGE_PREFIX}-pkgconfig
+  ${MINGW_PACKAGE_PREFIX}-pkgconf
   ${MINGW_PACKAGE_PREFIX}-libwpd 
-  ${MINGW_PACKAGE_PREFIX}-libwps
-  ${MINGW_PACKAGE_PREFIX}-python2-gobject
+#  ${MINGW_PACKAGE_PREFIX}-libwps
+  ${MINGW_PACKAGE_PREFIX}-python2-gobject2
   ${MINGW_PACKAGE_PREFIX}-python-gobject
   autoconf-archive )
 optdepends=()
-source=(https://www.abisource.com/downloads/$pkgname/$pkgver/source/$pkgname-$pkgver.tar.gz)
-sha256sums=('SKIP')
+source=(https://www.abisource.com/downloads/$_realname/$pkgver/source/$_realname-$pkgver.tar.gz)
+sha256sums=('e93096cb192e5bc19d62e180fc5eda643206465315a710113ae5036bc2a1a5d7')
 
 prepare() {
   cd ${srcdir}/${_sourcedir}
@@ -72,9 +74,9 @@ build() {
       --host=${MINGW_CHOST} \
       --target=${MINGW_CHOST} \
       --build=${MINGW_CHOST} \
+      --with-goffice \
       --enable-shared \
       --disable-static \
-      --without-psiconv \
       --disable-introspection \
       --disable-silent-rules
 
@@ -93,7 +95,6 @@ package() {
 
   make DESTDIR="${pkgdir}" install
 
-#  install -Dm644 ${srcdir}/${_sourcedir}/COPYING ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
-#  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl2 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl2
-#  install -Dm644 ${srcdir}/${_sourcedir}/COPYING-gpl3 ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING-gpl3
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYRIGHT.TXT ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYRIGHT.TXT
+  install -Dm644 ${srcdir}/${_sourcedir}/COPYING ${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING
 }

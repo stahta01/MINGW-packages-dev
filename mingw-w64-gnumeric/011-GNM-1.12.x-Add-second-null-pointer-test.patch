@@ -1,0 +1,26 @@
+From 0fbca2ecf342a4b4facf96a9abb2ad6a664075d1 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sat, 12 Dec 2020 22:46:31 -0500
+Subject: Parsing: fix segmentation fault
+
+Verify both sub pointers are good before using them.
+The segfault happened using the MSys2 (Cygwin like) enviroment 
+under Windows 7 64 bit.
+---
+ src/parse-util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/parse-util.c b/src/parse-util.c
+index 1b5db56c3..7089ac51c 100644
+--- a/src/parse-util.c
++++ b/src/parse-util.c
+@@ -703,7 +703,7 @@ parsepos_as_string (GnmParsePos const *pp)
+ 
+ 	return cell_coord_name2 (pp->eval.col,
+ 				 pp->eval.row,
+-				 pp->sheet && pp->sheet->convs->r1c1_addresses);
++				 pp->sheet && pp->sheet->convs && pp->sheet->convs->r1c1_addresses);
+ }
+ 
+ /**
+-- 

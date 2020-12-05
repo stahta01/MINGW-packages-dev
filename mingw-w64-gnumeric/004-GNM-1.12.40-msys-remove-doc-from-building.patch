@@ -1,0 +1,20 @@
+From bcd385c95c409621890a09992c71d4984701eab4 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 6 Dec 2020 01:03:43 -0500
+Subject: msys remove doc from building
+
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index e9d1037c3..670de2940 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,4 +1,4 @@
+-SUBDIRS = . po po-functions src plugins icons @COMPONENT_DIR@ templates doc tools schemas test introspection
++SUBDIRS = . po po-functions src plugins icons @COMPONENT_DIR@ templates tools schemas test introspection
+ 
+ XML_I18N_XML_KIND = --pass-through
+ 
+-- 

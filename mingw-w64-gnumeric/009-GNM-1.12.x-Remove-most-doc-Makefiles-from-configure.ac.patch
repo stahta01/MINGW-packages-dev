@@ -1,0 +1,25 @@
+From ac456123063cd21180277371d91ec55db8e5d459 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 11 Dec 2020 12:30:41 -0500
+Subject: Remove most doc Makefiles from configure.ac
+
+---
+ configure.ac | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index ccfea4942..242de235f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1154,10 +1154,6 @@ src/widgets/Makefile
+ src/tools/Makefile
+ src/cut-n-paste-code/Makefile
+ doc/Makefile
+-doc/C/Makefile
+-doc/C/figures/Makefile
+-doc/C/figures/icons/Makefile
+-doc/developer/Makefile
+ plugins/Makefile
+ plugins/fn-christian-date/Makefile
+ plugins/fn-complex/Makefile
+-- 

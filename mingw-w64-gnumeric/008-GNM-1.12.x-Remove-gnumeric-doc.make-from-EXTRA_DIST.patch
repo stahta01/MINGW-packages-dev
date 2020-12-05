@@ -1,0 +1,20 @@
+From 4506d68e13a90469b6551e825aa14c197c1470af Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 11 Dec 2020 12:17:50 -0500
+Subject: Remove gnumeric-doc.make from EXTRA_DIST
+
+---
+ doc/Makefile.am | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 6fd4eaec8..139547558 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -8,5 +8,4 @@ SUBDIRS = developer C
+ #
+ EXTRA_DIST = 				\
+ 	README				\
+-	gnumeric-doc.make		\
+ 	make-func-list.pl
+-- 
