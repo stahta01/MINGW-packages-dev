@@ -76,17 +76,17 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           001-GNM-1.12.37-msys-remove-no-longer-needed-code.patch
           002-GNM-1.12.0-msys-allow-multiple-definition.patch
           003-GNM-1.12.0-msys-sheet_style_apply_border.patch
-          004-GNM-1.12.x-msys-remove-doc-from-building.patch
+          004-GNM-1.12.0-msys-remove-doc-from-building.patch
           004-GNM-1.12.17-msys-remove-doc-from-building.patch
           004-GNM-1.12.40-msys-remove-doc-from-building.patch
           005-GNM-1.12.x-patch-icon-Makefile.diff
           006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
-          007-GNM-1.12.x-gcc-asm-comment-out-asm-code.patch
-          008-GNM-1.12.x-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
-          009-GNM-1.12.x-Remove-most-doc-Makefiles-from-configure.ac.patch
-          010-GNM-1.12.x-msys-add-ExcHndlInit.patch
+          007-GNM-1.12.0-gcc-asm-comment-out-asm-code.patch
+          008-GNM-1.12.0-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
+          009-GNM-1.12.1-Remove-most-doc-Makefiles-from-configure.ac.patch
+          010-GNM-1.12.8-msys-add-ExcHndlInit.patch
           011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
-          011-GNM-1.12.40-Add-second-null-pointer-test.patch)
+          011-GNM-1.12.40-Parsing-fix-segmentation-fault.patch)
 sha256sums=('SKIP'
             '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
             '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
@@ -140,7 +140,7 @@ prepare() {
   ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
 
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.x-msys-remove-doc-from-building.patch
+    ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
   elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
     ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
   else
@@ -149,19 +149,19 @@ prepare() {
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_32" ]] ; then
     ${GIT_AM} ${srcdir}/006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
   fi
-  ${GIT_AM} ${srcdir}/007-GNM-1.12.x-gcc-asm-comment-out-asm-code.patch
+  ${GIT_AM} ${srcdir}/007-GNM-1.12.0-gcc-asm-comment-out-asm-code.patch
 
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_33" ]] ; then
-    ${GIT_AM} ${srcdir}/008-GNM-1.12.x-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
-    ${GIT_AM} ${srcdir}/009-GNM-1.12.x-Remove-most-doc-Makefiles-from-configure.ac.patch
+    ${GIT_AM} ${srcdir}/008-GNM-1.12.0-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
+    ${GIT_AM} ${srcdir}/009-GNM-1.12.1-Remove-most-doc-Makefiles-from-configure.ac.patch
   fi
 
-  ${GIT_AM} ${srcdir}/010-GNM-1.12.x-msys-add-ExcHndlInit.patch
+  ${GIT_AM} ${srcdir}/010-GNM-1.12.8-msys-add-ExcHndlInit.patch
 
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
     ${GIT_AM} ${srcdir}/011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
   else
-    ${GIT_AM} ${srcdir}/011-GNM-1.12.40-Add-second-null-pointer-test.patch
+    ${GIT_AM} ${srcdir}/011-GNM-1.12.40-Parsing-fix-segmentation-fault.patch
   fi
 
   NOCONFIGURE=1 ./autogen.sh
@@ -173,6 +173,8 @@ build() {
 
   CPPFLAGS+=" -Wno-deprecated-declarations"
   LDFLAGS+=" -lexchndl"
+  CFLAGS+=" -DGNM_VAR_DECL=extern"
+  LDFLAGS+=" -l$MINGW_PREFIX/lib/libgoffice-0.10.a"
 
   # configure option --disable-silent-rules useful to aid in debugging
   # configure option --without-perl may be needed to run useful make check
