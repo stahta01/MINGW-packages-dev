@@ -14,8 +14,9 @@ url="http://www.gnumeric.org/"
 license=('GPL')
 options=('!strip' 'debug') # Debug
 #options=('strip' '!debug') # Release
-depends=( ${MINGW_PACKAGE_PREFIX}-goffice ${MINGW_PACKAGE_PREFIX}-drmingw )
+depends=( ${MINGW_PACKAGE_PREFIX}-drmingw )
 makedepends=(
+  ${MINGW_PACKAGE_PREFIX}-goffice
   ${MINGW_PACKAGE_PREFIX}-itstool
   ${MINGW_PACKAGE_PREFIX}-pkgconf
   ${MINGW_PACKAGE_PREFIX}-libtool
@@ -139,6 +140,7 @@ prepare() {
   ${GIT_AM} ${srcdir}/002-GNM-1.12.0-msys-allow-multiple-definition.patch
   ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
 
+  # Tried to disable Doc building because of build errors
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
     ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
   elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
@@ -173,11 +175,11 @@ build() {
 
   CPPFLAGS+=" -Wno-deprecated-declarations"
   LDFLAGS+=" -lexchndl"
-  CFLAGS+=" -DGNM_VAR_DECL=extern"
-  LDFLAGS+=" -l$MINGW_PREFIX/lib/libgoffice-0.10.a"
+  CFLAGS+=" -DGO_VAR_DECL=extern"
 
   # configure option --disable-silent-rules useful to aid in debugging
   # configure option --without-perl may be needed to run useful make check
+  # Disabled introspection because of build errors
 
   ../${_sourcedir}/configure \
       --prefix=${MINGW_PREFIX} \
@@ -197,6 +199,9 @@ build() {
   # libtool:   error: Could not determine the host path corresponding to
   sed -i "s|-L${WINPREFIX}|-L${UNIXPREFIX}|g" "${srcdir}/build-${CARCH}/src/Makefile"
 
+  # Change linking libraries to static goffice
+#  sed -i "s|-lgoffice-0.10"|-llibgoffice-0.10.a|g" "${srcdir}/build-${CARCH}/src/Makefile"
+
   make -j1 V=1
 }
 
@@ -209,7 +214,7 @@ check() {
 package() {
   cd "${srcdir}"/build-${CARCH}
 
-  patch --forward -p0 -i ${srcdir}/005-GNM-1.12.x-patch-icon-Makefile.diff # 1.12.10 patched okay
+  patch --forward -p0 -i ${srcdir}/005-GNM-1.12.x-patch-icon-Makefile.diff || true # 1.12.10 patched okay
 
   make DESTDIR="${pkgdir}" install
 
