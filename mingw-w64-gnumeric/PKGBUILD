@@ -86,7 +86,7 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           009-GNM-1.12.x-Remove-most-doc-Makefiles-from-configure.ac.patch
           010-GNM-1.12.x-msys-add-ExcHndlInit.patch
           011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
-          011-GNM-1.12.x-Add-second-null-pointer-test.patch)
+          011-GNM-1.12.40-Add-second-null-pointer-test.patch)
 sha256sums=('SKIP'
             '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
             '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
@@ -161,7 +161,7 @@ prepare() {
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
     ${GIT_AM} ${srcdir}/011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
   else
-    ${GIT_AM} ${srcdir}/011-GNM-1.12.x-Add-second-null-pointer-test.patch
+    ${GIT_AM} ${srcdir}/011-GNM-1.12.40-Add-second-null-pointer-test.patch
   fi
 
   NOCONFIGURE=1 ./autogen.sh
