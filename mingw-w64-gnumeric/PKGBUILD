@@ -204,7 +204,7 @@ build() {
   sed -i "s|-L${WINPREFIX}|-L${UNIXPREFIX}|g" "${srcdir}/build-${CARCH}/src/Makefile"
 
   # Change linking libraries to static goffice
-  sed -i "s|-lgoffice-0.10 -lgsf-1|-llibgoffice-0.10.a -llasem-0.4 -lrsvg-2 -lgsf-1|g" "${srcdir}/build-${CARCH}/src/Makefile"
+  sed -i "s|-lgoffice-0.10 -lgsf-1|-lgoffice-0.10 -llasem-0.4 -lrsvg-2 -lgsf-1|g" "${srcdir}/build-${CARCH}/src/Makefile"
 
   make -j1 V=1
 }
