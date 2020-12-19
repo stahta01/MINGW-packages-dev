@@ -209,11 +209,11 @@ build() {
   make -j1 V=1
 }
 
-#check() {
-#  cd "${srcdir}"/build-${CARCH}
-#
-#  make V=1 -j1 -k check || true
-#}
+check() {
+  cd "${srcdir}"/build-${CARCH}
+
+  make V=1 -j1 -k check || true
+}
 
 package() {
   cd "${srcdir}"/build-${CARCH}
