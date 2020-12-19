@@ -16,7 +16,7 @@ options=('!strip' 'debug') # Debug
 #options=('strip' '!debug') # Release
 depends=( ${MINGW_PACKAGE_PREFIX}-drmingw )
 makedepends=(
-  ${MINGW_PACKAGE_PREFIX}-goffice
+  ${MINGW_PACKAGE_PREFIX}-goffice-static
   ${MINGW_PACKAGE_PREFIX}-itstool
   ${MINGW_PACKAGE_PREFIX}-pkg-config
   ${MINGW_PACKAGE_PREFIX}-libtool
