@@ -188,6 +188,7 @@ build() {
       --build=${MINGW_CHOST} \
       --without-perl \
       --without-psiconv \
+      --enable-gtk-doc-html=no \
       --disable-schemas-compile \
       --disable-introspection \
       --disable-silent-rules
