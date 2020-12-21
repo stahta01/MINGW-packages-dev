@@ -77,6 +77,7 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           001-GNM-1.12.37-msys-remove-no-longer-needed-code.patch
           002-GNM-1.12.x-Add-extern-prefix-to-GNM_VAR_DECL.patch
           003-GNM-1.12.0-msys-sheet_style_apply_border.patch
+          004-GNM-1.12.x-win32-comment-out-build-using-hhc.patch
           004-GNM-1.12.0-msys-remove-doc-from-building.patch
           004-GNM-1.12.17-msys-remove-doc-from-building.patch
           004-GNM-1.12.40-msys-remove-doc-from-building.patch
@@ -136,14 +137,16 @@ prepare() {
   ${GIT_AM} ${srcdir}/002-GNM-1.12.x-Add-extern-prefix-to-GNM_VAR_DECL.patch
   ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
 
-  # Tried to disable Doc building because of build errors
-  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
-  elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
-  else
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.40-msys-remove-doc-from-building.patch
-  fi
+  ${GIT_AM} ${srcdir}/004-GNM-1.12.x-win32-comment-out-build-using-hhc.patch
+
+#  # Tried to disable Doc building because of build errors
+#  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
+#  elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
+#  else
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.40-msys-remove-doc-from-building.patch
+#  fi
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_32" ]] ; then
     ${GIT_AM} ${srcdir}/006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
   fi
