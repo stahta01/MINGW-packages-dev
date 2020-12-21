@@ -6,7 +6,7 @@ pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=1.12.49.v+23.c6.g2ebd900b8
+pkgver=1.12.49.v+23.c5.g2ebd900b8
 pkgrel=1
 pkgdesc="Spreadsheet Program (mingw-w64)"
 arch=('any')
@@ -85,9 +85,7 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           007-GNM-1.12.0-gcc-asm-comment-out-asm-code.patch
           008-GNM-1.12.0-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
           009-GNM-1.12.1-Remove-most-doc-Makefiles-from-configure.ac.patch
-          010-GNM-1.12.8-msys-add-ExcHndlInit.patch
-          011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
-          011-GNM-1.12.40-Parsing-fix-segmentation-fault.patch)
+          010-GNM-1.12.8-msys-add-ExcHndlInit.patch)
 sha256sums=('SKIP'
             '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
             '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
@@ -101,9 +99,7 @@ sha256sums=('SKIP'
             'ac16af48e839bd69f9ac873ef5113c990a8008a53c371d6009751b85b6d16f12'
             '36ded1df0c6bf81448d1f8377c23f84bc39f32a2df36340e59800d2d0912c008'
             'e1749e1c2d4238888877269f855adbdcace98b466eeb5789f774d06b9afd1211'
-            '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441'
-            '0129c56c716d494808454076f4a7c4592656115f372c924367ffc82f0592ecbb'
-            '937048bc15edf0042d2475525b6870b9d4d9f371bb6fbc5b987993fe25750582')
+            '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441')
 
 # Declare global variables; begin with underscore to avoid name conflicts
 _git_base_commit=
@@ -140,14 +136,14 @@ prepare() {
   ${GIT_AM} ${srcdir}/002-GNM-1.12.x-Add-extern-prefix-to-GNM_VAR_DECL.patch
   ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
 
-  # Tried to disable Doc building because of build errors
-  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
-  elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
-  else
-    ${GIT_AM} ${srcdir}/004-GNM-1.12.40-msys-remove-doc-from-building.patch
-  fi
+#  # Tried to disable Doc building because of build errors
+#  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.0-msys-remove-doc-from-building.patch
+#  elif [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.17-msys-remove-doc-from-building.patch
+#  else
+#    ${GIT_AM} ${srcdir}/004-GNM-1.12.40-msys-remove-doc-from-building.patch
+#  fi
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_32" ]] ; then
     ${GIT_AM} ${srcdir}/006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
   fi
@@ -159,12 +155,6 @@ prepare() {
   fi
 
   ${GIT_AM} ${srcdir}/010-GNM-1.12.8-msys-add-ExcHndlInit.patch
-
-#  if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_40" ]] ; then
-#    ${GIT_AM} ${srcdir}/011-GNM-1.12.0-Parsing-fix-segmentation-fault.patch
-#  else
-#    ${GIT_AM} ${srcdir}/011-GNM-1.12.40-Parsing-fix-segmentation-fault.patch
-#  fi
 
   NOCONFIGURE=1 ./autogen.sh
 }
