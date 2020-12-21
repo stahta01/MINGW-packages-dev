@@ -1,0 +1,23 @@
+From ac92778fffd609954488c4b03452a4a5bedebd99 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 21 Dec 2020 12:48:27 -0500
+Subject: win32 add "$(srcdir)/" prefix
+
+---
+ doc/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 1287c17ff..856903410 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -543,7 +543,7 @@ functions_xml_parts = C/func.defs C/func-header.xml C/func-footer.xml
+ 
+ C/functions.xml: $(srcdir)/make-func-list.pl $(functions_xml_parts)
+ 	(cat $(srcdir)/C/func-header.xml ;				\
+-	 $(PERL) $(srcdir)/make-func-list.pl C/func.defs ;		\
++	 $(PERL) $(srcdir)/make-func-list.pl $(srcdir)/C/func.defs ;		\
+ 	 cat $(srcdir)/C/func-footer.xml				\
+ 	) >functions.tmp ;						\
+ 	if xmllint -noent --nonet --format --encode "UTF-8" functions.tmp >functions.out ; then	\
+-- 

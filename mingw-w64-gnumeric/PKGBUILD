@@ -6,7 +6,7 @@ pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=1.12.49.v+23.c6.g2ebd900b8
+pkgver=1.12.49.v+23.c7.g2ebd900b8
 pkgrel=1
 pkgdesc="Spreadsheet Program (mingw-w64)"
 arch=('any')
@@ -86,7 +86,8 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           007-GNM-1.12.0-gcc-asm-comment-out-asm-code.patch
           008-GNM-1.12.0-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
           009-GNM-1.12.1-Remove-most-doc-Makefiles-from-configure.ac.patch
-          010-GNM-1.12.8-msys-add-ExcHndlInit.patch)
+          010-GNM-1.12.8-msys-add-ExcHndlInit.patch
+          011-GNM-1.12.x-win32-add-srcdir-prefix.patch)
 sha256sums=('SKIP'
             '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
             '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
@@ -101,7 +102,8 @@ sha256sums=('SKIP'
             'ac16af48e839bd69f9ac873ef5113c990a8008a53c371d6009751b85b6d16f12'
             '36ded1df0c6bf81448d1f8377c23f84bc39f32a2df36340e59800d2d0912c008'
             'e1749e1c2d4238888877269f855adbdcace98b466eeb5789f774d06b9afd1211'
-            '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441')
+            '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441'
+            '7ac25f13429bd7226ad757943e121dcc70db3e3493d20a06dfc285a87072be72')
 
 # Declare global variables; begin with underscore to avoid name conflicts
 _git_base_commit=
@@ -159,6 +161,8 @@ prepare() {
   fi
 
   ${GIT_AM} ${srcdir}/010-GNM-1.12.8-msys-add-ExcHndlInit.patch
+
+  ${GIT_AM} ${srcdir}/011-GNM-1.12.x-win32-add-srcdir-prefix.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
