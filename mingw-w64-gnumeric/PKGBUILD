@@ -187,6 +187,7 @@ build() {
       --without-perl \
       --without-psiconv \
       --enable-gtk-doc-html=no \
+      --disable-nls \
       --disable-schemas-compile \
       --disable-introspection \
       --disable-silent-rules
