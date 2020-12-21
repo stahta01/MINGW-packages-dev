@@ -1,17 +1,17 @@
-From ac92778fffd609954488c4b03452a4a5bedebd99 Mon Sep 17 00:00:00 2001
+From 1fd5cdbca843f7dcb2c4db6b7ee58a2930e435ab Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Mon, 21 Dec 2020 12:48:27 -0500
 Subject: win32 add "$(srcdir)/" prefix
 
 ---
- doc/Makefile.am | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ doc/Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/doc/Makefile.am b/doc/Makefile.am
-index 1287c17ff..856903410 100644
+index 1287c17ff..2e0c346e5 100644
 --- a/doc/Makefile.am
 +++ b/doc/Makefile.am
-@@ -543,7 +543,7 @@ functions_xml_parts = C/func.defs C/func-header.xml C/func-footer.xml
+@@ -543,11 +543,11 @@ functions_xml_parts = C/func.defs C/func-header.xml C/func-footer.xml
  
  C/functions.xml: $(srcdir)/make-func-list.pl $(functions_xml_parts)
  	(cat $(srcdir)/C/func-header.xml ;				\
@@ -20,4 +20,9 @@ index 1287c17ff..856903410 100644
  	 cat $(srcdir)/C/func-footer.xml				\
  	) >functions.tmp ;						\
  	if xmllint -noent --nonet --format --encode "UTF-8" functions.tmp >functions.out ; then	\
+-	    mv functions.out $@; rm functions.tmp;					\
++	    mv functions.out $(srcdir)/$@; rm functions.tmp;					\
+ 	fi
+ 
+ C/func.defs: # $(top_builddir)/src/gnumeric$(EXEEXT)
 -- 
