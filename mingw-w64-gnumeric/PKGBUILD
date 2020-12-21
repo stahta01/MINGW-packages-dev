@@ -134,7 +134,7 @@ prepare() {
     ${GIT_AM} ${srcdir}/001-GNM-1.12.37-msys-remove-no-longer-needed-code.patch
   fi
   ${GIT_AM} ${srcdir}/002-GNM-1.12.x-Add-extern-prefix-to-GNM_VAR_DECL.patch
-#  ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
+  ${GIT_AM} ${srcdir}/003-GNM-1.12.0-msys-sheet_style_apply_border.patch
 
   # Tried to disable Doc building because of build errors
   if [[ "$_git_nearest_tag" < "GNUMERIC_1_12_17" ]] ; then
