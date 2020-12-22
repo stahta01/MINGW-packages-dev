@@ -65,9 +65,6 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           002-GNM-1.12.x-Add-extern-prefix-to-GNM_VAR_DECL.patch
           003-GNM-1.12.0-msys-sheet_style_apply_border.patch
           004-GNM-1.12.x-win32-comment-out-build-using-hhc.patch
-          004-GNM-1.12.0-msys-remove-doc-from-building.patch
-          004-GNM-1.12.17-msys-remove-doc-from-building.patch
-          004-GNM-1.12.40-msys-remove-doc-from-building.patch
           005-GNM-1.12.x-patch-icon-Makefile.diff
           006-GNM-1.12.1-Autogen-drop-gnome-common-dependency.patch
           007-GNM-1.12.0-gcc-asm-comment-out-asm-code.patch
@@ -82,9 +79,6 @@ sha256sums=('SKIP'
             '20767bb7902c49d70f85e98f73ff726274252ca6f9479575ba5248d45e7cb5ed'
             '76c4a80211efc4d3ff0c05e20a297014e8c6d70de604aa90a13a33ce42aafead'
             'd7baec4d79a20ef8717984f2e458bf3ed005df657bb456b1d3447e4d088ff277'
-            '1efb88f1353622882e9b57a996c750343033c467c4f4bf72f7fe9f85daad459e'
-            '7d61968379e92940694c52a9ac5abfaf647699c81dff194a723322232dc31ad9'
-            'f00e22d029b10a38538da7f6818595d189b48ef06b59efb2323e60ac2e97eda3'
             'def9444424a85af6ba377e39c6277c327135a537680cf23487e1c831427809a8'
             '43239a4079a831fe93e788dd01373ca5ece3d6c0cd7701f4fe35364a1f956763'
             'ac16af48e839bd69f9ac873ef5113c990a8008a53c371d6009751b85b6d16f12'
