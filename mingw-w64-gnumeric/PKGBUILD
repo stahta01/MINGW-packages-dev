@@ -43,28 +43,14 @@ _git_commit=
 _git_tag=
 # libgoffice-0.10 version 0.10.14 gives Build error: implicit declaration of function 'go_gtk_widget_render_icon_pixbuf'
 # Access Violation in libgoffice 0.10.16,17 looks like version 0.10.22 or 23 should fix it
-#_git_tag=GNUMERIC_1_12_10 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_11 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_12 #
-#_git_tag=GNUMERIC_1_12_13 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_14 # needs libgoffice-0.10 >= 0.10.14
-#_git_tag=GNUMERIC_1_12_15 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_16 # using libgoffice-0.10 = 0.10.23
-#_git_tag=GNUMERIC_1_12_17 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_17 # using libgoffice-0.10 = 0.10.23
 #_git_tag=GNUMERIC_1_12_18 # using libgoffice-0.10 = 0.10.23
 #_git_tag=GNUMERIC_1_12_19 # using libgoffice-0.10 = 0.10.23
-#_git_tag=GNUMERIC_1_12_20 # using libgoffice-0.10 = 0.10.23  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+#_git_tag=GNUMERIC_1_12_20 # using libgoffice-0.10 = 0.10.23
 #
-#_git_tag=GNUMERIC_1_12_31 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_32 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_33 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_37 # needs libgoffice-0.10 >= 0.10.28 build error: 'GnmFunc' {aka 'const struct _GnmFunc'} has no member named 'libintl_textdomain' 
-#_git_tag=GNUMERIC_1_12_40 # using libgoffice-0.10 = 0.10.46  Logs have "Can't locate GnumericTest.pm"; but, Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
-#_git_tag=GNUMERIC_1_12_46 # using libgoffice-0.10 = 0.10.46  Built and installed; but, Access Violation when ran
-#_git_tag=GNUMERIC_1_12_47 # needs libgoffice-0.10 >= 0.10.46
 #_git_tag=GNUMERIC_1_12_48 # needs libgoffice-0.10 >= 0.10.48
 #_git_commit=4d3bb014941abb18f6e5236b6ea76ffe3b39a26e # Same as GNUMERIC_1_12_48
-# pkgver 1.12.49.v+16.c7.g0c1661ccd using libgoffice-0.10 = 0.10.48 Built and installed; but, Access Violation when ran in gnumeric-git/src/value.c
+# pkgver 1.12.49.v+16.c7.g0c1661ccd using libgoffice-0.10 = 0.10.48
 
 _git_repo_url="git+https://gitlab.gnome.org/GNOME/gnumeric.git"
 if [ -n "$_git_tag" ]; then
