@@ -1,0 +1,23 @@
+From 2f897f28502f37c8e029de80c088b92ceda9f9be Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 21 Dec 2020 19:11:02 -0500
+Subject: msys2: Set HELP_LINGUAS to empty string
+
+---
+ doc/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/Makefile.am b/doc/Makefile.am
+index 2e0c346e5..ba7aff036 100644
+--- a/doc/Makefile.am
++++ b/doc/Makefile.am
+@@ -8,7 +8,7 @@ DISTCLEANFILES=
+ @YELP_HELP_RULES@
+ 
+ HELP_ID=gnumeric
+-HELP_LINGUAS=cs de es sv
++HELP_LINGUAS=
+ HELP_FILES=gnumeric.xml
+ 
+ HELP_EXTRA=					\
+-- 

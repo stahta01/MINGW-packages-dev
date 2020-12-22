@@ -16,6 +16,7 @@ options=('!strip' 'debug') # Debug
 #options=('strip' '!debug') # Release
 depends=( ${MINGW_PACKAGE_PREFIX}-drmingw )
 makedepends=(
+  ${MINGW_PACKAGE_PREFIX}-libxml2
   ${MINGW_PACKAGE_PREFIX}-goffice
   ${MINGW_PACKAGE_PREFIX}-itstool
   ${MINGW_PACKAGE_PREFIX}-pkg-config
@@ -87,7 +88,8 @@ source+=( 001-GNM-1.12.10-msys-remove-no-longer-needed-code.patch
           008-GNM-1.12.0-Remove-gnumeric-doc.make-from-EXTRA_DIST.patch
           009-GNM-1.12.1-Remove-most-doc-Makefiles-from-configure.ac.patch
           010-GNM-1.12.8-msys-add-ExcHndlInit.patch
-          011-GNM-1.12.x-win32-add-srcdir-prefix.patch)
+          011-GNM-1.12.x-win32-add-srcdir-prefix.patch
+          013-GNM-1.12.x-msys2-Set-HELP_LINGUAS-to-empty-string.patch)
 sha256sums=('SKIP'
             '484ea18809f1aba241369c08bed8d0838cdc9e7fa3472e2adc5d1eed070e311a'
             '2c3a877c2b6a6839e86189379228d92f2c624bdefb27f81a0238d11409ac4bf0'
@@ -103,7 +105,8 @@ sha256sums=('SKIP'
             '36ded1df0c6bf81448d1f8377c23f84bc39f32a2df36340e59800d2d0912c008'
             'e1749e1c2d4238888877269f855adbdcace98b466eeb5789f774d06b9afd1211'
             '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441'
-            '20b23c2a65433a7422010140e78dd2436ce1b38363841f23cd0c57bf86f90647')
+            '20b23c2a65433a7422010140e78dd2436ce1b38363841f23cd0c57bf86f90647'
+            '72488295bf79d2e10ba5bcee97a52b4fd2b539fc803b7f5d35dc1e53ba838ee2')
 
 # Declare global variables; begin with underscore to avoid name conflicts
 _git_base_commit=
@@ -164,6 +167,8 @@ prepare() {
 
   ${GIT_AM} ${srcdir}/011-GNM-1.12.x-win32-add-srcdir-prefix.patch
 
+  ${GIT_AM} ${srcdir}/013-GNM-1.12.x-msys2-Set-HELP_LINGUAS-to-empty-string.patch
+
   NOCONFIGURE=1 ./autogen.sh
 }
 
@@ -186,8 +191,10 @@ build() {
       --build=${MINGW_CHOST} \
       --without-perl \
       --without-psiconv \
+      --enable-gtk-doc=no \
       --enable-gtk-doc-html=no \
       --disable-nls \
+      --disable-maintainer-mode \
       --disable-schemas-compile \
       --disable-introspection \
       --disable-silent-rules
