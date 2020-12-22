@@ -105,7 +105,7 @@ sha256sums=('SKIP'
             '36ded1df0c6bf81448d1f8377c23f84bc39f32a2df36340e59800d2d0912c008'
             'e1749e1c2d4238888877269f855adbdcace98b466eeb5789f774d06b9afd1211'
             '613bf62d5b4c126ed715a0dccb394fcac24732d994b53b4aa649b4e19c72c441'
-            '20b23c2a65433a7422010140e78dd2436ce1b38363841f23cd0c57bf86f90647'
+            'a85a3c0687484f76d89dc30e10b52edbe2d08625eab5a0d7d425f80ec25d8988'
             '72488295bf79d2e10ba5bcee97a52b4fd2b539fc803b7f5d35dc1e53ba838ee2')
 
 # Declare global variables; begin with underscore to avoid name conflicts
