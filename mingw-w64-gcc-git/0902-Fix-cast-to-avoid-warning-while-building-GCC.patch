@@ -1,0 +1,25 @@
+From 4c678e49dfaf812e36a44c43d557c3d9a534314e Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 17 Jan 2021 15:32:16 -0500
+Subject: Fix cast to avoid warning while building GCC
+
+---
+ gcc/ira-conflicts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/ira-conflicts.c b/gcc/ira-conflicts.c
+index 2c2234734c3..37587467ece 100644
+--- a/gcc/ira-conflicts.c
++++ b/gcc/ira-conflicts.c
+@@ -151,8 +151,8 @@ build_conflict_bit_table (void)
+     fprintf
+       (ira_dump_file,
+        "+++Allocating %ld bytes for conflict table (uncompressed size %ld)\n",
+-       (long) allocated_words_num * sizeof (IRA_INT_TYPE),
+-       (long) object_set_words * ira_objects_num * sizeof (IRA_INT_TYPE));
++       (long) (allocated_words_num * sizeof (IRA_INT_TYPE)),
++       (long) (object_set_words * ira_objects_num * sizeof (IRA_INT_TYPE)));
+ 
+   objects_live = sparseset_alloc (ira_objects_num);
+   for (i = 0; i < ira_max_point; i++)
+-- 

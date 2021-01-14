@@ -1,0 +1,33 @@
+From fef8d9aad9d435c63ad7c34eb4d0ed552b565f47 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 20 Jan 2021 00:25:34 -0500
+Subject: gcc 11 plugin ada use def
+
+When GCC plugin is enabled "export-all-symbols" results in too many symbols.
+That causes Ada build error. So, use gnat1.exe.def to reduce symbols.
+---
+ gcc/ada/gcc-interface/Make-lang.in | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gcc/ada/gcc-interface/Make-lang.in b/gcc/ada/gcc-interface/Make-lang.in
+index d88c354c9a4..f274ee56d5d 100644
+--- a/gcc/ada/gcc-interface/Make-lang.in
++++ b/gcc/ada/gcc-interface/Make-lang.in
+@@ -43,6 +43,7 @@ MKDIR = mkdir -p
+ RM = rm -f
+ RMDIR = rm -rf
+ 
++COMMA := ,
+ 
+ # Extra flags to pass to recursive makes.
+ COMMON_ADAFLAGS= -gnatpg
+@@ -672,7 +673,7 @@ gnat1$(exeext): $(TARGET_ADA_SRCS) $(GNAT1_OBJS) $(ADA_BACKEND) libcommon-target
+ 		$(LIBDEPS) $(ada.prev)
+ 	@$(call LINK_PROGRESS,$(INDEX.ada),start)
+ 	+$(GCC_LLINK) -o $@ $(GNAT1_OBJS) $(ADA_BACKEND) \
+-	  libcommon-target.a $(LIBS) $(SYSLIBS) $(BACKENDLIBS) $(CFLAGS)
++	  libcommon-target.a $(LIBS) $(SYSLIBS) $(subst -Wl$(COMMA)--export-all-symbols,../../gnat1$(exeext).def,$(BACKENDLIBS)) $(CFLAGS)
+ 	$(RM) stamp-gnatlib2-rts stamp-tools
+ 	@$(call LINK_PROGRESS,$(INDEX.ada),end)
+ 
+-- 

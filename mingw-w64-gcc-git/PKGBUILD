@@ -64,7 +64,13 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0016-Ensure-lmsvcrt-precede-lkernel32.patch"
         "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
         "0024-gcc-plugin-ada-use-def.patch"
+        "0024-gcc-11-plugin-ada-use-def.patch"
         "0150-gcc-10.2.0-libgcc-ldflags.patch"
+        "0901-ALL_ADAFLAGS-filter-out-Wno-pedantic-ms-format.patch"
+        "0902-Fix-cast-to-avoid-warning-while-building-GCC.patch"
+        "0903-Add-__USE_MINGW_ANSI_STDIO-to-fix-build-GCC-warning.patch"
+        "0904-Add-prototype-for-__gcc_personality_seh0.patch"
+        "0905-Win32-skip-building-__gcov_fork-to-fix-warning.patch"
         "gnat1.exe.def")
 sha256sums=('SKIP'
             'dcc6ec24d7946643b35fce57c50d9900bcdbeb8723981ee5e7ff2ae935137598'
@@ -81,7 +87,13 @@ sha256sums=('SKIP'
             'f96348a858722d6de87445e264a7b021f684b5fb11fcd8f7fbfbc9a8fb2d45e1'
             '2331365b6d42250d83eba36a1ef1a02e56b81a7c2595df6a43cb1a6abbcb99f0'
             '4a9a2e23539e59d3a0580e7699f1f6904dae0f99b9555f3433b2cbf20f4d26a6'
+            'f2bdef58b5f2a7a04c46459b7731f1a7999c45acad09d688b75c844f24407db4'
             '7f0b4e45d933e18c9d8bd2afcd83e4f52e97e2e25dd41bfa0cba755c70e591c7'
+            'ece86b56f34b33f851629feee6d07238a8ddda125e851d0862f3e63e2d6ecb06'
+            '9407508d7a1b7bdb8fcefb5f3eb4e1fe6d4a2e0c1e480cf928639caa41c8540e'
+            '8a4bdd551714eaf6022a456191b08202ff0575443f62d55e0d405cd33fef05ec'
+            '6979edcde0ac3aeb54b9f43698a221c4aca4eb126a2493fdc70f05fd0d20c3d1'
+            '6cc40ab2e7ecc928a0597d398bfd67893d6e9d9240e92765c6ee817982e3f5e4'
             '19498cf8254e1990731b5468d7211dd964108688dab2973f53ed0a6e17ce0137')
 
 _threads="posix"
@@ -104,21 +116,45 @@ prepare() {
   ${GIT_AM} ${srcdir}/0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
   ${GIT_AM} ${srcdir}/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
   ${GIT_AM} ${srcdir}/0005-Windows-Don-t-ignore-native-system-header-dir.patch
-  ${GIT_AM} ${srcdir}/0006-Windows-New-feature-to-allow-overriding.patch
+  if [[ "$_realpkgver" < "11.0.0" ]]; then
+    # patch no longer works in version 11.x; might still be needed/wanted
+    ${GIT_AM} ${srcdir}/0006-Windows-New-feature-to-allow-overriding.patch
+  fi
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
-  ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
-  ${GIT_AM} ${srcdir}/0016-Ensure-lmsvcrt-precede-lkernel32.patch
+  if [[ "$_realpkgver" < "11.0.0" ]]; then
+    # patch no longer needed in version 11.x
+    ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
+  fi
+  if [[ "$_realpkgver" < "11.0.0" ]]; then
+    # patch no longer works in version 11.x; might still be needed/wanted
+    ${GIT_AM} ${srcdir}/0016-Ensure-lmsvcrt-precede-lkernel32.patch
+  fi
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
 
   if [[ "$_enable_ada" == "yes" && "$_enable_plugin" == "yes" ]]; then
-    ${GIT_AM} ${srcdir}/0024-gcc-plugin-ada-use-def.patch
+    if [[ "$_realpkgver" < "11.0.0" ]]; then
+      ${GIT_AM} ${srcdir}/0024-gcc-plugin-ada-use-def.patch
+    else
+      ${GIT_AM} ${srcdir}/0024-gcc-11-plugin-ada-use-def.patch
+    fi
   fi
 
+  if [[ "$_realpkgver" < "11.0.0" ]]; then
+    ${GIT_AM} ${srcdir}/0901-ALL_ADAFLAGS-filter-out-Wno-pedantic-ms-format.patch
+  fi
+  ${GIT_AM} ${srcdir}/0902-Fix-cast-to-avoid-warning-while-building-GCC.patch
+  ${GIT_AM} ${srcdir}/0903-Add-__USE_MINGW_ANSI_STDIO-to-fix-build-GCC-warning.patch
+  ${GIT_AM} ${srcdir}/0904-Add-prototype-for-__gcc_personality_seh0.patch
+  ${GIT_AM} ${srcdir}/0905-Win32-skip-building-__gcov_fork-to-fix-warning.patch
+
   patch -Nbp1 -i "${srcdir}/0150-gcc-10.2.0-libgcc-ldflags.patch"
+
+  # Disable format-diag warning
+  sed -i "s|real_option in -W -Wall -Wno-narrowing -Wwrite-strings|real_option in -W -Wall -Wno-format-diag -Wno-narrowing -Wwrite-strings|g" gcc/configure
 
   # do not expect $prefix/mingw symlink - this should be superceded by
   # 0004-Windows-Don-t-ignore-native-system-header-dir.patch .. but isn't!

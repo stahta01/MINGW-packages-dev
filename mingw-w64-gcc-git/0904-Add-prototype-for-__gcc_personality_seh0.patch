@@ -1,0 +1,24 @@
+From 0ef8bd1afa2f63ddbf3d11acaf4591203fd973e1 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 18 Jan 2021 17:13:39 -0500
+Subject: Add prototype for '__gcc_personality_seh0'
+
+warning: no previous prototype for '__gcc_personality_seh0' [-Wmissing-prototypes]
+---
+ libgcc/unwind-generic.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libgcc/unwind-generic.h b/libgcc/unwind-generic.h
+index 4edc14c7987..8e8c7367052 100644
+--- a/libgcc/unwind-generic.h
++++ b/libgcc/unwind-generic.h
+@@ -278,6 +278,8 @@ extern void * _Unwind_FindEnclosingFunction (void *pc);
+ EXCEPTION_DISPOSITION _GCC_specific_handler (PEXCEPTION_RECORD, void *,
+ 					     PCONTEXT, PDISPATCHER_CONTEXT,
+ 					     _Unwind_Personality_Fn);
++EXCEPTION_DISPOSITION __gcc_personality_seh0 (PEXCEPTION_RECORD, void *,
++					     PCONTEXT, PDISPATCHER_CONTEXT);
+ #endif
+ 
+ #ifdef __cplusplus
+-- 
