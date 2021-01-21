@@ -46,7 +46,8 @@ options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
 #_branch=releases/gcc-7
 _branch=releases/gcc-10
-_realpkgver="$(git archive --remote=git://gcc.gnu.org/git/gcc.git refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
+_git_url=git://gcc.gnu.org/git/gcc.git
+_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
 
 # git+https://gcc.gnu.org/git/gcc.git#branch=${_branch}
 source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
