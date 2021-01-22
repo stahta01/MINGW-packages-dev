@@ -55,6 +55,7 @@ source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
         "0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch"
         "0005-Windows-Don-t-ignore-native-system-header-dir.patch"
         "0006-Windows-New-feature-to-allow-overriding.patch"
+        "0006-gcc-11-Windows-New-feature-to-allow-overriding.patch"
         "0007-Build-EXTRA_GNATTOOLS-for-Ada.patch"
         "0008-Prettify-linking-no-undefined.patch"
         "0010-Fix-using-large-PCH.patch"
@@ -117,8 +118,9 @@ prepare() {
   ${GIT_AM} ${srcdir}/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
   ${GIT_AM} ${srcdir}/0005-Windows-Don-t-ignore-native-system-header-dir.patch
   if [[ "$_realpkgver" < "11.0.0" ]]; then
-    # patch no longer works in version 11.x; might still be needed/wanted
     ${GIT_AM} ${srcdir}/0006-Windows-New-feature-to-allow-overriding.patch
+  else
+    ${GIT_AM} ${srcdir}/0006-gcc-11-Windows-New-feature-to-allow-overriding.patch
   fi
   ${GIT_AM} ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
@@ -130,7 +132,7 @@ prepare() {
     ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
   fi
   if [[ "$_realpkgver" < "11.0.0" ]]; then
-    # patch no longer works in version 11.x; might still be needed/wanted
+    # patch no longer needed in version 11.x
     ${GIT_AM} ${srcdir}/0016-Ensure-lmsvcrt-precede-lkernel32.patch
   fi
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
