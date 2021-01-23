@@ -3,6 +3,8 @@ From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sun, 17 Jan 2021 15:32:16 -0500
 Subject: Fix cast to avoid warning while building GCC
 
+warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'long long unsigned int' [-Wformat=]
+warning: format '%ld' expects argument of type 'long int', but argument 4 has type 'long long unsigned int' [-Wformat=]
 ---
  gcc/ira-conflicts.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
