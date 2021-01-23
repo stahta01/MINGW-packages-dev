@@ -1,0 +1,24 @@
+From 328b8242c04bbd2ad6938de79f5cced79e628a71 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sat, 23 Jan 2021 13:37:44 -0500
+Subject: Win32: skip building __gcov_fork to fix warning
+
+warning: implicit declaration of function 'fork' [-Wimplicit-function-declaration]
+---
+ libgcc/libgcov-interface.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libgcc/libgcov-interface.c b/libgcc/libgcov-interface.c
+index 048b9029ff3..ff2fedcf536 100644
+--- a/libgcc/libgcov-interface.c
++++ b/libgcc/libgcov-interface.c
+@@ -167,7 +167,7 @@ ALIAS_void_fn (__gcov_dump_int, __gcov_dump);
+ 
+ #endif /* L_gcov_dump */
+ 
+-#ifdef L_gcov_fork
++#if defined (L_gcov_fork) && !(defined (_WIN32) && !defined(__CYGWIN__))
+ /* A wrapper for the fork function.  Flushes the accumulated profiling data, so
+    that they are not counted twice.  */
+ 
+-- 
