@@ -156,7 +156,11 @@ prepare() {
   ${GIT_AM} ${srcdir}/0902-Fix-cast-to-avoid-warning-while-building-GCC.patch
   ${GIT_AM} ${srcdir}/0903-Add-__USE_MINGW_ANSI_STDIO-to-fix-build-GCC-warning.patch
   ${GIT_AM} ${srcdir}/0904-Add-prototype-for-__gcc_personality_seh0.patch
-#  ${GIT_AM} ${srcdir}/0905-gcc-11-Win32-skip-building-__gcov_fork-to-fix-warning.patch
+  if [[ "$_realpkgver" < "11.0.0" ]]; then
+    ${GIT_AM} ${srcdir}/0905-Win32-skip-building-__gcov_fork-to-fix-warning.patch
+  else
+    ${GIT_AM} ${srcdir}/0905-gcc-11-Win32-skip-building-__gcov_fork-to-fix-warning.patch
+  fi
 
   patch -Nbp1 -i "${srcdir}/0150-gcc-10.2.0-libgcc-ldflags.patch"
 
