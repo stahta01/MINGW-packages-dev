@@ -54,7 +54,7 @@ _realpkgver="10.0.1"
 _sourcedir=devel-${_realname}-git
 
 # git+https://gcc.gnu.org/git/gcc.git#branch=${_branch}
-source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
+source=(${_sourcedir}::"${_git_url}#branch=${_branch}"
         "0002-Relocate-libintl.patch"
         "0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch"
         "0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch"
