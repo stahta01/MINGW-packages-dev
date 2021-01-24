@@ -11,7 +11,6 @@ _enable_ada=yes
 _enable_fortran=yes
 _enable_objc=yes
 _realname=gcc
-_sourcedir=${_realname}-git
 pkgbase=mingw-w64-${_realname}-git
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-libs-git"
@@ -46,9 +45,13 @@ options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
 #_branch=releases/gcc-7
 #_branch=releases/gcc-10
-_branch=master
-_git_url=git://gcc.gnu.org/git/gcc.git
-_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
+#_branch=master
+_branch=devel/master
+#_git_url=git://gcc.gnu.org/git/gcc.git
+_git_url=git://github.com/stahta01/gcc.git
+#_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
+_realpkgver="10.0.1"
+_sourcedir=devel-${_realname}-git
 
 # git+https://gcc.gnu.org/git/gcc.git#branch=${_branch}
 source=(${_sourcedir}::"git://gcc.gnu.org/git/gcc.git#branch=${_branch}"
