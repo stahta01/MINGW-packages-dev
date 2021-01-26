@@ -43,9 +43,8 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 optdepends=()
 options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
-_branch=releases/gcc-3.1
 #_branch=releases/gcc-7
-#_branch=releases/gcc-10
+_branch=releases/gcc-10
 #_branch=master
 #_branch=devel/master
 
@@ -53,8 +52,7 @@ _branch=releases/gcc-3.1
 #_realpkgver="10.0.1"
 #_sourcedir=devel-${_realname}-git
 _git_url=git://gcc.gnu.org/git/gcc.git
-#_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
-_realpkgver="3.1.0"
+_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
 _sourcedir=${_realname}-git
 source=(${_sourcedir}::"${_git_url}#branch=${_branch}"
         "0002-Relocate-libintl.patch"
