@@ -49,13 +49,22 @@ options=('staticlibs' '!emptydirs' '!strip' 'debug')
 #_git_branch=master
 _git_branch=devel/master
 
-_git_url=git://github.com/stahta01/gcc.git
+_git_repo_url=git://github.com/stahta01/gcc.git
 _realpkgver="11.0.0"
 _sourcedir=devel-${_realname}-git
-#_git_url=git://gcc.gnu.org/git/gcc.git
-#_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_git_branch}:gcc/ BASE-VER | tar -xO)"
+#_git_repo_url=git://gcc.gnu.org/git/gcc.git
+#_realpkgver="$(git archive --remote=${_git_repo_url} refs/heads/${_git_branch}:gcc/ BASE-VER | tar -xO)"
 #_sourcedir=${_realname}-git
-source=(${_sourcedir}::"${_git_url}#branch=${_git_branch}"
+if [ -n "$_git_branch" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#branch=$_git_branch")
+elif [ -n "$_git_tag" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#tag=$_git_tag")
+elif [ -n "$_git_commit" ]; then
+  source=(${_sourcedir}::"${_git_repo_url}#commit=$_git_commit")
+else
+  source=(${_sourcedir}::"${_git_repo_url}")
+fi
+source+=(
         "0002-Relocate-libintl.patch"
         "0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch"
         "0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch"
