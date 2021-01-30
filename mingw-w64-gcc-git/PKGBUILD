@@ -9,6 +9,7 @@ _enable_plugin=no
 
 _enable_ada=no
 _enable_fortran=no
+_enable_lto=no
 _enable_objc=no
 _realname=gcc
 pkgbase=mingw-w64-${_realname}-git
@@ -211,7 +212,11 @@ build() {
     ;;
   esac
 
-  local _languages="c,lto,c++"
+  local _languages="c,c++"
+  if [ "$_enable_lto" == "yes" ]; then
+    _languages+=",lto"
+    configure_opts+=("--enable-lto")
+  fi
   if [ "$_enable_fortran" == "yes" ]; then
     _languages+=",fortran"
   fi
@@ -250,7 +255,6 @@ build() {
     --disable-libstdcxx-debug \
     --enable-libstdcxx-filesystem-ts=yes \
     --disable-isl-version-check \
-    --enable-lto \
     --enable-libgomp \
     --disable-multilib \
     --enable-checking=release \
@@ -375,9 +379,13 @@ package_mingw-w64-gcc-git() {
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1.exe            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/collect2.exe       ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/crt*.o             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/liblto*            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  if [ "$_enable_lto" == "yes" ]; then
+    cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/liblto*            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  fi
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcov*           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/lto*.exe           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  if [ "$_enable_lto" == "yes" ]; then
+    cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/lto*.exe           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  fi
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1plus.exe        ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
   cp lib/libatomic*                                           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
