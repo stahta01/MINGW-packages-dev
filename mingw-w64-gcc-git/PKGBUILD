@@ -44,18 +44,18 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-${_realname}"
 optdepends=()
 options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
-#_branch=releases/gcc-7
-#_branch=releases/gcc-10
-#_branch=master
-_branch=devel/master
+#_git_branch=releases/gcc-7
+#_git_branch=releases/gcc-10
+#_git_branch=master
+_git_branch=devel/master
 
 _git_url=git://github.com/stahta01/gcc.git
 _realpkgver="11.0.0"
 _sourcedir=devel-${_realname}-git
 #_git_url=git://gcc.gnu.org/git/gcc.git
-#_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_branch}:gcc/ BASE-VER | tar -xO)"
+#_realpkgver="$(git archive --remote=${_git_url} refs/heads/${_git_branch}:gcc/ BASE-VER | tar -xO)"
 #_sourcedir=${_realname}-git
-source=(${_sourcedir}::"${_git_url}#branch=${_branch}"
+source=(${_sourcedir}::"${_git_url}#branch=${_git_branch}"
         "0002-Relocate-libintl.patch"
         "0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch"
         "0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch"
