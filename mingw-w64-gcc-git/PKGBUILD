@@ -352,6 +352,8 @@ package_mingw-w64-gcc-git() {
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 
+  _gcc_version=$(head -n 34 ${srcdir}/${_sourcedir}/gcc/BASE-VER | sed -e 's/.* //' | tr -d '"\n')
+
   mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,include,lib,share}
 
   cd ${srcdir}${MINGW_PREFIX}
@@ -448,6 +450,8 @@ package_mingw-w64-gcc-fortran-git() {
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}-fortran")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-fortran")
 
+  _gcc_version=$(head -n 34 ${srcdir}/${_sourcedir}/gcc/BASE-VER | sed -e 's/.* //' | tr -d '"\n')
+
   mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib,share}
 
   cd ${srcdir}${MINGW_PREFIX}
@@ -470,6 +474,8 @@ package_mingw-w64-gcc-ada-git() {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}-ada")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-ada")
+
+  _gcc_version=$(head -n 34 ${srcdir}/${_sourcedir}/gcc/BASE-VER | sed -e 's/.* //' | tr -d '"\n')
 
   mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib,share}
 
@@ -494,6 +500,8 @@ package_mingw-w64-gcc-objc-git() {
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}-objc")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-objc")
+
+  _gcc_version=$(head -n 34 ${srcdir}/${_sourcedir}/gcc/BASE-VER | sed -e 's/.* //' | tr -d '"\n')
 
   mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib}
 
