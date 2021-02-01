@@ -121,7 +121,7 @@ _gcc_date=
 
 pkgver() {
   cd ${srcdir}/${_sourcedir}
-  printf "%s.d%s.d+%s.c%s.g%s" "$_gcc_version" "$_gcc_date" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} gcc/DATESTAMP)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
+  printf "%s.d%s+%s.c%s.g%s" "$_gcc_version" "$_gcc_date" $(git rev-list --count $(git rev-list -1 ${_git_base_commit} gcc/DATESTAMP)..${_git_base_commit}) $(git rev-list --count ${_git_base_commit}..HEAD) $(git rev-parse --short ${_git_base_commit})
 }
 
 prepare() {
