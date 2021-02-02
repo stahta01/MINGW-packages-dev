@@ -242,6 +242,11 @@ build() {
     LDFLAGS+=",--default-image-base-low"
   fi
 
+  echo "CPPFLAGS := ${CPPFLAGS}"
+  echo "CFLAGS := ${CFLAGS}"
+  echo "CXXFLAGS := ${CXXFLAGS}"
+  echo "LDFLAGS := ${LDFLAGS}"
+
   ../${_sourcedir}/configure \
     --prefix=${MINGW_PREFIX} \
     --with-local-prefix=${MINGW_PREFIX}/local \
