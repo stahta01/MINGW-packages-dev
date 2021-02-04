@@ -45,14 +45,11 @@ optdepends=()
 options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
 #_git_branch=releases/gcc-10
-#_git_branch=master
-#_git_branch=devel/master
-_git_commit=8e4a738d2540ab6aff77506d368bf4e3fa6963bd
 
-#_git_repo_url=git://github.com/stahta01/gcc.git
-#_sourcedir=devel-${_realname}-git
-_git_repo_url=git://gcc.gnu.org/git/gcc.git
-_sourcedir=${_realname}-git
+_git_repo_url=git://github.com/stahta01/gcc_main_development.git
+_sourcedir=devel-${_realname}-git
+#_git_repo_url=git://gcc.gnu.org/git/gcc.git
+#_sourcedir=${_realname}-git
 if [ -n "$_git_branch" ]; then
   source=(${_sourcedir}::"${_git_repo_url}#branch=$_git_branch")
 elif [ -n "$_git_tag" ]; then
