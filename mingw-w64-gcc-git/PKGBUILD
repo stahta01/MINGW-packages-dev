@@ -7,7 +7,7 @@
 
 _enable_plugin=no
 
-_enable_ada=no
+_enable_ada=yes
 _enable_fortran=no
 _enable_lto=no
 _enable_objc=no
