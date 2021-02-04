@@ -1,0 +1,23 @@
+From afe3b30661e9c22f1bc472d079b1395b4cb6b7d2 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 4 Feb 2021 05:33:26 -0500
+Subject: Set default dwarf version to 4
+
+---
+ gcc/common.opt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gcc/common.opt b/gcc/common.opt
+index a8a2b67a99d..7aff4ac6079 100644
+--- a/gcc/common.opt
++++ b/gcc/common.opt
+@@ -3179,7 +3179,7 @@ Common Driver JoinedOrMissing Negative(gdwarf-)
+ Generate debug information in default version of DWARF format.
+ 
+ gdwarf-
+-Common Driver Joined UInteger Var(dwarf_version) Init(5) Negative(gstabs)
++Common Driver Joined UInteger Var(dwarf_version) Init(4) Negative(gstabs)
+ Generate debug information in DWARF v2 (or later) format.
+ 
+ gdwarf32
+-- 

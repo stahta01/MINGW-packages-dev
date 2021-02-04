@@ -76,6 +76,7 @@ source+=(
         "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
         "0024-gcc-plugin-ada-use-def.patch"
         "0024-gcc-11-plugin-ada-use-def.patch"
+        "0025-gcc-11-Set-default-dwarf-version-to-4.patch"
         "0150-gcc-10.2.0-libgcc-ldflags.patch"
         "0901-ALL_ADAFLAGS-filter-out-Wno-pedantic-ms-format.patch"
         "0901-gcc-11-ALL_ADAFLAGS-filter-out-Wno-pedantic-ms-format.patch"
@@ -102,6 +103,7 @@ sha256sums=('SKIP'
             '2331365b6d42250d83eba36a1ef1a02e56b81a7c2595df6a43cb1a6abbcb99f0'
             '4a9a2e23539e59d3a0580e7699f1f6904dae0f99b9555f3433b2cbf20f4d26a6'
             'f2bdef58b5f2a7a04c46459b7731f1a7999c45acad09d688b75c844f24407db4'
+            '196244a7938a75a3f1227b4a0ca469d77e365c8f21185a7dea4a9db316b51a3b'
             '7f0b4e45d933e18c9d8bd2afcd83e4f52e97e2e25dd41bfa0cba755c70e591c7'
             'ece86b56f34b33f851629feee6d07238a8ddda125e851d0862f3e63e2d6ecb06'
             'bd7f0c2006e20cd1d8b54b2ff9a0f4f2ddee4573c55c4ffaaaf8dbf1fb3fccf2'
@@ -165,6 +167,10 @@ prepare() {
     else
       ${GIT_AM} ${srcdir}/0024-gcc-11-plugin-ada-use-def.patch
     fi
+  fi
+
+  if [[ "$_gcc_version" == "11.0.0" && "${_gcc_date}" > "20210117" ]]; then
+    ${GIT_AM} ${srcdir}/0025-gcc-11-Set-default-dwarf-version-to-4.patch
   fi
 
   if [[ "$_gcc_version" < "11.0.0" ]]; then
@@ -238,13 +244,6 @@ build() {
   LDFLAGS+=" -Wl,--disable-dynamicbase"
   if [ "${CARCH}" = 'x86_64' ]; then
     LDFLAGS+=",--default-image-base-low"
-  fi
-
-  # GCC 11.0.0 defaults to version 5 which errors out in libgomp configure
-  # see commit 3804e937b0e252a7e42632fe6d9f898f1851a49c 2021-01-17 Default to DWARF5
-  if check_option "debug" "y"; then
-    CFLAGS+=" -gdwarf-4"
-    CXXFLAGS+=" -gdwarf-4"
   fi
 
   echo "CPPFLAGS := ${CPPFLAGS}"
