@@ -243,6 +243,13 @@ build() {
     LDFLAGS+=",--default-image-base-low"
   fi
 
+  # GCC 11.0.0 defaults to version 5 which errors out in libgomp configure
+  # see commit 3804e937b0e252a7e42632fe6d9f898f1851a49c 2021-01-17 Default to DWARF5
+  if check_option "debug" "y"; then
+    CFLAGS+=" -gdwarf-4"
+    CXXFLAGS+=" -gdwarf-4"
+  fi
+
   echo "CPPFLAGS := ${CPPFLAGS}"
   echo "CFLAGS := ${CFLAGS}"
   echo "CXXFLAGS := ${CXXFLAGS}"
