@@ -5,7 +5,7 @@
 # Contributor: Liu Hao <lh_mouse@126.com>
 # Contributor: Tim Stahlhut <stahta01@gmail.com>
 
-_enable_plugin=no
+_enable_gcc_plugin=yes
 
 _enable_ada=yes
 _enable_fortran=no
@@ -161,7 +161,7 @@ prepare() {
   fi
   ${GIT_AM} ${srcdir}/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
 
-  if [[ "$_enable_ada" == "yes" && "$_enable_plugin" == "yes" ]]; then
+  if [[ "$_enable_ada" == "yes" && "$_enable_gcc_plugin" == "yes" ]]; then
     if [[ "$_gcc_version" < "11.0.0" ]]; then
       ${GIT_AM} ${srcdir}/0024-gcc-plugin-ada-use-def.patch
     else
@@ -208,7 +208,7 @@ build() {
 
   local -a configure_opts
 
-  if [ "$_enable_plugin" == "yes" ]; then
+  if [ "$_enable_gcc_plugin" == "yes" ]; then
     configure_opts+=("--enable-plugin")
   fi
 
@@ -393,7 +393,7 @@ package_mingw-w64-gcc-git() {
   cp -r lib/gcc/${MINGW_CHOST}/${_gcc_version}/include/ssp     ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_gcc_version}/include/
   cp -r lib/gcc/${MINGW_CHOST}/${_gcc_version}/include-fixed   ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_gcc_version}/
   cp -r lib/gcc/${MINGW_CHOST}/${_gcc_version}/install-tools   ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_gcc_version}/
-  if [ "$_enable_plugin" == "yes" ]; then
+  if [ "$_enable_gcc_plugin" == "yes" ]; then
     cp -r lib/gcc/${MINGW_CHOST}/${_gcc_version}/plugin          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_gcc_version}/
   fi
   cp lib/gcc/${MINGW_CHOST}/${_gcc_version}/cc1.exe            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_gcc_version}/
