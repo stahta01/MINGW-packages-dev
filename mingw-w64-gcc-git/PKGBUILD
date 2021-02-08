@@ -63,18 +63,21 @@ else
   source=(${_sourcedir}::"${_git_repo_url}")
 fi
 source+=(
-        "0002-Relocate-libintl.patch"
+        0002-Relocate-libintl.patch
+        0002-gcc-10.1-Relocate-libintl.patch
         "0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch"
         "0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch"
-        "0005-Windows-Don-t-ignore-native-system-header-dir.patch"
+        0005-Windows-Don-t-ignore-native-system-header-dir.patch
+        0005-gcc-10.1-Windows-Don-t-ignore-native-system-header-dir.patch
         "0006-Windows-New-feature-to-allow-overriding.patch"
         "0006-gcc-11-Windows-New-feature-to-allow-overriding.patch"
         "0007-Build-EXTRA_GNATTOOLS-for-Ada.patch"
         "0008-Prettify-linking-no-undefined.patch"
-        "0010-Fix-using-large-PCH.patch"
+        0010-Fix-using-large-PCH.patch
+        0010-gcc-10.1-Fix-using-large-PCH.patch
         "0011-Enable-shared-gnat-implib.patch"
         "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
-        "0015-makedeps-properly-handle-win-paths.patch"
+        0015-gcc-10.1-makedeps-properly-handle-win-paths.patch
         "0016-Ensure-lmsvcrt-precede-lkernel32.patch"
         "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
         "0024-gcc-plugin-ada-use-def.patch"
@@ -90,14 +93,17 @@ source+=(
         "0905-gcc-11-Win32-skip-building-__gcov_fork-to-fix-warning.patch"
         "gnat1.exe.def")
 sha256sums=('SKIP'
+            '2dd7498bcb25b41afcc458696386b456ee4ff440bf395519a23d1f945ba15a41'
             'dcc6ec24d7946643b35fce57c50d9900bcdbeb8723981ee5e7ff2ae935137598'
             '6033acda690786397059536787a6577e1a9f2b39f8a66276821917066094f43c'
             '388f423a67e4be6f547ca7e340ff8ee4c78b1ed83f3fd698daa409e309911807'
+            '86fc77d5a6c137a9aca65ad6ba56653fb41b05636b763ce2c0b0b14d617c9de4'
             '6e407a782d3fb636d800a4278fbe1da876732ea17cba6aa82c261b6ec6ec2073'
             'd1e10cd2ef5594c34acead334bb93af500e00699ba673edc8916da22a572677d'
             '0c03c054df2837517cfee76f66e72eb5d2f57ee836a30f8a196bfc8bd06ffb8d'
             '3629446c0039d9061cfedcb6d7a7589279588bb4601c7ce233546d357bd4be34'
             'ec6800816632234afc35ce40542a6aab3ee76e8514a7d0cb4171fd874353ecd7'
+            '0decbbebda7ceac91da5d3dec9b7330f406a4358fa150560f08ff6f54739035f'
             '7a201413020cc9d7357e51921f49b22092fec2b644c36f4420c65966a67ec68c'
             '8faff8e503a617f283270f411399a8bcacda3ab62b4072dedf117e108af4844a'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
@@ -156,7 +162,9 @@ prepare() {
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   if [[ "$_gcc_version" < "11.0.0" || "$_gcc_date" < "20200501" ]]; then
     # patch no longer needed in version 11.x
-    ${GIT_AM} ${srcdir}/0015-makedeps-properly-handle-win-paths.patch
+    if [[ "$_gcc_version" > "10.0.0" ]]; then
+      ${GIT_AM} ${srcdir}/0015-gcc-10.1-makedeps-properly-handle-win-paths.patch
+    fi
   fi
   if [[ "$_gcc_version" < "11.0.0" || "$_gcc_date" < "20200501" ]]; then
     # patch no longer needed in version 11.x
