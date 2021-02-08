@@ -45,12 +45,12 @@ optdepends=()
 options=('staticlibs' '!emptydirs' '!strip' 'debug')
 
 #_git_branch=releases/gcc-10
-_git_tag=basepoints/gcc-11
+_git_tag=releases/gcc-10.1.0
 
-_git_repo_url=git://github.com/stahta01/gcc_main_development.git
-_sourcedir=devel-${_realname}-git
-#_git_repo_url=git://github.com/stahta01/gcc.git
-#_sourcedir=my-${_realname}-git
+#_git_repo_url=git://github.com/stahta01/gcc_main_development.git
+#_sourcedir=devel-${_realname}-git
+_git_repo_url=git://github.com/stahta01/gcc.git
+_sourcedir=my-${_realname}-git
 #_git_repo_url=git://gcc.gnu.org/git/gcc.git
 #_sourcedir=${_realname}-git
 if [ -n "$_git_branch" ]; then
