@@ -77,7 +77,8 @@ source+=(
         0010-Fix-using-large-PCH.patch
         0010-gcc-10.1-Fix-using-large-PCH.patch
         "0011-Enable-shared-gnat-implib.patch"
-        "0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
+        0014-gcc-6-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
+        0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
         0015-gcc-10.1-makedeps-properly-handle-win-paths.patch
         "0016-Ensure-lmsvcrt-precede-lkernel32.patch"
         "0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch"
@@ -107,6 +108,7 @@ sha256sums=('SKIP'
             '0decbbebda7ceac91da5d3dec9b7330f406a4358fa150560f08ff6f54739035f'
             '7a201413020cc9d7357e51921f49b22092fec2b644c36f4420c65966a67ec68c'
             '8faff8e503a617f283270f411399a8bcacda3ab62b4072dedf117e108af4844a'
+            '60a58ed41389691a68ef4b7d47a0328df4d28d26e6c680a6b06b31191481ca65'
             '2321c7dce29a600477e481d16d847f05dc8c6d6461ee1eba7814c5bf62c2ef95'
             'e6b8a610142836ae9c5eba3c5ecbb3766078ac530483590c587b3c6341508af0'
             'f96348a858722d6de87445e264a7b021f684b5fb11fcd8f7fbfbc9a8fb2d45e1'
@@ -160,10 +162,11 @@ prepare() {
   ${GIT_AM} ${srcdir}/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} ${srcdir}/0010-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/0011-Enable-shared-gnat-implib.patch
+  #${GIT_AM} ${srcdir}/0014-gcc-6-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} ${srcdir}/0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   if [[ "$_gcc_version" < "11.0.0" || "$_gcc_date" < "20200501" ]]; then
     # patch no longer needed in version 11.x
-    if [[ "$_gcc_version" > "10.0.0" ]]; then
+    if [[ "$_gcc_version:0:4" == "10.1" ]]; then
       ${GIT_AM} ${srcdir}/0015-gcc-10.1-makedeps-properly-handle-win-paths.patch
     fi
   fi
