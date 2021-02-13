@@ -138,7 +138,7 @@ prepare() {
     ${GIT_AM} ${srcdir}/014-gcc-9-clone_function_name_1-Retain-any-stdcall-suffix.patch
   fi
   ${GIT_AM} ${srcdir}/016-Ensure-lmsvcrt-precede-lkernel32.patch
-  if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} == "8" ]]; then
+  if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} == "8" && "$_gcc_date" < "20210209" ]]; then
     ${GIT_AM} ${srcdir}/019-gcc-8-Backport-patches-for-std-filesystem-from-master.patch
   fi
   ${GIT_AM} ${srcdir}/020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
