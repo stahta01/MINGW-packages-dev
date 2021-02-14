@@ -297,9 +297,6 @@ build() {
 
   make -j1 DESTDIR=${srcdir} install
   if [ "$_enable_ada" == "yes" ]; then
-    if [ -z "$_realpkgver" ]; then
-      _realpkgver="$_gcc_version"
-    fi
     mv ${srcdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/adalib/*.dll ${srcdir}${MINGW_PREFIX}/bin/
   fi
 }
