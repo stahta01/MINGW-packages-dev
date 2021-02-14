@@ -45,7 +45,8 @@ checkdepends=('dejagnu')
 optdepends=()
 options=('staticlibs' '!emptydirs') # '!strip' 'debug')
 
-_git_branch=releases/gcc-7
+#_git_branch=releases/gcc-7
+_git_tag=releases/gcc-7.4.0
 
 _sourcedir=${_realname}-git
 _git_repo_url=git://gcc.gnu.org/git/gcc.git
