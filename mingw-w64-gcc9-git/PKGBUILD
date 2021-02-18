@@ -7,7 +7,7 @@
 
 _enable_gcc_plugin=no
 _enable_gcc_lto=yes
-_enable_ada=no
+_enable_ada=yes
 _enable_d=no
 _enable_fortran=no
 _enable_jit=no
