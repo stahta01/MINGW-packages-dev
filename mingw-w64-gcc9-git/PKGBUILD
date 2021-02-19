@@ -137,7 +137,9 @@ prepare() {
   ${GIT_AM} ${srcdir}/010-gcc-9-Fix-using-large-PCH.patch
   ${GIT_AM} ${srcdir}/011-Enable-shared-gnat-implib.patch
   if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} < "9" ]]; then
-    ${GIT_AM} ${srcdir}/014-gcc-8-clone_function_name_1-Retain-any-stdcall-suffix.patch
+    if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} > "5" ]]; then
+      ${GIT_AM} ${srcdir}/014-gcc-8-clone_function_name_1-Retain-any-stdcall-suffix.patch
+    fi
   else
     ${GIT_AM} ${srcdir}/014-gcc-9-clone_function_name_1-Retain-any-stdcall-suffix.patch
   fi
