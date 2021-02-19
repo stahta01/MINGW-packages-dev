@@ -72,7 +72,7 @@ source+=(
         "009-gcc-9-make-xmmintrin-header-cplusplus-compatible-depre.patch"
         "010-gcc-9-Fix-using-large-PCH.patch"
         "011-Enable-shared-gnat-implib.patch"
-        "014-gcc-8-clone_function_name_1-Retain-any-stdcall-suffix.patch"
+        "014-gcc-6-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "014-gcc-9-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "016-Ensure-lmsvcrt-precede-lkernel32.patch"
         "019-gcc-8-Backport-patches-for-std-filesystem-from-master.patch"
@@ -138,7 +138,7 @@ prepare() {
   ${GIT_AM} ${srcdir}/011-Enable-shared-gnat-implib.patch
   if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} < "9" ]]; then
     if [[ ${_gcc_version:1:1} == "." && ${_gcc_version:0:1} > "5" ]]; then
-      ${GIT_AM} ${srcdir}/014-gcc-8-clone_function_name_1-Retain-any-stdcall-suffix.patch
+      ${GIT_AM} ${srcdir}/014-gcc-6-clone_function_name_1-Retain-any-stdcall-suffix.patch
     fi
   else
     ${GIT_AM} ${srcdir}/014-gcc-9-clone_function_name_1-Retain-any-stdcall-suffix.patch
