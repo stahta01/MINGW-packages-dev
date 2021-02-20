@@ -45,7 +45,7 @@ checkdepends=('dejagnu')
 optdepends=()
 options=('staticlibs' '!emptydirs') # '!strip' 'debug')
 
-_git_branch=releases/gcc-5
+_git_branch=releases/gcc-6
 #_git_tag=releases/gcc-7.4.0
 #_git_commit=adafdb1e7212d53a0ff4c58f0f42dc96200affbb
 
