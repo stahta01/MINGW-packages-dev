@@ -7,9 +7,11 @@
 *.sig
 *.asc
 *.log
-*.log.[0-9]*
-*/src/
-*/pkg/
 *~
 *.swp
 *.swo
+*/src/
+*/pkg/
+/*/*-git/
+/*/*-svn/
+/*/*-hg/
