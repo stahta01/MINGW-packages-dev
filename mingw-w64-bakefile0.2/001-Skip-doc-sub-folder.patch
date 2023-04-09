@@ -1,0 +1,25 @@
+From 26bee9a660d3fcc16430056b11f606cbf62857aa Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sat, 8 Apr 2023 23:03:04 -0400
+Subject: Skip doc sub-folder
+
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 3281c56..d080bd3 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -11,7 +11,7 @@ codeempydir = $(codedir)/empy
+ codepy25modulesdir = $(codedir)/py25modules
+ schemadir = $(pkgdatadir)/schema
+ 
+-SUBDIRS = doc
++SUBDIRS =
+ 
+ bin_SCRIPTS = autoconf/bakefilize
+ 
+-- 
+2.39.2.windows.1
+

@@ -1,0 +1,69 @@
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+
+_realname=bakefile
+_pkg_ver=0.2
+_sourcedir=${_realname}-git
+pkgbase=mingw-w64-${_realname}${_pkg_ver}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}${_pkg_ver}")
+pkgver=${_pkg_ver}
+pkgrel=1
+pkgdesc="bakefile version ${_pkg_ver} (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32')
+url='https://bakefile.org/'
+license=('LICENSE')
+makedepends=("${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-python2"
+             "${MINGW_PACKAGE_PREFIX}-swig")
+source=(${_sourcedir}::"git+https://github.com/vslavik/bakefile.git#branch=legacy-0.2-branch"
+        '001-Skip-doc-sub-folder.patch'
+        '002-remove-ln-commands.patch')
+sha256sums=('SKIP'
+            '634ad60c1784af276d2a0bc2cf6f78118e985f4fb070a76f0ae83e8052c1bcb6'
+            'c3f921a958dbce67b1031456dfe31be04ce09d4108eff7acc325eca89abd5ee8')
+
+prepare() {
+  cd "${srcdir}/${_sourcedir}"
+
+  patch -p1 -i "${srcdir}/001-Skip-doc-sub-folder.patch"
+  patch -p1 -i "${srcdir}/002-remove-ln-commands.patch"
+
+  aclocal -I admin &&
+  libtoolize --automake -c -f &&
+  automake --foreign -a -c -f &&
+  autoconf && 
+  (cd src ; swig -python bkl_c.i)
+}
+
+build() {
+  cd "${srcdir}/${_sourcedir}"
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  PYTHON=python2 \
+  ../"${_sourcedir}"/configure \
+    --prefix="${MINGW_PREFIX}" \
+    --build="${MINGW_CHOST}" \
+    --host="${MINGW_CHOST}" \
+    --target="${MINGW_CHOST}" \
+    --enable-static
+
+  make
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  make install DESTDIR="${pkgdir}"
+
+  cp "${pkgdir}${MINGW_PREFIX}/lib/bakefile/bakefile.py" "${pkgdir}${MINGW_PREFIX}/bin/bakefile"
+  cp "${pkgdir}${MINGW_PREFIX}/lib/bakefile/bakefile_gen.py" "${pkgdir}${MINGW_PREFIX}/bin/bakefile_gen"
+
+  #install -Dm644 "${srcdir}/${_sourcedir}/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

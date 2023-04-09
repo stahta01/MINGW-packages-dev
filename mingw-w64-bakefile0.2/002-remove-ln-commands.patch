@@ -1,0 +1,23 @@
+From 20b75b2450f74f4713f4533bdaab599095f576fd Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 9 Apr 2023 23:29:16 -0400
+Subject: Remove "ln" commands
+
+---
+ Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index d080bd3..4b85c1e 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -147,8 +147,6 @@ EXTRA_DIST = \
+ 
+ install-data-hook: install-delete-obsolete-files
+ 	$(mkinstalldirs) $(DESTDIR)$(bindir)
+-	ln -sf $(codedir)/bakefile.py $(DESTDIR)$(bindir)/bakefile
+-	ln -sf $(codedir)/bakefile_gen.py $(DESTDIR)$(bindir)/bakefile_gen
+ 	mv $(DESTDIR)$(codedir)/bakefile.py $(DESTDIR)$(codedir)/bakefile.py.x
+ 	mv $(DESTDIR)$(codedir)/bakefile_gen.py $(DESTDIR)$(codedir)/bakefile_gen.py.x
+ 	sed -e "s,#!/usr/bin/env python,#!$(PYTHON),g" $(DESTDIR)$(codedir)/bakefile.py.x >$(DESTDIR)$(codedir)/bakefile.py
+-- 
